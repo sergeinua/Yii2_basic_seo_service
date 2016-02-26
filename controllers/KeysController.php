@@ -8,6 +8,7 @@ use app\models\KeysSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\GroupKey;
 
 /**
  * KeysController implements the CRUD actions for Keys model.
@@ -81,9 +82,14 @@ class KeysController extends Controller
      */
     public function actionUpdate($id)
     {
+        $linkmodel = new GroupKey();
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+//            $linkmodel->group_id = Yii::$app->request->post('group_id');
+//            $linkmodel->key_id = $model->id;
+//            $linkmodel->save();
+            $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
@@ -119,20 +125,5 @@ class KeysController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
-    }
-
-    /**
-     * Lists all Keyword groups.
-     * @return mixed
-     */
-    public function actionGroups()
-    {
-        $searchModel = new KeysSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('key_groups', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
     }
 }

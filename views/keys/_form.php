@@ -1,22 +1,14 @@
 <?php
 
 use yii\helpers\Html;
-use yii\helpers\ArrayHelper;
 use yii\widgets\ActiveForm;
-use app\models\Keys;
+use app\models\Groups;
+use yii\helpers\ArrayHelper;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Keys */
 /* @var $form yii\widgets\ActiveForm */
 ?>
-
-<?php
-$keys = Keys::find()->all();
-$items = ArrayHelper::map($keys, 'id', 'title');
-$options = ['prompt' => ''];
-
-?>
-
 
 <div class="keys-form">
 
@@ -24,12 +16,19 @@ $options = ['prompt' => ''];
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'parent_id')->dropDownList($items, $options); ?>
+    <?= $form->field($model, 'status')->textInput(['maxlength' => true]) ?>
+
+
+    <?= $form->field($model, 'group_id')->dropDownList(ArrayHelper::map(Groups::find()->all(), 'id', 'title'),[
+        'prompt' => 'Выберите группу',
+    ]) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
+
+
 
 </div>

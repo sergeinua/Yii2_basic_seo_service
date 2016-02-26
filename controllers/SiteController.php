@@ -60,7 +60,7 @@ class SiteController extends Controller
         $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
         //$apiClient->setQuery(str_replace('"','', json_encode('создание сайтов киев')));
-        $apiClient->setQuery('создание сайтов киев');
+        $apiClient->setQuery('сайт под ключ киев');
 
         $response = $apiClient->executeRequest();
         echo '<meta charset=utf-8>';

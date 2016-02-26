@@ -69,6 +69,7 @@ AppAsset::register($this);
                             ]]);
                         ?>
                     </div>
+
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Группы</h3>
@@ -77,8 +78,22 @@ AppAsset::register($this);
                         echo Menu::widget([
                             'options'=> ['class'=>'sidebar-list sidebar-e'],
                             'items' => [
-                                ['label' => 'Список групп', 'url' => ['/keys/groups'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Новая группа', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Список групп', 'url' => ['/groups/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Новая группа', 'url' => ['/groups/create'], 'options' =>['class' => 'sidebar-list-item']],
+                            ]]);
+                        ?>
+                    </div>
+
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Ключевые слова</h3>
+                        </div>
+                        <?php
+                        echo Menu::widget([
+                            'options'=> ['class'=>'sidebar-list sidebar-e'],
+                            'items' => [
+                                ['label' => 'Список ключевых слов', 'url' => ['/keys/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
                             ]]);
                         ?>
                     </div>

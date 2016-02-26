@@ -18,7 +18,7 @@ class KeysSearch extends Keys
     public function rules()
     {
         return [
-            [['id', 'parent_id'], 'integer'],
+            [['id'], 'integer'],
             [['title'], 'safe'],
         ];
     }
@@ -57,7 +57,6 @@ class KeysSearch extends Keys
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'parent_id' => $this->parent_id,
         ]);
 
         $query->andFilterWhere(['like', 'title', $this->title]);

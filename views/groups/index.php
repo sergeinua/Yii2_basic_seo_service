@@ -4,19 +4,19 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\KeysSearch */
+/* @var $searchModel app\models\GroupsSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Keys';
+$this->title = 'Groups';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="keys-index">
+<div class="groups-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Keys', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Groups', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -27,7 +27,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
             'id',
             'title',
-            'parent_id',
+            'description',
+            'status',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

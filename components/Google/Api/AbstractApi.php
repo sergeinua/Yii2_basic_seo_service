@@ -108,7 +108,7 @@ abstract class AbstractApi
         $requestUrl .= '&googlehost=google.com.ua';
         $requestUrl .= '&gl=ua';
         $requestUrl .= '&hl=ru';
-        $requestUrl .= '&aqs=chrome..69i57.421j0j1&sourceid=chrome&es_sm=93&ie=UTF-8';
+        $requestUrl .= '&aqs=chrome..69i57.725j0j9&sourceid=chrome&es_sm=93&ie=UTF-8&userIp=95.67.106.74';
         $cacheKey = md5($requestUrl);
 
         if(isset(static::$apiRequestCache[$cacheKey])) {
