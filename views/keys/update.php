@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use app\models\KeysForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Keys */
@@ -14,7 +15,7 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= $this->render('_form', [
+    <?= $this->render('keys', [
         'model' => $model,
     ]) ?>
 

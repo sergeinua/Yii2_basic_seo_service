@@ -13,6 +13,7 @@ use yii\web\BadRequestHttpException;
  * @property integer $id
  * @property string $title
  * @property integer $group_id
+ * @property Groups $group
  */
 class Keys extends \yii\db\ActiveRecord
 {
@@ -61,7 +62,7 @@ class Keys extends \yii\db\ActiveRecord
             'status' => 'Status',
         ];
     }
-
+/*
     public function behaviors()
     {
         return ArrayHelper::merge(parent::behaviors(),[
@@ -102,6 +103,7 @@ class Keys extends \yii\db\ActiveRecord
         }
         return true;
     }
+*/
 
     public function getGroup()
     {

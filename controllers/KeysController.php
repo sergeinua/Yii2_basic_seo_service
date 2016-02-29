@@ -8,7 +8,7 @@ use app\models\KeysSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\GroupKey;
+use app\models\KeysForm;
 
 /**
  * KeysController implements the CRUD actions for Keys model.
@@ -82,18 +82,22 @@ class KeysController extends Controller
      */
     public function actionUpdate($id)
     {
-        $linkmodel = new GroupKey();
-        $model = $this->findModel($id);
+        $modelKey = $this->findModel($id);
+        $model = new KeysForm();
 
-        if ($model->load(Yii::$app->request->post())) {
-//            $linkmodel->group_id = Yii::$app->request->post('group_id');
-//            $linkmodel->key_id = $model->id;
-//            $linkmodel->save();
+        if ($model->load(Yii::$app->getRequest()->post())) {
             $model->save();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            return $this->render('update', [
+            $isNewRecord = true;
+            if($modelKey) {
+                $isNewRecord = false;
+                $model->load($modelKey->toArray(), '');
+            }
+            $model->group_id = $modelKey->group->id;
+            return $this->render('keys', [
                 'model' => $model,
+                'isNewRecord' => $isNewRecord,
             ]);
         }
     }
