@@ -45,4 +45,9 @@ class Groups extends \yii\db\ActiveRecord
             'status' => 'Status',
         ];
     }
+
+    public function getKeys()
+    {
+        return $this->hasMany(Keys::className(), ['id' => 'key_id'])->viaTable(GroupKey::tableName(), ['group_id' => 'id']);
+    }
 }

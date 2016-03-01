@@ -3,6 +3,10 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use yii\grid\GridView;
+use app\models\GroupKey;
+use yii\data\ActiveDataProvider;
+use app\models\Keys;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Groups */
@@ -11,7 +15,6 @@ $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Groups', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-
 
 <div class="groups-view">
 
@@ -36,5 +39,57 @@ $this->params['breadcrumbs'][] = $this->title;
             'description',
         ],
     ]) ?>
+
+    <h2>Ключевые слова группы</h2>
+
+    <?php /*= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+    //        'key_id',
+            [
+                'attribute' => 'key_id',
+                'label' => 'Ключевое слово',
+                'value' => function($data){
+                    $keys = Keys::find()->where(['id' => $data->key_id])->one();
+                    return $keys->title;
+                }
+            ],
+
+//            ['class' => 'yii\grid\ActionColumn'],
+
+
+        ],
+    ]);*/ ?>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($model->keys as $key) { ?>
+
+            <tr>
+                <td><?= $key->id ?></td>
+                <td><?= $key->title ?></td>
+                <td>
+                    <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/keys/view', 'id' => $key->id]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/keys/update', 'id' => $key->id]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-remove"></span>', ['/keys/delete', 'id' => $key->id], [
+                        'data' => [
+                            'confirm' => 'Are you sure?',
+                            'method' => 'post',
+                        ]
+                    ]) ?>
+                </td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
 
 </div>

@@ -18,7 +18,6 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'status')->textInput(['maxlength' => true]) ?>
 
-
     <?= $form->field($model, 'group_id')->dropDownList(ArrayHelper::map(Groups::find()->all(), 'id', 'title'),[
         'prompt' => 'Выберите группу',
     ]) ?>
