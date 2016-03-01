@@ -112,7 +112,8 @@ class KeysController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+//        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
