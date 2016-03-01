@@ -63,13 +63,20 @@ class KeysController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Keys();
+//        $model = new Keys();
+        $model = new KeysForm();
+        $isNewRecord = true;
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post())) {
+//            echo '<pre>';
+//            var_dump($model->group_id);die();
+            $keyModel = $model->save();
+            return $this->redirect(['view', 'id' => $keyModel->id]);
         } else {
-            return $this->render('create', [
+//            return $this->render('create', [
+            return $this->render('keys', [
                 'model' => $model,
+                'isNewRecord' => $isNewRecord,
             ]);
         }
     }

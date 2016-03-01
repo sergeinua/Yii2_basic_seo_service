@@ -46,11 +46,13 @@ class KeysForm extends Model
                     throw new BadRequestHttpException('Model is invalid!');
                 }
             }
-            if(Groups::findOne($this->group_id))
-                (new GroupKey([
-                    'key_id' => $this->id,
+            if(Groups::findOne($this->group_id)) {
+                if(!(new GroupKey([
+                    'key_id' => $keyModel->id,
                     'group_id' => $this->group_id,
-                ]))->save();
+                ]))->save())
+                    throw new BadRequestHttpException('Group should exist for proceeding');
+            }
             else
                 throw new BadRequestHttpException('Group should exist for proceeding');
             $transaction->commit();
@@ -58,7 +60,7 @@ class KeysForm extends Model
             $transaction->rollBack();
             throw new $e;
         }
-        return true;
+        return $keyModel;
     }
 
 
