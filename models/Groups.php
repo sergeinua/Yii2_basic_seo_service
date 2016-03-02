@@ -65,6 +65,6 @@ class Groups extends \yii\db\ActiveRecord
 
     public function getProject()
     {
-        return $this->project;
+        return $this->hasOne(Projects::className(), ['id' => 'project_id'])->viaTable(ProjectGroup::tableName(), ['group_id' => 'id']);
     }
 }

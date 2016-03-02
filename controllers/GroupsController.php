@@ -97,7 +97,6 @@ class GroupsController extends Controller
                 $isNewRecord = false;
                 $model->load($modelGroup->toArray(), '');
             }
-            var_dump($modelGroup->project->id);die;
             $model->project_id = $modelGroup->project->id;
             return $this->render('groups', [
                 'model' => $model,
