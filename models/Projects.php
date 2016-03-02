@@ -46,4 +46,10 @@ class Projects extends \yii\db\ActiveRecord
             'status' => 'Status',
         ];
     }
+
+    public function getGroups()
+    {
+        return $this->hasOne(Groups::className(), ['id' => 'group_id'])->viaTable(ProjectGroup::tableName(), ['project_id' => 'id']);
+    }
+
 }

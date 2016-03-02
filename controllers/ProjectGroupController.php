@@ -3,20 +3,17 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Groups;
-use app\models\GroupsSearch;
+use app\models\ProjectGroup;
+use app\models\ProjectGroupSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\GroupsForm;
 
 /**
- * GroupsController implements the CRUD actions for Groups model.
+ * ProjectGroupController implements the CRUD actions for ProjectGroup model.
  */
-class GroupsController extends Controller
+class ProjectGroupController extends Controller
 {
-    public $layout = '@app/views/layouts/main-admin.php';
-
     public function behaviors()
     {
         return [
@@ -30,12 +27,12 @@ class GroupsController extends Controller
     }
 
     /**
-     * Lists all Groups models.
+     * Lists all ProjectGroup models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new GroupsSearch();
+        $searchModel = new ProjectGroupSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,7 +42,7 @@ class GroupsController extends Controller
     }
 
     /**
-     * Displays a single Groups model.
+     * Displays a single ProjectGroup model.
      * @param integer $id
      * @return mixed
      */
@@ -57,57 +54,44 @@ class GroupsController extends Controller
     }
 
     /**
-     * Creates a new Groups model.
+     * Creates a new ProjectGroup model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new GroupsForm();
-        $isNewRecord = true;
+        $model = new ProjectGroup();
 
-        if ($model->load(Yii::$app->request->post())) {
-            $groupModel = $model->save();
-            return $this->redirect(['view', 'id' => $groupModel->id]);
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            return $this->render('groups', [
+            return $this->render('create', [
                 'model' => $model,
-                'isNewRecord' => $isNewRecord,
             ]);
         }
     }
 
     /**
-     * Updates an existing Groups model.
+     * Updates an existing ProjectGroup model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
      */
     public function actionUpdate($id)
     {
-        $modelGroup = $this->findModel($id);
-        $model = new GroupsForm();
+        $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->getRequest()->post())) {
-            $model->save();
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
-            $isNewRecord = true;
-            if($modelGroup) {
-                $isNewRecord = false;
-                $model->load($modelGroup->toArray(), '');
-            }
-            var_dump($modelGroup->project->id);die;
-            $model->project_id = $modelGroup->project->id;
-            return $this->render('groups', [
+            return $this->render('update', [
                 'model' => $model,
-                'isNewRecord' => $isNewRecord,
             ]);
         }
     }
 
     /**
-     * Deletes an existing Groups model.
+     * Deletes an existing ProjectGroup model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -120,15 +104,15 @@ class GroupsController extends Controller
     }
 
     /**
-     * Finds the Groups model based on its primary key value.
+     * Finds the ProjectGroup model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Groups the loaded model
+     * @return ProjectGroup the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Groups::findOne($id)) !== null) {
+        if (($model = ProjectGroup::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

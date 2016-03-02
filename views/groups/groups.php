@@ -2,18 +2,18 @@
 
 /**
  * @var $isNewRecord bool
- * @var $mode KeysForm
+ * @var $mode GroupsForm
  */
 
-use app\models\KeysForm;
+use app\models\GroupsForm;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use app\models\Groups;
+use app\models\Projects;
 use yii\helpers\ArrayHelper;
 
 ?>
 
-<div class="keys-form">
+<div class="groups-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
@@ -26,8 +26,8 @@ use yii\helpers\ArrayHelper;
         '0' => Yii::t('app', 'Неактивно')
     ]) ?>
 
-    <?= $form->field($model, 'group_id')->dropDownList(ArrayHelper::map(Groups::find()->all(), 'id', 'title'),[
-        'prompt' => Yii::t('app', 'Выберите группу'),
+    <?= $form->field($model, 'project_id')->dropDownList(ArrayHelper::map(Projects::find()->all(), 'id', 'title'),[
+        'prompt' => Yii::t('app', 'Выберите проект'),
     ]) ?>
 
     <div class="form-group">

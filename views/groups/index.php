@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Groups', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Создать'), ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -28,7 +28,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             'description',
-            'status',
+            [
+                'attribute' => 'status',
+                'value' => function ($model){
+                    return $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно');
+                }
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
