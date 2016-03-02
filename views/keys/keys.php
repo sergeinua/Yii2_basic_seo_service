@@ -19,7 +19,8 @@ use yii\helpers\ArrayHelper;
 
     <?= ($isNewRecord) ? '' : $form->field($model, 'id', ['template' => '{input}'])->hiddenInput(); ?>
 
-    <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+    <!--?//= $form->field($model, 'title')->textInput(['maxlength' => true]) ?-->
+    <?= $form->field($model, 'title')->textArea(['rows' => '6']) ?>
 
     <?= $form->field($model, 'status')->dropDownList([
         '1' => Yii::t('app', 'Активно'),

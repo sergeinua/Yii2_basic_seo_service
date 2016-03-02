@@ -31,8 +31,47 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             'description',
-            'status',
+            [
+                'attribute' => 'status',
+                'value' => $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно'),
+            ]
         ],
     ]) ?>
+
+    <h2>Группы ключевых слов проекта</h2>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <?php foreach ($model->groups as $group) { ?>
+
+            <tr>
+                <td><?= $group->id ?></td>
+                <td><?= $group->title ?></td>
+                <td>
+                    <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/groups/view', 'id' => $group->id]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/groups/update', 'id' => $group->id]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-remove"></span>', ['/groups/delete', 'id' => $group->id], [
+                        'data' => [
+                            'confirm' => 'Are you sure?',
+                            'method' => 'post',
+                        ]
+                    ]) ?>
+                </td>
+            </tr>
+        <?php } ?>
+        </tbody>
+    </table>
+
+
+
+
 
 </div>
