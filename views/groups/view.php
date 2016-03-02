@@ -46,26 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h2>Ключевые слова группы</h2>
 
-    <?php /*= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
-    //        'key_id',
-            [
-                'attribute' => 'key_id',
-                'label' => 'Ключевое слово',
-                'value' => function($data){
-                    $keys = Keys::find()->where(['id' => $data->key_id])->one();
-                    return $keys->title;
-                }
-            ],
-
-//            ['class' => 'yii\grid\ActionColumn'],
-
-
-        ],
-    ]);*/ ?>
+    <?= Html::a(Yii::t('app', 'Добавить ключевое слово'), ['/keys/create', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
     <table class="table table-striped table-hover">
         <thead>

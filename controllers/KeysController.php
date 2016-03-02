@@ -65,15 +65,24 @@ class KeysController extends Controller
     {
 //        $model = new Keys();
         $model = new KeysForm();
+        $get = Yii::$app->request->get('group_id');
+        $model->group_id = isset($get) ? $get : null;
         $isNewRecord = true;
 
         if ($model->load(Yii::$app->request->post())) {
-//            echo '<pre>';
-//            var_dump($model->group_id);die();
-            $keyModel = $model->save();
+
+            $items = trim($model->title);
+            $items = explode("\n", $items);
+            $items = array_filter($items, 'trim');
+
+            foreach($items as $item){
+                $model->title = $item;
+                $keyModel = $model->save();
+
+            }
+
             return $this->redirect(['view', 'id' => $keyModel->id]);
         } else {
-//            return $this->render('create', [
             return $this->render('keys', [
                 'model' => $model,
                 'isNewRecord' => $isNewRecord,
@@ -119,7 +128,6 @@ class KeysController extends Controller
     {
         $this->findModel($id)->delete();
 
-//        return $this->redirect(['index']);
         return $this->redirect(Yii::$app->request->referrer);
     }
 
