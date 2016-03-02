@@ -63,10 +63,9 @@ class KeysController extends Controller
      */
     public function actionCreate()
     {
-//        $model = new Keys();
         $model = new KeysForm();
-        $get = Yii::$app->request->get('group_id');
-        $model->group_id = isset($get) ? $get : null;
+        $group_id = Yii::$app->request->get('group_id');
+        $model->group_id = isset($group_id) ? $group_id : null;
         $isNewRecord = true;
 
         if ($model->load(Yii::$app->request->post())) {

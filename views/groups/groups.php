@@ -13,6 +13,14 @@ use yii\helpers\ArrayHelper;
 
 ?>
 
+<?php
+if (Yii::$app->request->get('project_id'))
+    $project_id = Yii::$app->request->get('project_id');
+else
+    $project_id = null;
+?>
+
+
 <div class="groups-form">
 
     <?php $form = ActiveForm::begin(); ?>
@@ -26,8 +34,11 @@ use yii\helpers\ArrayHelper;
         '0' => Yii::t('app', 'Неактивно')
     ]) ?>
 
-    <?= $form->field($model, 'project_id')->dropDownList(ArrayHelper::map(Projects::find()->all(), 'id', 'title'),[
-        'prompt' => Yii::t('app', 'Выберите проект'),
+    <?= $form->field($model, 'project_id')->dropDownList(ArrayHelper::map(Projects::find()->all(), 'id', 'title'),
+        ['prompt' => Yii::t('app', 'Выберите проект'),
+        'options' => [
+            $project_id => ['selected' => true]
+        ]
     ]) ?>
 
     <div class="form-group">

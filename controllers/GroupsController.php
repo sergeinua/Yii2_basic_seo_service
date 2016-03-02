@@ -65,6 +65,8 @@ class GroupsController extends Controller
     {
         $model = new GroupsForm();
         $isNewRecord = true;
+        $project_id = Yii::$app->request->get('project_id');
+        $model->project_id = isset($project_id) ? $project_id : null;
 
         if ($model->load(Yii::$app->request->post())) {
             $groupModel = $model->save();
