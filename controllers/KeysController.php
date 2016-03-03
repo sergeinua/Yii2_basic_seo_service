@@ -161,30 +161,74 @@ class KeysController extends Controller
         $key_id = $request['key_id'];
         $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
 
+        // $start_pos - defining the start position for the google api search
+        if($p = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->one()){
+            /** @var KeyPosition $p */
+            $start = $p->position;
+        } else {
+            $start = null;
+        }
+        // the very first time of the position search - empty value
+        if ($start == null) {
+            for ($i=0; $i<10; $i++){
+                $start_pos = $i * 10;
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos);
+                if ($result > 0){
+                    $project_position = $result;
+                    break;
+                }
+            }
+        } else {
+            //the case when position was discovered earlier
+            if($start % 10 == 0){
+                $start_pos = floor($start / 10 - 1) * 10;
+            } else {
+                $start_pos = floor($start / 10) * 10;
+            }
+
+            $result = $this->getDistinctPosition($key_title, $project_link, $start_pos);
+
+            if (!isset($result)) {
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos - 10);
+            }
+
+            if (!isset($result)) {
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos + 10);
+            }
+
+            if ($result > 0)
+                $project_position = $result;
+        }
+
+        if ($project_position > 0){
+            $model = new KeyPosition();
+            $model->key_id = $key_id;
+            $model->position = $project_position;
+            $model->date = date('U');
+            $model->save();
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    public function getDistinctPosition($key_title, $project_link, $start_pos)
+    {
+        global $project_position;
         $apiClient = new CustomSearch();
         $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
         $apiClient->setQuery($key_title);
 
-
-        $response = $apiClient->executeRequest();
-
+        $response = $apiClient->executeRequest($start_pos);
         $response = Json::decode($response);
 
-        for ($i=0;$i<10;$i++) {
-
+        for ($i=0; $i<10; $i++) {
             if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
-                $project_position = $i +1;
+                $project_position = $i + 1;
                 break;
             }
         }
 
-        $model = new KeyPosition();
-        $model->key_id = $key_id;
-        $model->position = $project_position;
-        $model->date = date('U');
-        $model->save();
-
-        return $this->redirect(Yii::$app->request->referrer);
+        return $project_position;
     }
 }

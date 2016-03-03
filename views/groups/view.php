@@ -75,8 +75,17 @@ $this->params['breadcrumbs'][] = $this->title;
                     ]) ?>
                 </td>
                 <td>
-                    <?= $key->position->position ?>
-                    ( <?= $key->previous_position['1']['position'] ?> )
+                    <?php if(isset($key->position->position)) : ?>
+                        <?= $key->position->position ?>
+                    <?php else : ?>
+                        -
+                    <?php endif; ?>
+
+                    <?php if(isset($key->previous_position['1']['position'])) : ?>
+                        ( <?= $key->previous_position['1']['position'] ?> )
+                    <?php else : ?>
+                        -
+                    <?php endif; ?>
                 </td>
                 <td>
                     <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/place',

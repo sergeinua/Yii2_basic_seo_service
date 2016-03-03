@@ -71,13 +71,13 @@ abstract class AbstractApi
      *
      * @return Response
      */
-    public function executeRequest()
+    public function executeRequest($start_pos)
     {
         $this->validateParameters();
 
         $parser = new Parser($this->getDataParser());
 //        return $parser->parse($this->executeApiRequest());
-        return $this->executeApiRequest();
+        return $this->executeApiRequest($start_pos);
     }
 
     /**
@@ -103,13 +103,14 @@ abstract class AbstractApi
      *
      * @codeCoverageIgnore
      */
-    protected function executeApiRequest()
+    protected function executeApiRequest($start_pos)
     {
         $requestUrl = $this->getApiRequestUrl();
         $requestUrl .= '&googlehost=google.com.ua';
         $requestUrl .= '&gl=ua';
         $requestUrl .= '&hl=ru';
         $requestUrl .= '&aqs=chrome..69i57.725j0j9&sourceid=chrome&es_sm=93&ie=UTF-8&userIp=95.67.106.74';
+        $requestUrl .= 'start=' . $start_pos;
         $cacheKey = md5($requestUrl);
 
         if(isset(static::$apiRequestCache[$cacheKey])) {
