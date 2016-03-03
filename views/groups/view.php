@@ -54,6 +54,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th>ID</th>
                 <th>Title</th>
                 <th>Actions</th>
+                <th>Position</th>
+                <th>Update</th>
             </tr>
         </thead>
         <tbody>
@@ -71,6 +73,14 @@ $this->params['breadcrumbs'][] = $this->title;
                             'method' => 'post',
                         ]
                     ]) ?>
+                </td>
+                <td><?= $key->position->position ?></td>
+                <td>
+                    <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/view',
+                    [
+                        'key_id' => $key->id,
+                        'project_url' => $model->project->title,
+                    ]]) ?>
                 </td>
             </tr>
         <?php } ?>

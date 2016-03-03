@@ -6,11 +6,13 @@ use app\components\Google\Api\CustomSearch;
 
 use Yii;
 use yii\filters\AccessControl;
+use yii\helpers\Json;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 use linslin\yii2\curl;
+use yii\web\Response;
 
 
 class SiteController extends Controller
@@ -59,26 +61,25 @@ class SiteController extends Controller
         $apiClient = new CustomSearch();
         $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
-        //$apiClient->setQuery(str_replace('"','', json_encode('создание сайтов киев')));
         $apiClient->setQuery('сайт под ключ киев');
+
 
         $response = $apiClient->executeRequest();
         echo '<meta charset=utf-8>';
-        //var_dump($response->getData()->getItems());die;
+        echo '<pre>';
 
+        $response = Json::decode($response);
 
-
-        if ($response->isSuccess())
-        {
-            foreach($response->getData()->getItems() as $item)
-            {
-                echo $item->getHtmlTitle(), ' - <a href="', $item->getLink(), '">', $item->getDisplayLink(), '</a><br />';
-            }
+        for ($i=0;$i<10;$i++) {
+            var_dump($response['items'][$i]['link']);
         }
+        die();
 
-        die;
 
 */
+
+
+
 
 
 

@@ -76,10 +76,10 @@ class Parser
         }
 
         $response = @json_decode($apiResponse);
-        echo '<meta charset=utf-8>';
-        for ($i=0;$i<10;$i++) {
-            var_dump($response->items[$i]->link);
-        }die;
+//        echo '<meta charset=utf-8>';
+//        for ($i=0;$i<10;$i++) {
+//            var_dump($response->items[$i]->link);
+//        }die;
         if(!($response instanceof \stdClass)) {
             throw new \InvalidArgumentException('The API response could not be JSON decoded.');
         }
@@ -96,7 +96,8 @@ class Parser
             $responseObject = $this->getResponseDataParser()->parse($response);
         }
 
-        return new Response($responseObject);
+//        return new Response($responseObject);
+        return $response;
     }
 
     /**

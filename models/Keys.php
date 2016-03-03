@@ -109,4 +109,9 @@ class Keys extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Groups::className(), ['id' => 'group_id'])->viaTable(GroupKey::tableName(), ['key_id' => 'id']);
     }
+
+    public function getPosition()
+    {
+        return $this->hasOne(KeyPosition::className(), ['key_id' => 'id'])->orderBy('date DESC');
+    }
 }

@@ -76,7 +76,8 @@ abstract class AbstractApi
         $this->validateParameters();
 
         $parser = new Parser($this->getDataParser());
-        return $parser->parse($this->executeApiRequest());
+//        return $parser->parse($this->executeApiRequest());
+        return $this->executeApiRequest();
     }
 
     /**
