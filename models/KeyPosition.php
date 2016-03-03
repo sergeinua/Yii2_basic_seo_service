@@ -29,7 +29,7 @@ class KeyPosition extends \yii\db\ActiveRecord
     {
         return [
             [['key_id', 'date', 'position'], 'required'],
-            [['key_id', 'position'], 'integer'],
+            [['key_id', 'position', 'date'], 'integer'],
             [['date'], 'safe']
         ];
     }

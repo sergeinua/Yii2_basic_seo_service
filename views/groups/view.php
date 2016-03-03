@@ -74,13 +74,15 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]
                     ]) ?>
                 </td>
-                <td><?= $key->position->position ?></td>
                 <td>
-                    <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/view',
-                    [
+                    <?= $key->position->position ?>
+                    ( <?= $key->previous_position['1']['position'] ?> )
+                </td>
+                <td>
+                    <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/place',
                         'key_id' => $key->id,
-                        'project_url' => $model->project->title,
-                    ]]) ?>
+                        'project_link' => $model->project->title,
+                    ]) ?>
                 </td>
             </tr>
         <?php } ?>
