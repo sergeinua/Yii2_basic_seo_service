@@ -154,46 +154,37 @@ class KeysController extends Controller
     }
 
     public function actionPlace(){
+
+        global $project_position;
         $request = Yii::$app->request->get();
         $project_link = $request['project_link'];
         $key_id = $request['key_id'];
+        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
+
+        $apiClient = new CustomSearch();
+        $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
+        $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
+        $apiClient->setQuery($key_title);
 
 
+        $response = $apiClient->executeRequest();
 
+        $response = Json::decode($response);
 
+        for ($i=0;$i<10;$i++) {
 
-//        $apiClient = new CustomSearch();
-//        $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
-//        $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
-//        $apiClient->setQuery($key_title);
-//
-//
-//        $response = $apiClient->executeRequest();
-//
-//        $response = Json::decode($response);
-//
-//        for ($i=0;$i<10;$i++) {
-//
-//            if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
-//                $project_position = $i +1;
-//                break;
-//            }
-//        }
-//        echo $project_position;
-//
-//        $project_position = 7;
-//        $model = new KeyPosition();
-//        $model->key_id = $key_id;
-//        $model->position = $project_position;
-//        $model->date = date('U');
-//        $model->save();
+            if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
+                $project_position = $i +1;
+                break;
+            }
+        }
 
-//        return $this->redirect(Yii::$app->request->referrer);
+        $model = new KeyPosition();
+        $model->key_id = $key_id;
+        $model->position = $project_position;
+        $model->date = date('U');
+        $model->save();
 
-
-
-
-
-
+        return $this->redirect(Yii::$app->request->referrer);
     }
 }
