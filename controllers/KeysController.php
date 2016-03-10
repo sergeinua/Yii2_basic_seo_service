@@ -172,7 +172,9 @@ class KeysController extends Controller
         if ($start == null) {
             for ($i=0; $i<10; $i++){
                 $start_pos = $i * 10;
+
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos);
+
                 if ($result > 0){
                     $project_position = $result;
                     break;
@@ -213,7 +215,7 @@ class KeysController extends Controller
 
     public function getDistinctPosition($key_title, $project_link, $start_pos)
     {
-        global $project_position;
+        global $project_pos;
         $apiClient = new CustomSearch();
         $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
@@ -224,11 +226,12 @@ class KeysController extends Controller
 
         for ($i=0; $i<10; $i++) {
             if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
-                $project_position = $i + 1;
+                $project_pos = $i + 1 + $start_pos;
                 break;
             }
         }
 
-        return $project_position;
+
+        return $project_pos;
     }
 }

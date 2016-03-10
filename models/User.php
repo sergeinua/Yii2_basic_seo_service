@@ -21,11 +21,6 @@ use Yii;
  */
 class User extends \yii\db\ActiveRecord
 {
-    public $isActive;
-    public $password;
-    public $authKey;
-    public $accessToken;
-    const STATUS_ACTIVE = 10;
     /**
      * @inheritdoc
      */
@@ -69,15 +64,11 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Finds half_user by email
-     *
-     * @param string $email
-     * @return static|null
-     */
-    public static function findByEmail($email)
-    {
-        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+    public static function findByUsername($username){
+        return self::findOne(['title' => $username]);
     }
 
+    public function validatePassword(){
+        return true;
+    }
 }

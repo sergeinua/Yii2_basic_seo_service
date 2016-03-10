@@ -110,7 +110,10 @@ abstract class AbstractApi
         $requestUrl .= '&gl=ua';
         $requestUrl .= '&hl=ru';
         $requestUrl .= '&aqs=chrome..69i57.725j0j9&sourceid=chrome&es_sm=93&ie=UTF-8&userIp=95.67.106.74';
-        $requestUrl .= 'start=' . $start_pos;
+        if($start_pos > 0)
+            $requestUrl .= '&start=' . $start_pos;
+//        var_dump($requestUrl);die;
+
         $cacheKey = md5($requestUrl);
 
         if(isset(static::$apiRequestCache[$cacheKey])) {
