@@ -4,13 +4,13 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\KeyPosition */
+/* @var $model app\models\GroupVisibility */
 
-$this->title = 'Create Key Position';
-$this->params['breadcrumbs'][] = ['label' => 'Key Positions', 'url' => ['index']];
+$this->title = 'Create Group Visibility';
+$this->params['breadcrumbs'][] = ['label' => 'Group Visibilities', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="key-position-create">
+<div class="group-visibility-create">
 
     <h1><?= Html::encode($this->title) ?></h1>
 

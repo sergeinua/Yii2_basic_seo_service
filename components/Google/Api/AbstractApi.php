@@ -71,13 +71,13 @@ abstract class AbstractApi
      *
      * @return Response
      */
-    public function executeRequest($start_pos)
+    public function executeRequest($start_pos, $googlehost, $language)
     {
         $this->validateParameters();
 
         $parser = new Parser($this->getDataParser());
 //        return $parser->parse($this->executeApiRequest());
-        return $this->executeApiRequest($start_pos);
+        return $this->executeApiRequest($start_pos, $googlehost, $language);
     }
 
     /**
@@ -103,12 +103,14 @@ abstract class AbstractApi
      *
      * @codeCoverageIgnore
      */
-    protected function executeApiRequest($start_pos)
+    protected function executeApiRequest($start_pos, $googlehost, $language)
     {
         $requestUrl = $this->getApiRequestUrl();
-        $requestUrl .= '&googlehost=google.com.ua';
+//        $requestUrl .= '&googlehost=google.com.ua';
+        $requestUrl .= '&googlehost=' . $googlehost;
         $requestUrl .= '&gl=ua';
-        $requestUrl .= '&hl=ru';
+//        $requestUrl .= '&hl=ru';
+        $requestUrl .= '&hl=' . $language;
         $requestUrl .= '&aqs=chrome..69i57.725j0j9&sourceid=chrome&es_sm=93&ie=UTF-8&userIp=95.67.106.74';
         if($start_pos > 0)
             $requestUrl .= '&start=' . $start_pos;

@@ -14,6 +14,8 @@ class GroupsForm extends Model
     public $status;
     public $title;
     public $project_id;
+    public $googlehost;
+    public $language;
 
     const STATUS_DISABLED = 0;
     const STATUS_ENABLED = 1;
@@ -26,7 +28,9 @@ class GroupsForm extends Model
             [['title'], 'string', 'max' => 500],
             ['status', 'in', 'range' => [self::STATUS_DISABLED, self::STATUS_ENABLED]],
             ['status', 'default', 'value' => self::STATUS_ENABLED],
-            [['project_id', 'id'], 'integer']
+            [['project_id', 'id'], 'integer'],
+            [['googlehost'], 'string', 'max' => 30],
+            [['language'], 'string', 'max' => 10],
         ];
     }
 
@@ -41,7 +45,7 @@ class GroupsForm extends Model
             if(!($groupModel = $this->findGroup($this->id))){
                 $groupModel = new Groups();
             }
-            if($groupModel->load($this->toArray(['id', 'title', 'status']),'')){
+            if($groupModel->load($this->toArray(['id', 'title', 'status', 'googlehost', 'language']),'')){
                 if(!$groupModel->save()){
                     throw new BadRequestHttpException('Model is invalid!');
                 }

@@ -30,7 +30,9 @@ class Projects extends \yii\db\ActiveRecord
         return [
             [['title', 'description', 'status'], 'required'],
             [['status'], 'integer'],
-            [['title', 'description'], 'string', 'max' => 500]
+            [['title', 'description'], 'string', 'max' => 500],
+            [['googlehost'], 'string', 'max' => 30],
+            [['language'], 'string', 'max' => 10],
         ];
     }
 

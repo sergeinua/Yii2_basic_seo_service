@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\GroupVisibility;
 use Yii;
 use app\models\Groups;
 use app\models\GroupsSearch;
@@ -53,47 +54,7 @@ class GroupsController extends Controller
      */
     public function actionView($id)
     {
-        global $project_position;
-        $project_link = $this->findModel($id)->project->title;
-//        echo '<meta charset = utf8>';
-//echo '<pre>';
-//
-//
-//        var_dump($this->findModel($id)->getKeys());
-//
-//
-//
-//        die();
-//        $apiClient = new CustomSearch();
-//        $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
-//        $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
-//        $apiClient->setQuery('разработка интернет магазина автозапчастей');
-//
-//
-//        $response = $apiClient->executeRequest();
-//
-//        var_dump($project_link);
-//
-//        $response = Json::decode($response);
-//
-//        for ($i=0;$i<10;$i++) {
-//
-//            if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
-//                $project_position = $i +1;
-//                break;
-//            }
-//
-//
-//
-//        }
-//        echo $project_position;
-
-
-
-
-
-
-
+        $gr_vis_model = GroupVisibility::find()->all();
 
 
 
@@ -101,7 +62,7 @@ class GroupsController extends Controller
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'project_position' => $project_position,
+            'gr_vis_model' => $gr_vis_model,
         ]);
     }
 

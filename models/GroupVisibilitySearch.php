@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\KeyPosition;
+use app\models\GroupVisibility;
 
 /**
- * KeyPositionSearch represents the model behind the search form about `app\models\KeyPosition`.
+ * GroupVisibilitySearch represents the model behind the search form about `app\models\GroupVisibility`.
  */
-class KeyPositionSearch extends KeyPosition
+class GroupVisibilitySearch extends GroupVisibility
 {
     /**
      * @inheritdoc
@@ -18,8 +18,7 @@ class KeyPositionSearch extends KeyPosition
     public function rules()
     {
         return [
-            [['id', 'key_id', 'position'], 'integer'],
-            [['date'], 'safe'],
+            [['id', 'group_id', 'date', 'visibility'], 'integer'],
         ];
     }
 
@@ -41,7 +40,7 @@ class KeyPositionSearch extends KeyPosition
      */
     public function search($params)
     {
-        $query = KeyPosition::find();
+        $query = GroupVisibility::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -57,9 +56,9 @@ class KeyPositionSearch extends KeyPosition
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'key_id' => $this->key_id,
+            'group_id' => $this->group_id,
             'date' => $this->date,
-            'position' => $this->position,
+            'visibility' => $this->visibility,
         ]);
 
         return $dataProvider;

@@ -41,6 +41,10 @@ else
         ]
     ]) ?>
 
+    <?= $form->field($model, 'googlehost')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'language')->textInput(['maxlength' => true]) ?>
+
     <div class="form-group">
         <?= Html::submitButton($isNewRecord ? Yii::t('app', 'Создать') : Yii::t('app', 'Обновить'), ['class' => $isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

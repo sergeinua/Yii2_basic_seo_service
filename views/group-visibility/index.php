@@ -4,19 +4,19 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\KeyPositionSearch */
+/* @var $searchModel app\models\GroupVisibilitySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Key Positions';
+$this->title = 'Group Visibilities';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="key-position-index">
+<div class="group-visibility-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
-        <?= Html::a('Create Key Position', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Group Visibility', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -26,9 +26,9 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'key_id',
+            'group_id',
             'date',
-            'position',
+            'visibility',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

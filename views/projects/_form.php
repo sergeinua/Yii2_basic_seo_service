@@ -21,6 +21,10 @@ use yii\widgets\ActiveForm;
         '0' => Yii::t('app', 'Неактивно')
     ]) ?>
 
+    <?= $form->field($model, 'googlehost')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'language')->textInput(['maxlength' => true]) ?>
+
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Создать') : Yii::t('app', 'Обновить'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

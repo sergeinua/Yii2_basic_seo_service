@@ -3,14 +3,14 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\KeyPosition */
+/* @var $model app\models\GroupVisibility */
 
-$this->title = 'Update Key Position: ' . ' ' . $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Key Positions', 'url' => ['index']];
+$this->title = 'Update Group Visibility: ' . ' ' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Group Visibilities', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
-<div class="key-position-update">
+<div class="group-visibility-update">
 
     <h1><?= Html::encode($this->title) ?></h1>
 

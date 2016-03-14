@@ -4,13 +4,13 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\KeyPosition */
+/* @var $model app\models\GroupVisibility */
 
 $this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Key Positions', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Group Visibilities', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="key-position-view">
+<div class="group-visibility-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -29,9 +29,9 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'key_id',
+            'group_id',
             'date',
-            'position',
+            'visibility',
         ],
     ]) ?>
 

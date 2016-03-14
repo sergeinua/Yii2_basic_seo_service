@@ -13,6 +13,8 @@ use yii\helpers\ArrayHelper;
  * @property string $description
  * @property integer $project_id
  * @property Projects $project
+ * @property string $googlehost
+ * @property string $language
  */
 class Groups extends \yii\db\ActiveRecord
 {
@@ -42,6 +44,8 @@ class Groups extends \yii\db\ActiveRecord
             [['title'], 'required'],
             [['title', 'description'], 'string', 'max' => 500],
             ['status', 'integer'],
+            [['googlehost'], 'string', 'max' => 30],
+            [['language'], 'string', 'max' => 10],
         ];
     }
 
@@ -55,6 +59,8 @@ class Groups extends \yii\db\ActiveRecord
             'title' => 'Title',
             'description' => 'Description',
             'status' => 'Status',
+            'googlehost' => 'googlehost',
+            'language' => 'language',
         ];
     }
 

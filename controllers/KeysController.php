@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use app\models\Groups;
+use app\models\ProjectGroup;
+use app\models\Projects;
 use Faker\Provider\DateTime;
 use Yii;
 use app\models\Keys;
@@ -160,6 +163,16 @@ class KeysController extends Controller
         $project_link = $request['project_link'];
         $key_id = $request['key_id'];
         $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
+        $group_id = $request['group_id'];
+        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+
+        $googlehost = Projects::find()->where(['id' => $project_id])->one()->googlehost;
+        $language = Projects::find()->where(['id' => $project_id])->one()->language;
+
+        if(!$googlehost)
+            $googlehost = Groups::find()->where(['id' => $group_id])->one()->googlehost;
+        if(!$language)
+            $language = Groups::find()->where(['id' => $group_id])->one()->language;
 
         // $start_pos - defining the start position for the google api search
         if($p = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->one()){
@@ -173,7 +186,7 @@ class KeysController extends Controller
             for ($i=0; $i<10; $i++){
                 $start_pos = $i * 10;
 
-                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos);
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language);
 
                 if ($result > 0){
                     $project_position = $result;
@@ -188,14 +201,14 @@ class KeysController extends Controller
                 $start_pos = floor($start / 10) * 10;
             }
 
-            $result = $this->getDistinctPosition($key_title, $project_link, $start_pos);
+            $result = $this->getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language);
 
             if (!isset($result)) {
-                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos - 10);
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos - 10, $googlehost, $language);
             }
 
             if (!isset($result)) {
-                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos + 10);
+                $result = $this->getDistinctPosition($key_title, $project_link, $start_pos + 10, $googlehost, $language);
             }
 
             if ($result > 0)
@@ -213,7 +226,7 @@ class KeysController extends Controller
         return $this->redirect(Yii::$app->request->referrer);
     }
 
-    public function getDistinctPosition($key_title, $project_link, $start_pos)
+    public function getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language)
     {
         global $project_pos;
         $apiClient = new CustomSearch();
@@ -221,7 +234,7 @@ class KeysController extends Controller
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
         $apiClient->setQuery($key_title);
 
-        $response = $apiClient->executeRequest($start_pos);
+        $response = $apiClient->executeRequest($start_pos, $googlehost, $language);
         $response = Json::decode($response);
 
         for ($i=0; $i<10; $i++) {

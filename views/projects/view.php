@@ -34,7 +34,9 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'status',
                 'value' => $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно'),
-            ]
+            ],
+            'googlehost',
+            'language',
         ],
     ]) ?>
 

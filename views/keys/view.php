@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use miloschuman\highcharts\Highcharts;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Keys */
@@ -36,5 +37,33 @@ $this->params['breadcrumbs'][] = $this->title;
             ]
         ],
     ]) ?>
+
+<?php
+    // applying the correct timezone
+    date_default_timezone_set('Europe/Kiev');
+    $quan = count($model->previous_position) - 1;
+    $i=0;
+    for($i=0; $i<=$quan; $i++){
+        $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->date);
+        $positions[$i] = $model->previous_position[$i]->position;
+    }
+?>
+
+    <?= Highcharts::widget([
+        'options' => [
+            'title' => ['text' => 'Dynamics'],
+            'xAxis' => [
+                'categories' => $dates,
+            ],
+            'yAxis' => [
+                'title' => ['text' => 'Position']
+            ],
+            'series' => [
+                ['name' => $this->title, 'data' => $positions],
+
+            ]
+        ]
+    ]); ?>
+
 
 </div>
