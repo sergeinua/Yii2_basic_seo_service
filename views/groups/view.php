@@ -100,7 +100,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <?php endif; ?>
                 </td>
                 <td>
-                    <?= date("F j, Y, g:i a",  $key->position->date); ?>
+                    <?= isset($key->position->fullDate) ? date("F j, Y, g:i a",  $key->position->fullDate) : ''; ?>
                 </td>
                 <td>
                     <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/place',
@@ -125,25 +125,28 @@ $this->params['breadcrumbs'][] = $this->title;
     global $eighth;
     global $ninth;
 
-
-    foreach ($model->keys as $key) {
-        if($key->position->position <= 3)
-            $first++;
-        if($key->position->position > 3 && $key->position->position <= 10)
-            $second++;
-        if($key->position->position <= 10)
-            $third++;
-        if($key->position->position >= 11 && $key->position->position <= 20)
-            $fourth++;
-        if($key->position->position >= 21 && $key->position->position <= 50)
-            $fifth++;
-        if($key->position->position >= 21 && $key->position->position <= 50)
-            $sixth++;
-        if($key->position->position < 100)
-            $seventh++;
-        if($key->position->position > 100)
-            $eighth++;
-    } ?>
+    if($model->keys) {
+        foreach ($model->keys as $key) {
+            if(isset($key->position->position)) {
+                if ($key->position->position <= 3)
+                    $first++;
+                if ($key->position->position > 3 && $key->position->position <= 10)
+                    $second++;
+                if ($key->position->position <= 10)
+                    $third++;
+                if ($key->position->position >= 11 && $key->position->position <= 20)
+                    $fourth++;
+                if ($key->position->position >= 21 && $key->position->position <= 50)
+                    $fifth++;
+                if ($key->position->position >= 21 && $key->position->position <= 50)
+                    $sixth++;
+                if ($key->position->position < 100)
+                    $seventh++;
+                if ($key->position->position > 100)
+                    $eighth++;
+            }
+        }
+    }?>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -182,11 +185,11 @@ $this->params['breadcrumbs'][] = $this->title;
         $dates=[];
         $visibility=[];
         for($i=0; $i<count($gr_vis_model); $i++){
-            $dates[$i] = $gr_vis_model[$i]['date'];
-
+            $dates[$i] = date('d m Y', $gr_vis_model[$i]['date']);
             $visibility[$i] = $gr_vis_model[$i]['visibility'];
             $i++;
         }
+        var_dump($dates);die;
 
 
 //        $gr_vis_model

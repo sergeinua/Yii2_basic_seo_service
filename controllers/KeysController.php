@@ -216,11 +216,14 @@ class KeysController extends Controller
         }
 
         if ($project_position > 0){
-            $model = new KeyPosition();
-            $model->key_id = $key_id;
-            $model->position = $project_position;
-            $model->date = date('U');
-            $model->save();
+            (new KeyPosition([
+                'key_id' => $key_id,
+                'position' => $project_position,
+            ]))->save();
+//            $model->key_id = $key_id;
+//            $model->position = $project_position;
+//            $model->date = date('U');
+//            $model->save();
         }
 
         return $this->redirect(Yii::$app->request->referrer);

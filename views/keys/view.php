@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
     $quan = count($model->previous_position) - 1;
     $i=0;
     for($i=0; $i<=$quan; $i++){
-        $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->date);
+        $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->fullDate);
         $positions[$i] = $model->previous_position[$i]->position;
     }
 ?>

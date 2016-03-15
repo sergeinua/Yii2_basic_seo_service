@@ -60,6 +60,7 @@ class GroupsController extends Controller
 
 
 
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'gr_vis_model' => $gr_vis_model,
