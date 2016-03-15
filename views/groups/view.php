@@ -187,15 +187,7 @@ $this->params['breadcrumbs'][] = $this->title;
         for($i=0; $i<count($gr_vis_model); $i++){
             $dates[$i] = date('d m Y', $gr_vis_model[$i]['date']);
             $visibility[$i] = $gr_vis_model[$i]['visibility'];
-            $i++;
-        }
-        var_dump($dates);die;
-
-
-//        $gr_vis_model
-//        $dates = ['1.02','2.02', '3.03'];
-//        $visibility = [1,2,3];
-        ?>
+        }?>
 
         <?= Highcharts::widget([
             'options' => [

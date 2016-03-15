@@ -174,8 +174,11 @@ class GroupVisibilityController extends Controller
             $i++;
 
         }
+        //total quantity of the query elements
+        $total_items = $i;
+//        var_dump($total_items);die;
 
-        
+
 
 
 
@@ -217,9 +220,11 @@ class GroupVisibilityController extends Controller
 
 
             }
+
             //saving results here
-            echo $u_date.': ';
-            echo $top_ten.'<br>';
+//            echo $u_date.': ';
+//            echo $top_ten.'<br>';
+            $top_ten = $top_ten / $total_items * 100;
             $this->savePosition($group_id, $u_date, $top_ten);
             //die;
         }
