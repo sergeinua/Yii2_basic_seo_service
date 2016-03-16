@@ -185,7 +185,7 @@ $this->params['breadcrumbs'][] = $this->title;
         $dates=[];
         $visibility=[];
         for($i=0; $i<count($gr_vis_model); $i++){
-            $dates[$i] = date('d m Y', $gr_vis_model[$i]['date']);
+            $dates[$i] = date($gr_vis_model[$i]['date']);
             $visibility[$i] = $gr_vis_model[$i]['visibility'];
         }?>
 

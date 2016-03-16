@@ -54,7 +54,7 @@ AppAsset::register($this);
 
     <div class="container">
         <div class="row">
-        <?php /*guest*/ if(Yii::$app->getUser()->isGuest){ ?>
+        <?php /*guest*/ if(!Yii::$app->getUser()->isGuest){ ?>
                 <div class="col-xs-3 col-md-3 col-lg-3 admin-panel">
                     <div class="panel panel-primary">
                         <div class="panel-heading">

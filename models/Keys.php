@@ -13,6 +13,8 @@ use yii\web\BadRequestHttpException;
  * @property integer $id
  * @property string $title
  * @property integer $group_id
+ * @property integer $date_added
+ * @property integer $date_modified
  * @property Groups $group
  */
 class Keys extends \yii\db\ActiveRecord
@@ -47,7 +49,8 @@ class Keys extends \yii\db\ActiveRecord
             [['title'], 'string', 'max' => 500],
             ['status', 'in', 'range' => [self::STATUS_DISABLED, self::STATUS_ENABLED]],
             ['status', 'default', 'value' => self::STATUS_ENABLED],
-            ['group_id', 'safe']
+            ['group_id', 'safe'],
+            [['date_added', 'date_modified'], 'integer'],
         ];
     }
 
@@ -112,7 +115,7 @@ class Keys extends \yii\db\ActiveRecord
 
     public function getPosition()
     {
-        return $this->hasOne(KeyPosition::className(), ['key_id' => 'id'])->orderBy('date DESC');
+        return $this->hasOne(KeyPosition::className(), ['key_id' => 'id'])->orderBy('date DESC')->orderBy('time_from_today DESC');
     }
 
     public function getPrevious_position()
