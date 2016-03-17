@@ -163,7 +163,7 @@ class KeysController extends Controller
      * @param integer $group_id
      *
      */
-    public function actionUpdate_all_keys(){
+    public function actionUpdateAllKeys(){
         $request = Yii::$app->request->get();
         $group_id = $request['group_id'];
 //        $project_id
@@ -180,25 +180,28 @@ class KeysController extends Controller
         foreach($keys as $key){
             $key_title = Keys::find()->where(['id' => $key->key_id])->one()['title'];
             echo '<pre>';
-            var_dump($key_title);
+            var_dump($project_link);
             var_dump($key->key_id);
-            //$result = $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
+            var_dump($key_title);
+            var_dump($group_id);
+            var_dump($project_id);
 
-
+            $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
         }
-
-
-
-
-
-
     }
 
     /**
      * Updates single key item position of the defined group.
      *
      */
-    public function actionUpdate_singe_key(){
+    public function actionUpdateSingleKey(){
+        $request = Yii::$app->request->get();
+        $project_link = $request['project_link'];
+        $key_id = $request['key_id'];
+        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
+        $group_id = $request['group_id'];
+        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+        $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key_id);
 
     }
 
@@ -207,17 +210,17 @@ class KeysController extends Controller
      * Finds the Keys model key position value.
      *
      */
-//    public function actionPlace($project_id, $project_link, $group_id, $key_title, $key_id){
-    public function actionPlace(){
+    public function actionPlace($project_id, $project_link, $group_id, $key_title, $key_id){
+//    public function actionPlace(){
 
         global $project_position;
-        $request = Yii::$app->request->get();
-        $project_link = $request['project_link'];
-        $key_id = $request['key_id'];
-        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
 
-        $group_id = $request['group_id'];
-        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+//        $request = Yii::$app->request->get();
+//        $project_link = $request['project_link'];
+//        $key_id = $request['key_id'];
+//        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
+//        $group_id = $request['group_id'];
+//        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
 
         $googlehost = Projects::find()->where(['id' => $project_id])->one()->googlehost;
         $language = Projects::find()->where(['id' => $project_id])->one()->language;

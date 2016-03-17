@@ -51,13 +51,13 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
-    <h2>Ключевые слова группы</h2>
+    <h2><?= Yii::t('app', 'Ключевые слова группы'); ?></h2>
 
     <?= Html::a(Yii::t('app', 'Добавить ключевое слово'), ['/keys/create', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
-    <!--?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update_all_keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?-->
-
     <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-group', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+
+    <?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update-all-keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -107,7 +107,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     <?= isset($key->position->fullDate) ? date("F j, Y, g:i a",  $key->position->fullDate) : ''; ?>
                 </td>
                 <td>
-                    <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/place',
+                    <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/update-single-key',
                         'key_id' => $key->id,
                         'project_link' => $model->project->title,
                         'group_id' => $model->id,
