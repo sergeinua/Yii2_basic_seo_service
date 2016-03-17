@@ -55,6 +55,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= Html::a(Yii::t('app', 'Добавить ключевое слово'), ['/keys/create', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
+    <!--?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update_all_keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?-->
+
+    <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-group', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+
     <table class="table table-striped table-hover">
         <thead>
             <tr>
@@ -188,6 +192,11 @@ $this->params['breadcrumbs'][] = $this->title;
             $dates[$i] = date($gr_vis_model[$i]['date']);
             $visibility[$i] = $gr_vis_model[$i]['visibility'];
         }?>
+        <?php
+        // formatting dates
+        for($i=0; $i<count($dates); $i++) {
+            $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
+        }; ?>
 
         <?= Highcharts::widget([
             'options' => [
@@ -204,9 +213,6 @@ $this->params['breadcrumbs'][] = $this->title;
             ]
         ]); ?>
     </div>
-
-
-
 
 
 </div>

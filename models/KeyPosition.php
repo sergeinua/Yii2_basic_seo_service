@@ -18,6 +18,7 @@ use \yii\db\ActiveRecord;
  */
 class KeyPosition extends ActiveRecord
 {
+    public $title;
     /**
      * @inheritdoc
      */
@@ -82,5 +83,24 @@ class KeyPosition extends ActiveRecord
     public function getFullDate()
     {
         return ($this->date + $this->time_from_today);
+    }
+
+//    public function getTitle()
+//    {
+//        return $this->hasOne(Keys::className(), ['id' => 'key_id']);
+//    }
+
+    public function getGroup()
+    {
+        return $this->hasOne(Groups::className(), ['id' => 'group_id'])->viaTable(GroupKey::tableName(), ['id' => 'key_id']);
+    }
+
+    public static function find()
+    {
+        return parent::find()
+            ->select([
+                self::tableName().'.*',
+                'title' => Keys::find()->select(['title'])->where('keys.id = key_position.key_id')
+            ]);
     }
 }

@@ -23,9 +23,9 @@ use yii\widgets\ActiveForm;
     <?php endif; ?>
 
     <?= $form->field($model, 'role')->dropDownList([
-        '1' => 'Admin',
-        '2' => 'SEO',
-        '3' => 'User',
+        'admin' => 'Admin',
+        'seo' => 'SEO',
+        'user' => 'User',
     ]) ?>
 
     <div class="form-group">

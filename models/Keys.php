@@ -120,6 +120,6 @@ class Keys extends \yii\db\ActiveRecord
 
     public function getPrevious_position()
     {
-        return $this->hasMany(KeyPosition::className(), ['key_id' => 'id'])->orderBy('date DESC');
+        return $this->hasMany(KeyPosition::className(), ['key_id' => 'id'])->orderBy('time_from_today DESC')->orderBy('date DESC');
     }
 }

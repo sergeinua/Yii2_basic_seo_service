@@ -105,13 +105,13 @@ class User extends ActiveRecord implements IdentityInterface
     public function getRolename()
     {
         switch($this->role){
-            case 1:
+            case 'admin':
                 $role = 'Admin';
                 break;
-            case 2:
+            case 'seo':
                 $role = 'SEO';
                 break;
-            case 3:
+            case 'user':
                 $role = 'User';
                 break;
         }

@@ -49,6 +49,8 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 ?>
 
+    <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key', 'key_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+
     <?= Highcharts::widget([
         'options' => [
             'title' => ['text' => 'Dynamics'],

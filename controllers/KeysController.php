@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\GroupKey;
 use app\models\Groups;
 use app\models\ProjectGroup;
 use app\models\Projects;
@@ -156,6 +157,57 @@ class KeysController extends Controller
         }
     }
 
+
+    /**
+     * Updates all key items positions of the defined group.
+     * @param integer $group_id
+     *
+     */
+    public function actionUpdate_all_keys(){
+        $request = Yii::$app->request->get();
+        $group_id = $request['group_id'];
+//        $project_id
+//        $project_link
+    //        $group_id
+        //        $key_id
+        //        $key_title
+        // по group_id получить project_id & project_link
+        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()['project_id'];
+        $project_link = Projects::find()->where(['id' => $project_id])->one()['title'];
+        /// all keys of the group
+        $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
+
+        foreach($keys as $key){
+            $key_title = Keys::find()->where(['id' => $key->key_id])->one()['title'];
+            echo '<pre>';
+            var_dump($key_title);
+            var_dump($key->key_id);
+            //$result = $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
+
+
+        }
+
+
+
+
+
+
+    }
+
+    /**
+     * Updates single key item position of the defined group.
+     *
+     */
+    public function actionUpdate_singe_key(){
+
+    }
+
+
+    /**
+     * Finds the Keys model key position value.
+     *
+     */
+//    public function actionPlace($project_id, $project_link, $group_id, $key_title, $key_id){
     public function actionPlace(){
 
         global $project_position;
@@ -163,6 +215,7 @@ class KeysController extends Controller
         $project_link = $request['project_link'];
         $key_id = $request['key_id'];
         $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
+
         $group_id = $request['group_id'];
         $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
 
@@ -220,10 +273,6 @@ class KeysController extends Controller
                 'key_id' => $key_id,
                 'position' => $project_position,
             ]))->save();
-//            $model->key_id = $key_id;
-//            $model->position = $project_position;
-//            $model->date = date('U');
-//            $model->save();
         }
 
         return $this->redirect(Yii::$app->request->referrer);
@@ -247,7 +296,40 @@ class KeysController extends Controller
             }
         }
 
-
         return $project_pos;
+    }
+
+    /**
+     * Generates xls for export for all the key items positions of the defined group.
+     *
+     */
+    public function actionExcelGroup()
+    {
+        $request = Yii::$app->request->get();
+        $group_id = $request['group_id'];
+
+        $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
+        $items=[];
+        foreach($keys as $key){
+            array_push($items, $key->id);
+        }
+
+        $model = KeyPosition::find()->where(['key_id' => $items])->all();
+
+        return $this->render('excel', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionExcelKey()
+    {
+        $request = Yii::$app->request->get();
+        $key_id = $request['key_id'];
+
+        $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
+
+        return $this->render('excel', [
+            'model' => $model,
+        ]);
     }
 }

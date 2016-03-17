@@ -28,7 +28,8 @@
         "linslin/yii2-curl": "*",
         "sergeinua/google-apis-php-clients": "dev-master",
         "codeception/codeception": "*",
-        "miloschuman/yii2-highcharts-widget": "*"
+        "miloschuman/yii2-highcharts-widget": "*",
+        "moonlandsoft/yii2-phpexcel": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
