@@ -62,10 +62,14 @@ class UserController extends Controller
     {
         $model = new User();
 
+
         if ($model->load(Yii::$app->request->post())) {
-            $model->password = Yii::$app->getSecurity()->generatePasswordHash($model->password);
-            $model->created_at = date('U');
+//            $model->setPassword($model->password);
+            $model->password_hash = Yii::$app->security->generatePasswordHash($model->password);
+            $model->created_at = time();
+            var_dump($model->password_hash);die;
             $model->save();
+            //$model->setRole();
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [

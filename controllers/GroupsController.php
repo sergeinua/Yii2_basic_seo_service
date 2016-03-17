@@ -54,7 +54,7 @@ class GroupsController extends Controller
      */
     public function actionView($id)
     {
-        $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->all();
+        $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
             'gr_vis_model' => $gr_vis_model,

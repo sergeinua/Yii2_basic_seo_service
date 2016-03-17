@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\commands\RbacController;
 use app\components\Google\Api\CustomSearch;
 
 use Yii;
@@ -13,6 +14,7 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use linslin\yii2\curl;
 use yii\web\Response;
+use yii\web\ForbiddenHttpException;
 
 
 class SiteController extends Controller
@@ -24,12 +26,16 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['logout'],
+                        'actions' => ['login', 'logout'],
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['index', 'logout'],
+                        'allow' => true,
+                        'roles' => ['guest'],
                     ],
                 ],
             ],
@@ -79,8 +85,12 @@ class SiteController extends Controller
 */
 
 
-
-
+//        echo '<pre>';
+//        print_r(Yii::$app->getUser()->identity);
+//        die();
+//
+//        echo Yii::$app->getUser()->can('user');
+//        die();
 
 
 
@@ -127,4 +137,16 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+//    public function beforeAction($action)
+//    {
+//        if (parent::beforeAction($action)) {
+//            if (!\Yii::$app->user->can($action->id)) {
+//                throw new ForbiddenHttpException('Access denied');
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 }

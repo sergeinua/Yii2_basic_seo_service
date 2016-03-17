@@ -98,6 +98,19 @@ AppAsset::register($this);
                         ?>
                     </div>
 
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Пользователи</h3>
+                        </div>
+                        <?php
+                        echo Menu::widget([
+                            'options'=> ['class'=>'sidebar-list sidebar-e'],
+                            'items' => [
+                                ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
+                            ]]);
+                        ?>
+                    </div>
+
                 </div>
             <?php } ?>
             <div class="col-xs-9 col-md-9 col-lg-9 <?= Yii::$app->getUser()->isGuest ? '' : 'logged-in' ?>">

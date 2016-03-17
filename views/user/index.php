@@ -10,6 +10,7 @@ use yii\grid\GridView;
 $this->title = 'Users';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
+<?php date_default_timezone_set('Europe/Kiev'); ?>
 <div class="user-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
@@ -26,16 +27,21 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'title',
-            'description:ntext',
-            'auth_key',
-            'password_hash',
-            // 'password_reset_token',
-            // 'email:email',
-            // 'is_juridical_person',
-            // 'user_type',
-            // 'status',
-            // 'created_at',
+            'username',
+            'firstName',
+            'lastName',
+            [
+                'attribute' => 'created_at',
+                'value' => function($model){
+                    return date('d.m.Y H:i', $model->created_at);
+                }
+            ],
+            [
+                'attribute' => 'role',
+                'value' => function($model){
+                    return $model->rolename;
+                }
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

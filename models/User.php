@@ -6,28 +6,32 @@ use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
+
 /**
  * This is the model class for table "user".
  *
  * @property integer $id
- * @property string $title
- * @property string $description
- * @property string $auth_key
- * @property string $password_hash
- * @property string $password_reset_token
+ * @property string $username
+ * @property string $firstName
+ * @property string $lastName
+ * @property string $password
  * @property string $email
- * @property integer $is_juridical_person
- * @property integer $user_type
- * @property integer $status
  * @property integer $created_at
+ * @property integer $role
+ * @property string $authKey
+ */
+
+/**
+ * Class User
+ * roles:
+ * 1 - admin
+ * 2 - seo
+ * 3 - user
+ * @package app\models
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    public $isActive;
-    public $password;
-    public $authKey;
-    public $accessToken;
-    const STATUS_ACTIVE = 10;
+
     /**
      * @inheritdoc
      */
@@ -42,12 +46,13 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['description'], 'string'],
-            [['auth_key', 'password_hash', 'email', 'created_at'], 'required'],
-            [['is_juridical_person', 'user_type', 'status', 'created_at'], 'integer'],
-            [['title', 'password_hash', 'password_reset_token', 'email'], 'string', 'max' => 255],
-            [['auth_key'], 'string', 'max' => 32],
-            [['email'], 'unique']
+            [['password', 'created_at', 'role'], 'required'],
+            [['created_at'], 'integer'],
+            [['username'], 'string', 'max' => 20],
+            [['firstName', 'lastName', 'authKey'], 'string', 'max' => 50],
+            [['password'], 'string', 'max' => 200],
+            [['email'], 'email'],
+            [['role'], 'string'] // TODO : check migration for this
         ];
     }
 
@@ -58,261 +63,58 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
-            'auth_key' => 'Auth Key',
-            'password_hash' => 'Password Hash',
-            'password_reset_token' => 'Password Reset Token',
-            'email' => 'Email',
-            'is_juridical_person' => 'Is Juridical Person',
-            'user_type' => 'User Type',
-            'status' => 'Status',
+            'username' => 'Username',
+            'firstName' => 'First Name',
+            'lastName' => 'Last Name',
+            'password' => 'Password',
             'created_at' => 'Created At',
+            'role' => 'Role',
+            'authKey' => 'Auth Key',
+            'email' => 'email',
         ];
     }
 
-    public static function findByUsername($username){
-        return self::findOne(['title' => $username]);
+    public static function findIdentity($id){
+        return static::findOne($id);
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentity($id)
-    {
-        return User::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+    public static function findIdentityByAccessToken($token, $type = null){
+        throw new NotSupportedException();//I don't implement this method because I don't have any access token column in my database
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    public function getId(){
+        return $this->id;
     }
 
-    /**
-     * Finds half_user by email
-     *
-     * @param string $email
-     * @return static|null
-     */
-    public static function findByEmail($email)
-    {
-        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+    public function getAuthKey(){
+        return $this->authKey;//Here I return a value of my authKey column
     }
 
-    /**
-     * Finds half_user by email
-     *
-     * @param string $email
-     * @return static|null
-     */
-    public static function findByID($id)
-    {
-        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
-    }
-
-    /**
-     * Finds half_user by password reset token
-     *
-     * @param string $token password reset token
-     * @return static|null
-     */
-    public static function findByPasswordResetToken($token)
-    {
-        if (!static::isPasswordResetTokenValid($token)) {
-            return null;
-        }
-
-        return static::findOne([
-            'password_reset_token' => $token,
-            'status' => self::STATUS_ACTIVE,
-        ]);
-    }
-
-    /**
-     * Finds out if password reset token is valid
-     *
-     * @param string $token password reset token
-     * @return boolean
-     */
-    public static function isPasswordResetTokenValid($token)
-    {
-        if (empty($token)) {
-            return false;
-        }
-        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
-        $parts = explode('_', $token);
-        $timestamp = (int) end($parts);
-        return $timestamp + $expire >= time();
-    }
-
-    /**
-     * Returns calculated age based on the timestamp
-     * @return bool|string
-     */
-    public function getCalculatedAge()
-    {
-        $age = date('Y') - date('Y', $this->birthday);
-        if (date('md', $this->birthday) > date('md')) {
-            $age--;
-        }
-        return $age;
-    }
-
-    /**
-     * Returns user's model primary key - ID
-     * @inheritdoc
-     */
-    public function getId()
-    {
-        return $this->getPrimaryKey();
-    }
-
-    /**
-     * Returns users's auth key
-     * @inheritdoc
-     */
-    public function getAuthKey()
-    {
-        return $this->authKey;
-    }
-
-    /**
-     * Validates user's auth key
-     * @inheritdoc
-     */
-    public function validateAuthKey($authKey)
-    {
+    public function validateAuthKey($authKey){
         return $this->authKey === $authKey;
     }
+    public static function findByUsername($username){
+        return self::findOne(['username'=>$username]);
+    }
 
-    /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return boolean if password provided is valid for current user
-     */
     public function validatePassword($password)
     {
-        return Yii::$app->security->validatePassword($password, $this->password_hash);
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 
-    /**
-     * Set rbac role for current User as "author"
-     * @inheritdoc
-     */
-    public function setRole(){
-        $auth = Yii::$app->authManager;
-        $userRole = $auth->getRole('coworker');
-        $auth->assign($userRole, $this->getId());
-        return true;
-    }
-
-    /**
-     * Set rbac role for current User as "author"
-     * @inheritdoc
-     */
-    public function setClientRole(){
-        $auth = Yii::$app->authManager;
-        $userRole = $auth->getRole('client');
-        $auth->assign($userRole, $this->getId());
-        return true;
-    }
-
-    /**
-     * Generates password hash from password and sets it to the model
-     *
-     * @param string $password
-     */
-    public function setPassword($password)
+    public function getRolename()
     {
-        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
-    }
-
-    /**
-     * Saves into database's table `address` all adresses which came up from POST array
-     * @param $post
-     */
-    public function setAddress($post){
-        Address::deleteAll(['user_id' => $this->id]);
-        foreach($post as $keyPost => $valPost){
-            if(preg_match('/^desc_/', $keyPost)){
-                $addr = new Address();
-                $addr->user_id = $this->id;
-                $addr->address = $valPost;
-                $addr->save();
-            }
+        switch($this->role){
+            case 1:
+                $role = 'Admin';
+                break;
+            case 2:
+                $role = 'SEO';
+                break;
+            case 3:
+                $role = 'User';
+                break;
         }
+        return $role;
     }
-
-    /**
-     * Saves into database's table `telephone` all adresses which came up from POST array
-     * @param $post
-     */
-    public function setTelephone($post){
-        Telephone::deleteAll(['user_id' => $this->id]);
-        foreach($post as $keyTel => $valTel){
-
-            if(preg_match('/^tels_/', $keyTel)){
-                $tel = new Telephone();
-                $tel->user_id = $this->id;
-                $tel->telephone = $valTel;
-                $tel->description = Yii::$app->getRequest()->post('tdesc_' . substr($keyTel, 5));
-                $tel->save();
-            }
-        }
-    }
-
-    /**
-     * Saves into database's table `company_details` all details fields which came up from POST array
-     * @param $post - POSt
-     */
-    public function setCompanyDetails($post){
-        $details = CompanyDetails::find()->where(['user_id' => $this->id])->one();
-        if(!$details){
-            $details = new CompanyDetails();
-        }
-        $details->user_id = $this->id;
-        $details->okpo = $post['okpou'];
-        $details->requisite_details = $post['company-details'];
-        $details->save();
-    }
-
-    /**
-     * Return associated Address models
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAddresses()
-    {
-        return $this->hasMany(Address::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * Returns associated Telephone models.
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTelephones()
-    {
-        return $this->hasMany(Telephone::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * Returns associated CompanyDetails model.
-     * @return \yii\db\ActiveQuery
-     */
-    public function getDetails(){
-        return $this->hasOne(CompanyDetails::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * Returns associated array of Telephone models.
-     * @return array|\yii\db\ActiveRecord[]
-     */
-    public function getSipphones(){
-        return Telephone::find()->where(['user_id' => $this->id])->all();
-    }
-
 }
