@@ -25,6 +25,13 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'language')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'upd_period')->dropDownList([
+        '86400'=>'Один день',
+        '259200'=>'Три дня',
+        '518400'=>'Шесть дней',
+        '864000'=>'Десять дней',
+    ]) ?>
+
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Создать') : Yii::t('app', 'Обновить'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
     </div>

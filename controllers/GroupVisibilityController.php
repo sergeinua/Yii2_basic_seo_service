@@ -122,7 +122,7 @@ class GroupVisibilityController extends Controller
         }
     }
 
-    public function actionUpdate_position()
+    public function actionUpdatePosition()
     {
         $request = Yii::$app->request->get();
         global $group_id;

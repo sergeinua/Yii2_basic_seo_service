@@ -56,9 +56,9 @@ class Groups extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
-            'status' => 'Status',
+            'title' => 'Название',
+            'description' => 'Описание',
+            'status' => 'Состояние',
             'googlehost' => 'googlehost',
             'language' => 'language',
         ];

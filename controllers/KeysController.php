@@ -171,7 +171,7 @@ class KeysController extends Controller
     //        $group_id
         //        $key_id
         //        $key_title
-        // по group_id получить project_id & project_link
+
         $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()['project_id'];
         $project_link = Projects::find()->where(['id' => $project_id])->one()['title'];
         /// all keys of the group
@@ -179,12 +179,6 @@ class KeysController extends Controller
 
         foreach($keys as $key){
             $key_title = Keys::find()->where(['id' => $key->key_id])->one()['title'];
-            echo '<pre>';
-            var_dump($project_link);
-            var_dump($key->key_id);
-            var_dump($key_title);
-            var_dump($group_id);
-            var_dump($project_id);
 
             $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
         }
@@ -211,7 +205,7 @@ class KeysController extends Controller
      *
      */
     public function actionPlace($project_id, $project_link, $group_id, $key_title, $key_id){
-//    public function actionPlace(){
+
 
         global $project_position;
 
@@ -221,6 +215,14 @@ class KeysController extends Controller
 //        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
 //        $group_id = $request['group_id'];
 //        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+
+//        echo '<pre>';
+//        var_dump($project_id);
+//        var_dump($project_link);
+//        var_dump($group_id);
+//        var_dump($key_title);
+//        var_dump($key_id);
+
 
         $googlehost = Projects::find()->where(['id' => $project_id])->one()->googlehost;
         $language = Projects::find()->where(['id' => $project_id])->one()->language;
@@ -324,6 +326,11 @@ class KeysController extends Controller
         ]);
     }
 
+    /**
+     * Generates xls for export for singe key item positions of the defined group.
+     *
+     */
+
     public function actionExcelKey()
     {
         $request = Yii::$app->request->get();
@@ -335,4 +342,63 @@ class KeysController extends Controller
             'model' => $model,
         ]);
     }
+
+    /**
+     * Updates all key items positions of the defined project in the selected period.
+     *
+     */
+    public function actionScheduled()
+    {
+
+        $projects = Projects::find()->all();
+        // defining all project ids
+        $i=0;
+        for($i=0; $i<count($projects); $i++){
+            // defining all the project's groups
+            $period[$i] = $projects[$i]['upd_period'];
+            $project_link = $projects[$i]['title'];
+            $project_id[$i] = $projects[$i]['id'];
+            $group_ids = ProjectGroup::find()->where(['project_id' => $projects[$i]['id']])->all();
+            $n=0;
+            for($n=0; $n<count($group_ids); $n++){
+
+                $this->actionCheckGroup($project_id[$i], $project_link, $group_ids[$n]['group_id'], $period[$i]);
+            }
+        }
+
+    }
+
+    // TODO: bug - key items are selected randomly
+    public function actionCheckGroup($project_id, $project_link, $group_id, $period){
+        // all keys of the group
+//TODO: change
+        //echo '<meta charset=utf-8>';
+        $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
+        $i=0;
+        for($i=0; $i<count($keys); $i++){
+            $last_upd[$i] = KeyPosition::find()->where(['key_id' => $keys[$i]['key_id']])->orderBy('date desc')->orderBy('time_from_today desc')->one();
+
+            $updated[$i] = $last_upd[$i]['date'] + $last_upd[$i]['time_from_today'];
+
+            //TODO: modify the request via the KeyPosition model
+            $key_title[$i] = Keys::find()->where(['id' => $keys[$i]['key_id']])->one()['title'];
+
+            // checking the period
+            //TODO: change
+//            if((time() - $updated[$i]) > $period){
+            if(true){
+                // updating needed key items positions
+//                echo '<pre>';
+//                var_dump($project_id);
+//                var_dump($project_link);
+//                var_dump($group_id);
+//                var_dump($key_title[$i]);
+//                var_dump($keys[$i]['id']);
+//                var_dump($updated[$i]);
+                $this->actionPlace($project_id, $project_link, $group_id, $key_title[$i], $keys[$i]['id']);
+            }
+        }
+
+    }
+
 }

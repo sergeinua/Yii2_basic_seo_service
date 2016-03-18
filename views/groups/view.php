@@ -41,7 +41,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'title',
-            'description',
+            [
+                'attribute' => 'description',
+                'value' => isset($model->description) ? $model->description : '',
+            ],
             [
                 'attribute' => 'status',
                 'value' => $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно'),
@@ -63,11 +66,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Title</th>
-                <th>Actions</th>
-                <th>Position</th>
-                <th>Last updated</th>
-                <th>Update</th>
+                <th><?= Yii::t('app', 'Ключевые слова'); ?></th>
+                <th><?= Yii::t('app', 'Действия'); ?></th>
+                <th><?= Yii::t('app', 'Позиция'); ?></th>
+                <th><?= Yii::t('app', 'Последнее обновление'); ?></th>
+                <th><?= Yii::t('app', 'Обновить'); ?></th>
             </tr>
         </thead>
         <tbody>
@@ -180,9 +183,9 @@ $this->params['breadcrumbs'][] = $this->title;
     </table>
 
     <div>
-        <h2>Key position dynamics</h2>
+        <h2><?= Yii::t('app', 'Динамика группы'); ?></h2>
 
-        <?= Html::a(Yii::t('app', 'Обновить данные'), ['/group-visibility/update_position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Обновить данные'), ['/project-visibility/update-position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
         <?php
         $i=0;
@@ -200,12 +203,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= Highcharts::widget([
             'options' => [
-                'title' => ['text' => 'Visibility'],
+                'title' => ['text' => Yii::t("app", "Ключевые слова группы")],
                 'xAxis' => [
                     'categories' => $dates,
                 ],
                 'yAxis' => [
-                    'title' => ['text' => 'Percentage']
+                    'title' => ['text' => Yii::t("app", "Видимость %")]
                 ],
                 'series' => [
                     ['name' => $this->title, 'data' => $visibility],

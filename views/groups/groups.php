@@ -27,19 +27,20 @@ else
 
     <?= ($isNewRecord) ? '' : $form->field($model, 'id', ['template' => '{input}'])->hiddenInput(); ?>
 
-    <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'title')->textInput(['maxlength' => true])
+        ->label(Yii::t('app', 'Название')) ?>
 
     <?= $form->field($model, 'status')->dropDownList([
         '1' => Yii::t('app', 'Активно'),
         '0' => Yii::t('app', 'Неактивно')
-    ]) ?>
+    ])->label(Yii::t('app', 'Состояние')) ?>
 
     <?= $form->field($model, 'project_id')->dropDownList(ArrayHelper::map(Projects::find()->all(), 'id', 'title'),
         ['prompt' => Yii::t('app', 'Выберите проект'),
         'options' => [
             $project_id => ['selected' => true]
         ]
-    ]) ?>
+    ])->label(Yii::t('app', 'Проект')) ?>
 
     <?= $form->field($model, 'googlehost')->textInput(['maxlength' => true]) ?>
 

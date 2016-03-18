@@ -29,6 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
+            'email',
             'username',
             'firstName',
             'lastName',
@@ -40,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'role',
                 'value' => $model->rolename,
             ],
+
         ],
     ]) ?>
 

@@ -11,6 +11,7 @@ use Yii;
  * @property string $title
  * @property string $description
  * @property integer $status
+ * @property integer $upd_period
  */
 class Projects extends \yii\db\ActiveRecord
 {
@@ -29,7 +30,7 @@ class Projects extends \yii\db\ActiveRecord
     {
         return [
             [['title', 'description', 'status'], 'required'],
-            [['status'], 'integer'],
+            [['status', 'upd_period'], 'integer'],
             [['title', 'description'], 'string', 'max' => 500],
             [['googlehost'], 'string', 'max' => 30],
             [['language'], 'string', 'max' => 10],
@@ -43,9 +44,10 @@ class Projects extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
-            'status' => 'Status',
+            'title' => 'url',
+            'description' => 'Описание',
+            'status' => 'Состояние',
+            'upd_period' => 'Период обновления дней',
         ];
     }
 

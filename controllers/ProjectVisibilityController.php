@@ -2,21 +2,21 @@
 
 namespace app\controllers;
 
-use app\models\ProjectVisibility;
+use app\models\GroupKey;
+use app\models\Keys;
+use app\models\ProjectGroup;
 use Yii;
-use app\models\Projects;
-use app\models\ProjectsSearch;
+use app\models\ProjectVisibility;
+use app\models\ProjectVisibilitySearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ProjectsController implements the CRUD actions for Projects model.
+ * ProjectVisibilityController implements the CRUD actions for ProjectVisibility model.
  */
-class ProjectsController extends Controller
+class ProjectVisibilityController extends Controller
 {
-    public $layout = '@app/views/layouts/main-admin.php';
-
     public function behaviors()
     {
         return [
@@ -30,12 +30,12 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Lists all Projects models.
+     * Lists all ProjectVisibility models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new ProjectsSearch();
+        $searchModel = new ProjectVisibilitySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -45,27 +45,25 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Displays a single Projects model.
+     * Displays a single ProjectVisibility model.
      * @param integer $id
      * @return mixed
      */
     public function actionView($id)
     {
-        $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'project_vis_model' => $project_vis_model,
         ]);
     }
 
     /**
-     * Creates a new Projects model.
+     * Creates a new ProjectVisibility model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Projects();
+        $model = new ProjectVisibility();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
@@ -77,7 +75,7 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Updates an existing Projects model.
+     * Updates an existing ProjectVisibility model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -96,7 +94,7 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Deletes an existing Projects model.
+     * Deletes an existing ProjectVisibility model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -109,18 +107,59 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Finds the Projects model based on its primary key value.
+     * Finds the ProjectVisibility model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Projects the loaded model
+     * @return ProjectVisibility the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Projects::findOne($id)) !== null) {
+        if (($model = ProjectVisibility::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+
+    /**
+     * Updates the percentage of the key position items visibility
+     *
+     */
+    public function actionUpdatePosition()
+    {
+        echo '<pre>';
+        $request = Yii::$app->request->get();
+        $project_id = $request['project_id'];
+        $groups = ProjectGroup::find()->where(['project_id' => $project_id])->all();
+        foreach($groups as $group){
+            $group_keys = GroupKey::find()->where(['group_id' => $group->group_id])->all();
+        }
+        $top_ten=0;
+        foreach($group_keys as $group_key){
+            $keys = Keys::find()->where(['id' => $group_key->key_id])->one();
+            if($keys->position->position <= 10)
+                $top_ten++;
+        }
+        $top_ten = $top_ten / count($group_keys) * 100;
+
+        $date = date('dmY');
+        $id = md5($project_id . $date);
+        $exists = ProjectVisibility::find()->where(['id' => $id])->exists();
+
+        if($exists) {
+            $model = $this->findModel($id);
+            $model->visibility = $top_ten;
+            $model->update($model->id);
+        } else {
+            $model = new ProjectVisibility();
+            $model->project_id = $project_id;
+            $model->date = $date;
+            $model->id = $id;
+            $model->visibility = $top_ten;
+            $model->save();
+        }
+        return $this->redirect(Yii::$app->request->referrer);
     }
 }

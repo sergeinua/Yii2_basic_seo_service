@@ -27,19 +27,20 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
+            [
+                'attribute' => 'role',
+                'value' => function($model){
+                    return $model->rolename;
+                }
+            ],
             'username',
+            'email',
             'firstName',
             'lastName',
             [
                 'attribute' => 'created_at',
                 'value' => function($model){
                     return date('d.m.Y H:i', $model->created_at);
-                }
-            ],
-            [
-                'attribute' => 'role',
-                'value' => function($model){
-                    return $model->rolename;
                 }
             ],
 

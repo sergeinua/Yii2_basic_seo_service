@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
+use miloschuman\highcharts\Highcharts;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Projects */
@@ -37,19 +38,25 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             'googlehost',
             'language',
+            [
+                'attribute' => 'upd_period',
+                'value' => $model->upd_period / 86400
+            ],
         ],
     ]) ?>
 
-    <h2>Группы ключевых слов проекта</h2>
+    <h2><?= Yii::t('app', 'Группы ключевых слов проекта'); ?></h2>
 
     <?= Html::a(Yii::t('app', 'Добавить группу ключевых слов'), ['/groups/create', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+
+    <?= Html::a(Yii::t('app', 'test'), ['/keys/scheduled'], ['class'=>'btn btn-primary']); ?>
 
     <table class="table table-striped table-hover">
         <thead>
         <tr>
             <th>ID</th>
-            <th>Title</th>
-            <th>Actions</th>
+            <th><?= Yii::t('app', 'Название'); ?></th>
+            <th><?= Yii::t('app', 'Действия'); ?></th>
         </tr>
         </thead>
         <tbody>
@@ -73,6 +80,42 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php } ?>
         </tbody>
     </table>
+
+
+
+    <div>
+        <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
+
+        <?= Html::a(Yii::t('app', 'Обновить данные'), ['/project-visibility/update-position', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+
+        <?php
+        $i=0;
+        $dates=[];
+        $visibility=[];
+        for($i=0; $i<count($project_vis_model); $i++){
+            $dates[$i] = date($project_vis_model[$i]['date']);
+            $visibility[$i] = $project_vis_model[$i]['visibility'];
+        }
+        for($i=0; $i<count($dates); $i++) {
+            $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
+        };
+        ?>
+
+        <?= Highcharts::widget([
+            'options' => [
+                'title' => ['text' => Yii::t("app", "Ключевые слова проекта")],
+                'xAxis' => [
+                    'categories' => $dates,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t("app", "Видимость %")]
+                ],
+                'series' => [
+                    ['name' => $this->title, 'data' => $visibility],
+                ]
+            ]
+        ]); ?>
+    </div>
 
 
 
