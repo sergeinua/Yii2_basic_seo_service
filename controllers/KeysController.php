@@ -182,6 +182,7 @@ class KeysController extends Controller
 
             $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
         }
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
@@ -196,6 +197,8 @@ class KeysController extends Controller
         $group_id = $request['group_id'];
         $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
         $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key_id);
+        return $this->redirect(Yii::$app->request->referrer);
+
 
     }
 
@@ -279,8 +282,8 @@ class KeysController extends Controller
                 'position' => $project_position,
             ]))->save();
         }
-
-        return $this->redirect(Yii::$app->request->referrer);
+//
+//        return $this->redirect(Yii::$app->request->referrer);
     }
 
     public function getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language)
@@ -361,44 +364,28 @@ class KeysController extends Controller
             $group_ids = ProjectGroup::find()->where(['project_id' => $projects[$i]['id']])->all();
             $n=0;
             for($n=0; $n<count($group_ids); $n++){
-
                 $this->actionCheckGroup($project_id[$i], $project_link, $group_ids[$n]['group_id'], $period[$i]);
             }
         }
-
     }
 
-    // TODO: bug - key items are selected randomly
+    /**
+     * Checks the key items of the selected group if update of the key position needed
+     *
+     */
     public function actionCheckGroup($project_id, $project_link, $group_id, $period){
-        // all keys of the group
-//TODO: change
-        //echo '<meta charset=utf-8>';
-        $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
-        $i=0;
-        for($i=0; $i<count($keys); $i++){
-            $last_upd[$i] = KeyPosition::find()->where(['key_id' => $keys[$i]['key_id']])->orderBy('date desc')->orderBy('time_from_today desc')->one();
 
-            $updated[$i] = $last_upd[$i]['date'] + $last_upd[$i]['time_from_today'];
-
-            //TODO: modify the request via the KeyPosition model
-            $key_title[$i] = Keys::find()->where(['id' => $keys[$i]['key_id']])->one()['title'];
-
-            // checking the period
-            //TODO: change
-//            if((time() - $updated[$i]) > $period){
-            if(true){
-                // updating needed key items positions
-//                echo '<pre>';
-//                var_dump($project_id);
-//                var_dump($project_link);
-//                var_dump($group_id);
-//                var_dump($key_title[$i]);
-//                var_dump($keys[$i]['id']);
-//                var_dump($updated[$i]);
-                $this->actionPlace($project_id, $project_link, $group_id, $key_title[$i], $keys[$i]['id']);
+        $g_k = GroupKey::find()->where(['group_id' => $group_id])->all();
+        foreach($g_k as $item){
+            // getting all the keys
+            $key_pos = KeyPosition::find()->where(['key_id' => $item->key_id])->orderBy('id desc')->one();
+            $updated = $key_pos->date + $key_pos->time_from_today;
+            // checking the terms
+            if((time() - $updated) > $period){
+                // getting the distinct key item
+                $key = Keys::find()->where(['id' => $item->key_id])->one();
+                $this->actionPlace($project_id, $project_link, $group_id, $key['title'], $key['id']);
             }
         }
-
     }
-
 }
