@@ -8,6 +8,9 @@ use yii\data\ActiveDataProvider;
 use app\models\Keys;
 use yii\helpers\Url;
 use miloschuman\highcharts\Highcharts;
+use yii\helpers\ArrayHelper;
+use kartik\daterange\DateRangePicker;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Groups */
@@ -19,6 +22,100 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <?php // applying the correct timezone
     date_default_timezone_set('Europe/Kiev');
+?>
+
+<?php //sorting the results
+$sorted_model = [];
+$i=0;
+
+$sort = Yii::$app->request->get('sort_by');
+if(isset($sort)){
+        switch($sort){
+            case 'key_word':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                break;
+            case 'key_word_desc':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                $sorted_model = array_reverse($sorted_model);
+                break;
+            case 'position':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                break;
+            case 'position_desc':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                $sorted_model = array_reverse($sorted_model);
+                break;
+            case 'last_updated':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                $sorted_model = array_reverse($sorted_model);
+                break;
+            case 'last_updated_desc':
+                foreach ($model->keys as $key) {
+                    $sorted_model[$i]['full_date'] = $key->position->fullDate;
+                    $sorted_model[$i]['position'] = $key->position->position;
+                    $sorted_model[$i]['title'] = $key->title;
+                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['key_id'] = $key->id;
+                    $i++;
+                }
+                sort($sorted_model);
+                break;
+        }
+
+
+} else {
+    // sorting not needed
+    foreach ($model->keys as $key) {
+        $sorted_model[$i]['key_id'] = $key->id;
+        $sorted_model[$i]['title'] = $key->title;
+        $sorted_model[$i]['position'] = $key->position->position;
+        $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+        $sorted_model[$i]['full_date'] = $key->position->fullDate;
+        $i++;
+    }
+    sort($sorted_model);
+}
+
 ?>
 
 <div class="groups-view">
@@ -62,27 +159,67 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update-all-keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
+    <p>
+        <div>
+        <!--?php $form = ActiveForm::begin(); ?-->
+            <?= DateRangePicker::widget([
+                'name' => 'periodForKeys',
+                'convertFormat'=>true,
+                'options' => ['placeholder' => Yii::t('app', 'Отображать за период')],
+                'pluginOptions'=>[
+                    'timePicker'=>true,
+                    'timePickerIncrement'=>10,
+                    'locale'=>[
+                        'format'=>'Y-m-d h:i A'
+                    ]
+                ]]); ?>
+            <div class="form-group">
+                <?= Html::submitButton( Yii::t('app', 'Отображать за период'), ['class' => 'btn btn-primary']) ?>
+            </div>
+        <!--?php $form = ActiveForm::end(); ?-->
+        </div>
+    </p>
+
     <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>ID</th>
-                <th><?= Yii::t('app', 'Ключевые слова'); ?></th>
+                <th><a><?= Html::a('<span>' . Yii::t("app", "Ключевые слова") . '</span>', ['/groups/view',
+                            'id' => Yii::$app->request->get('id'),
+                            //if exists => sort desc
+                            'sort_by' => Yii::$app->request->get('sort_by') === 'key_word' ? 'key_word_desc' : 'key_word',
+                        ]) ?>
+                    </a>
+                </th>
                 <th><?= Yii::t('app', 'Действия'); ?></th>
-                <th><?= Yii::t('app', 'Позиция'); ?></th>
-                <th><?= Yii::t('app', 'Последнее обновление'); ?></th>
+                <th><a><?= Html::a('<span>' . Yii::t("app", "Позиция") . '</span>', ['/groups/view',
+                            'id' => Yii::$app->request->get('id'),
+                            'sort_by' => Yii::$app->request->get('sort_by') === 'position' ? 'position_desc' : 'position',
+                        ]) ?>
+                    </a>
+                </th>
+                <th></th>
+                <th><a><?= Html::a('<span>' . Yii::t("app", "Последнее обновление") . '</span>', ['/groups/view',
+                            'id' => Yii::$app->request->get('id'),
+                            'sort_by' => Yii::$app->request->get('sort_by') === 'last_updated' ? 'last_updated_desc' : 'last_updated',
+                        ]) ?>
+                    </a>
+                </th>
                 <th><?= Yii::t('app', 'Обновить'); ?></th>
             </tr>
         </thead>
         <tbody>
-        <?php foreach ($model->keys as $key) { ?>
+
+        <?php $i=0; ?>
+        <?php for($i=0; $i<count($sorted_model); $i++) { ?>
 
             <tr>
-                <td><?= $key->id ?></td>
-                <td><?= $key->title ?></td>
+                <td><?= $sorted_model[$i]['key_id'] ?></td>
+                <td><?= $sorted_model[$i]['title'] ?></td>
                 <td>
-                    <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/keys/view', 'id' => $key->id]) ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/keys/update', 'id' => $key->id]) ?>
-                    <?= Html::a('<span class="glyphicon glyphicon-remove"></span>', ['/keys/delete', 'id' => $key->id], [
+                    <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/keys/view', 'id' => $sorted_model[$i]['key_id']]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/keys/update', 'id' => $sorted_model[$i]['key_id']]) ?>
+                    <?= Html::a('<span class="glyphicon glyphicon-remove"></span>', ['/keys/delete', 'id' => $sorted_model[$i]['key_id']], [
                         'data' => [
                             'confirm' => 'Are you sure?',
                             'method' => 'post',
@@ -90,35 +227,49 @@ $this->params['breadcrumbs'][] = $this->title;
                     ]) ?>
                 </td>
                 <td>
-                    <?php if(isset($key->position->position)) : ?>
-                        <?= $key->position->position ?>
-                    <?php else : ?>
-                        -
-                    <?php endif; ?>
-
-                    <?php if(isset($key->previous_position['1']['position'])) : ?>
-                        <?php $result = -( (int)$key->position->position - (int)$key->previous_position['1']['position'] );
-                        if($result > 0)
-                            $result = '+' . $result;
-                        ?>
-                        ( <?php echo $result; ?> )
+                    <?php if(isset($sorted_model[$i]['position'])) : ?>
+                        <?= $sorted_model[$i]['position'] ?>
                     <?php else : ?>
                         -
                     <?php endif; ?>
                 </td>
+                <?php if(isset($sorted_model[$i]['prev_position'])) : ?>
+
+                    <?php $result = -( (int)$sorted_model[$i]['position'] - (int)$sorted_model[$i]['prev_position'] ); ?>
+                    <?php if($result > 0) : ?>
+                        <td style="color: green">
+                            <?php $result = '+' . $result; ?>
+                            <?php echo $result; ?>
+                        </td>
+                    <?php endif; ?>
+                    <?php if($result == 0) : ?>
+                        <td>
+                        </td>
+                    <?php endif; ?>
+                    <?php if($result < 0) : ?>
+                        <td style="color: red">
+                            <?php echo $result; ?>
+                        </td>
+                    <?php endif; ?>
+
+                <?php else : ?>
+                    -
+                <?php endif; ?>
                 <td>
-                    <?= isset($key->position->fullDate) ? date("F j, Y, g:i a",  $key->position->fullDate) : ''; ?>
+                    <?= isset($sorted_model[$i]['full_date']) ? date("F j, Y, g:i a",  $sorted_model[$i]['full_date']) : ''; ?>
                 </td>
                 <td>
                     <?= Html::a('<span class="glyphicon glyphicon-refresh"></span>', ['/keys/update-single-key',
-                        'key_id' => $key->id,
+                        'key_id' => $sorted_model[$i]['key_id'],
                         'project_link' => $model->project->title,
                         'group_id' => $model->id,
                     ]) ?>
                 </td>
+
             </tr>
         <?php } ?>
         </tbody>
+
     </table>
 
     <?php
@@ -185,7 +336,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <div>
         <h2><?= Yii::t('app', 'Динамика группы'); ?></h2>
 
-        <?= Html::a(Yii::t('app', 'Обновить данные'), ['/project-visibility/update-position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+        <?= Html::a(Yii::t('app', 'Обновить данные'), ['/group-visibility/update-position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
         <?php
         $i=0;
@@ -216,6 +367,5 @@ $this->params['breadcrumbs'][] = $this->title;
             ]
         ]); ?>
     </div>
-
 
 </div>

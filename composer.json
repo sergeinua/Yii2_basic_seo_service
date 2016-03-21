@@ -29,7 +29,8 @@
         "sergeinua/google-apis-php-clients": "dev-master",
         "codeception/codeception": "*",
         "miloschuman/yii2-highcharts-widget": "*",
-        "moonlandsoft/yii2-phpexcel": "*"
+        "moonlandsoft/yii2-phpexcel": "*",
+        "kartik-v/yii2-date-range": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
