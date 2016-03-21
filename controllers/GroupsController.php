@@ -12,6 +12,8 @@ use yii\filters\VerbFilter;
 use app\models\GroupsForm;
 use app\components\Google\Api\CustomSearch;
 use yii\helpers\Json;
+use yii\helpers\Html;
+use DateTime;
 
 /**
  * GroupsController implements the CRUD actions for Groups model.
@@ -54,7 +56,28 @@ class GroupsController extends Controller
      */
     public function actionView($id)
     {
+
         $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')->all();
+
+        if($periodForKeysFrom = Yii::$app->getRequest()->post('periodForKeysFrom')) {
+            $periodForKeysFrom = DateTime::createFromFormat('Y-m-d', $periodForKeysFrom)->format('dmY');
+        }
+        if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
+            $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
+        }
+
+        if($periodForKeysFrom){
+            $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['>', 'date', $periodForKeysFrom])->all();
+        }
+        if($periodForKeysTill){
+            $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['<', 'date', $periodForKeysTill])->all();
+        }
+        if($periodForKeysFrom and $periodForKeysTill){
+            $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+        }
 
         return $this->render('view', [
             'model' => $this->findModel($id),

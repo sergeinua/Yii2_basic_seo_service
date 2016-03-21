@@ -159,26 +159,7 @@ if(isset($sort)){
 
     <?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update-all-keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
-    <p>
-        <div>
-        <!--?php $form = ActiveForm::begin(); ?-->
-            <?= DateRangePicker::widget([
-                'name' => 'periodForKeys',
-                'convertFormat'=>true,
-                'options' => ['placeholder' => Yii::t('app', 'Отображать за период')],
-                'pluginOptions'=>[
-                    'timePicker'=>true,
-                    'timePickerIncrement'=>10,
-                    'locale'=>[
-                        'format'=>'Y-m-d h:i A'
-                    ]
-                ]]); ?>
-            <div class="form-group">
-                <?= Html::submitButton( Yii::t('app', 'Отображать за период'), ['class' => 'btn btn-primary']) ?>
-            </div>
-        <!--?php $form = ActiveForm::end(); ?-->
-        </div>
-    </p>
+
 
     <table class="table table-striped table-hover">
         <thead>
@@ -338,6 +319,40 @@ if(isset($sort)){
 
         <?= Html::a(Yii::t('app', 'Обновить данные'), ['/group-visibility/update-position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
+        <?php $form = ActiveForm::begin(); ?>
+
+            <label><?= Yii::t('app', 'Начальная дата'); ?></label>
+            <?= DateRangePicker::widget([
+                'name'=>'periodForKeysFrom',
+                'convertFormat'=>true,
+                'pluginOptions'=>[
+                    'timePicker'=>false,
+                    'timePickerIncrement'=>15,
+                    'locale'=>['format' => 'Y-m-d'],
+                    'singleDatePicker'=>true,
+                    'showDropdowns'=>true
+                ]
+            ]); ?>
+
+            <label><?= Yii::t('app', 'Конечная дата'); ?></label>
+            <?= DateRangePicker::widget([
+                'name'=>'periodForKeysTill',
+                'convertFormat'=>true,
+                'pluginOptions'=>[
+                    'timePicker'=>false,
+                    'timePickerIncrement'=>15,
+                    'locale'=>['format' => 'Y-m-d'],
+                    'singleDatePicker'=>true,
+                    'showDropdowns'=>true
+                ]
+            ]); ?>
+
+            <div class="form-group">
+                <?= Html::submitButton( Yii::t('app', 'Применить'), ['class' => 'btn btn-primary']) ?>
+            </div>
+
+        <?php $form = ActiveForm::end(); ?>
+
         <?php
         $i=0;
         $dates=[];
@@ -345,8 +360,7 @@ if(isset($sort)){
         for($i=0; $i<count($gr_vis_model); $i++){
             $dates[$i] = date($gr_vis_model[$i]['date']);
             $visibility[$i] = $gr_vis_model[$i]['visibility'];
-        }?>
-        <?php
+        }
         // formatting dates
         for($i=0; $i<count($dates); $i++) {
             $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');

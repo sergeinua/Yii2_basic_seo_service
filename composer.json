@@ -30,7 +30,8 @@
         "codeception/codeception": "*",
         "miloschuman/yii2-highcharts-widget": "*",
         "moonlandsoft/yii2-phpexcel": "*",
-        "kartik-v/yii2-date-range": "*"
+        "kartik-v/yii2-date-range": "*",
+        "symfony/var-dumper": "^3.0"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
