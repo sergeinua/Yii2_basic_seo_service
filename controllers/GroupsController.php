@@ -81,6 +81,10 @@ class GroupsController extends Controller
         if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
             $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
         }
+        if($periodForKeysFrom == '')
+            $periodForKeysFrom = null;
+        if($periodForKeysTill == '')
+            $periodForKeysTill = null;
 
         if($periodForKeysFrom){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')

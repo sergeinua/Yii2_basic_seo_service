@@ -51,8 +51,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= Html::a(Yii::t('app', 'Добавить группу ключевых слов'), ['/groups/create', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
-    <?= Html::a(Yii::t('app', 'test'), ['/keys/scheduled'], ['class'=>'btn btn-primary']); ?>
-
     <table class="table table-striped table-hover">
         <thead>
         <tr>

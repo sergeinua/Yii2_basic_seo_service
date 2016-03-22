@@ -63,36 +63,6 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
-/*
-        $apiClient = new CustomSearch();
-        $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
-        $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
-        $apiClient->setQuery('сайт под ключ киев');
-
-
-        $response = $apiClient->executeRequest();
-        echo '<meta charset=utf-8>';
-        echo '<pre>';
-
-        $response = Json::decode($response);
-
-        for ($i=0;$i<10;$i++) {
-            var_dump($response['items'][$i]['link']);
-        }
-        die();
-
-
-*/
-
-
-//        echo '<pre>';
-//        print_r(Yii::$app->getUser()->identity);
-//        die();
-//
-//        echo Yii::$app->getUser()->can('user');
-//        die();
-
-
 
 
         return $this->render('index');

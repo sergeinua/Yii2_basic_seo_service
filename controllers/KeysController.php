@@ -45,6 +45,11 @@ class KeysController extends Controller
                         'allow' => true,
                         'roles' => ['user'],
                     ],
+                    [
+                        'actions' => ['scheduled'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
                 ],
             ],
             'verbs' => [
@@ -84,6 +89,10 @@ class KeysController extends Controller
         if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
             $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
         }
+        if($periodForKeysFrom == '')
+            $periodForKeysFrom = null;
+        if($periodForKeysTill == '')
+            $periodForKeysTill = null;
 
         return $this->render('view', [
             'model' => $this->findModel($id),
@@ -341,11 +350,11 @@ class KeysController extends Controller
     {
         $request = Yii::$app->request->get();
         $group_id = $request['group_id'];
-        if($request['periodForKeysFrom']) {
+        if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
         }
-        if($request['periodForKeysTill']) {
+        if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
         }
@@ -389,11 +398,11 @@ class KeysController extends Controller
 
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
 
-        if($request['periodForKeysFrom']) {
+        if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
         }
-        if($request['periodForKeysTill']) {
+        if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
         }
