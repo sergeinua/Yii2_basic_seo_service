@@ -131,7 +131,18 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php $form = ActiveForm::end(); ?>
 
-
+    <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
+        <div><?= Yii::t('app', 'Выбранный период') ?>
+            <?php if($periodForKeysFrom) : ?>
+                <?= Yii::t('app', 'с') ?>
+                <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
+            <?php endif; ?>
+            <?php if($periodForKeysTill) : ?>
+                <?= Yii::t('app', 'по') ?>
+                <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <?= Highcharts::widget([
         'options' => [

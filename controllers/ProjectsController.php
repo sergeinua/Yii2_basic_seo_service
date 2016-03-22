@@ -9,6 +9,8 @@ use app\models\ProjectsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use DateTime;
+use yii\filters\AccessControl;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -20,6 +22,21 @@ class ProjectsController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'allow' => true,
+                        'roles' => ['seo'],
+                    ],
+                    [
+                        'actions' => ['index', 'view'],
+                        'allow' => true,
+                        'roles' => ['user'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -51,10 +68,35 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
+        // none of the periods are defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
+
+        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
+            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
+        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
+            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
+
+        //period from is defined
+        if($periodFrom){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
+        }
+        //period till is defined
+        if($periodTill){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['<=', 'date', $periodTill])->all();
+        }
+        //periods from & till are defined
+        if($periodFrom and $periodTill){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
+        }
+
         return $this->render('view', [
             'model' => $this->findModel($id),
             'project_vis_model' => $project_vis_model,
+            'periodFrom' => $periodFrom,
+            'periodTill' => $periodTill,
         ]);
     }
 

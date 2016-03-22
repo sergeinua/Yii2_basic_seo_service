@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 use miloschuman\highcharts\Highcharts;
+use kartik\daterange\DateRangePicker;
+use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Projects */
@@ -82,13 +84,60 @@ $this->params['breadcrumbs'][] = $this->title;
     </table>
 
 
-
     <div>
         <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
 
         <?= Html::a(Yii::t('app', 'Обновить данные'), ['/project-visibility/update-position', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
-        <?php
+        <?php $form = ActiveForm::begin(); ?>
+
+            <label><?= Yii::t('app', 'Начальная дата'); ?></label>
+            <?= DateRangePicker::widget([
+                'name'=>'periodForProjectFrom',
+                'convertFormat'=>true,
+                'pluginOptions'=>[
+                    'timePicker'=>false,
+                    'timePickerIncrement'=>15,
+                    'locale'=>['format' => 'Y-m-d'],
+                    'singleDatePicker'=>true,
+                    'showDropdowns'=>true
+                ]
+            ]); ?>
+
+            <label><?= Yii::t('app', 'Конечная дата'); ?></label>
+            <?= DateRangePicker::widget([
+                'name'=>'periodForProjectTill',
+                'convertFormat'=>true,
+                'pluginOptions'=>[
+                    'timePicker'=>false,
+                    'timePickerIncrement'=>15,
+                    'locale'=>['format' => 'Y-m-d'],
+                    'singleDatePicker'=>true,
+                    'showDropdowns'=>true
+                ]
+            ]); ?>
+
+            <div class="form-group">
+                <?= Html::submitButton( Yii::t('app', 'Применить'), ['class' => 'btn btn-primary']) ?>
+            </div>
+
+        <?php $form = ActiveForm::end(); ?>
+
+        <?php if($periodFrom || $periodTill) : ?>
+            <div><?= Yii::t('app', 'Выбранный период') ?>
+                <?php if($periodFrom) : ?>
+                    <?= Yii::t('app', 'с') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodFrom)->format('d-m-Y') ?>
+                <?php endif; ?>
+                <?php if($periodTill) : ?>
+                    <?= Yii::t('app', 'по') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodTill)->format('d-m-Y') ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+
+    <?php
         $i=0;
         $dates=[];
         $visibility=[];
@@ -99,7 +148,7 @@ $this->params['breadcrumbs'][] = $this->title;
         for($i=0; $i<count($dates); $i++) {
             $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
         };
-        ?>
+    ?>
 
         <?= Highcharts::widget([
             'options' => [
@@ -115,6 +164,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]
             ]
         ]); ?>
+
     </div>
 
 

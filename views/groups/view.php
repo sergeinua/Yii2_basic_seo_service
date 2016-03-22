@@ -155,8 +155,6 @@ if(isset($sort)){
 
     <?= Html::a(Yii::t('app', 'Добавить ключевое слово'), ['/keys/create', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
-    <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-group', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
-
     <?= Html::a(Yii::t('app', 'Обновить все ключевые слова группы'), ['/keys/update-all-keys', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
 
@@ -319,6 +317,12 @@ if(isset($sort)){
 
         <?= Html::a(Yii::t('app', 'Обновить данные'), ['/group-visibility/update-position', 'group_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
+        <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-group',
+            'group_id' => Yii::$app->request->get('id'),
+            'periodForKeysFrom' => $periodForKeysFrom,
+            'periodForKeysTill' => $periodForKeysTill,
+        ], ['class'=>'btn btn-primary']) ?>
+
         <?php $form = ActiveForm::begin(); ?>
 
             <label><?= Yii::t('app', 'Начальная дата'); ?></label>
@@ -365,6 +369,20 @@ if(isset($sort)){
         for($i=0; $i<count($dates); $i++) {
             $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
         }; ?>
+
+        <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
+            <div><?= Yii::t('app', 'Выбранный период') ?>
+                <?php if($periodForKeysFrom) : ?>
+                    <?= Yii::t('app', 'с') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
+                <?php endif; ?>
+                <?php if($periodForKeysTill) : ?>
+                    <?= Yii::t('app', 'по') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
 
         <?= Highcharts::widget([
             'options' => [

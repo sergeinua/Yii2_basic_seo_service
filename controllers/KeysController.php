@@ -19,6 +19,7 @@ use app\models\KeyPosition;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use DateTime;
+use yii\filters\AccessControl;
 
 
 /**
@@ -31,6 +32,21 @@ class KeysController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key'],
+                        'allow' => true,
+                        'roles' => ['seo'],
+                    ],
+                    [
+                        'actions' => ['index', 'view', 'excel-group', 'excel-key'],
+                        'allow' => true,
+                        'roles' => ['user'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -325,7 +341,14 @@ class KeysController extends Controller
     {
         $request = Yii::$app->request->get();
         $group_id = $request['group_id'];
-
+        if($request['periodForKeysFrom']) {
+            $periodForKeysFrom = $request['periodForKeysFrom'];
+            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+        }
+        if($request['periodForKeysTill']) {
+            $periodForKeysTill = $request['periodForKeysTill'];
+            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+        }
         $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
         $items=[];
         foreach($keys as $key){
@@ -333,6 +356,21 @@ class KeysController extends Controller
         }
 
         $model = KeyPosition::find()->where(['key_id' => $items])->all();
+
+        if($periodForKeysFrom){
+            $model = KeyPosition::find()->where(['key_id' => $items])
+                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+        }
+
+        if($periodForKeysTill){
+            $model = KeyPosition::find()->where(['key_id' => $items])
+                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+        }
+
+        if($periodForKeysFrom and $periodForKeysTill){
+            $model = KeyPosition::find()->where(['key_id' => $items])
+                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+        }
 
         return $this->render('excel', [
             'model' => $model,

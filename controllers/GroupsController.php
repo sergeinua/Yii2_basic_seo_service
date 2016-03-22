@@ -14,6 +14,7 @@ use app\components\Google\Api\CustomSearch;
 use yii\helpers\Json;
 use yii\helpers\Html;
 use DateTime;
+use yii\filters\AccessControl;
 
 /**
  * GroupsController implements the CRUD actions for Groups model.
@@ -25,6 +26,21 @@ class GroupsController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'allow' => true,
+                        'roles' => ['seo'],
+                    ],
+                    [
+                        'actions' => ['index', 'view'],
+                        'allow' => true,
+                        'roles' => ['user'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -68,11 +84,11 @@ class GroupsController extends Controller
 
         if($periodForKeysFrom){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['>', 'date', $periodForKeysFrom])->all();
+                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
         }
         if($periodForKeysTill){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['<', 'date', $periodForKeysTill])->all();
+                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
         }
         if($periodForKeysFrom and $periodForKeysTill){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
@@ -82,6 +98,8 @@ class GroupsController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
             'gr_vis_model' => $gr_vis_model,
+            'periodForKeysFrom' => $periodForKeysFrom,
+            'periodForKeysTill' => $periodForKeysTill,
         ]);
     }
 

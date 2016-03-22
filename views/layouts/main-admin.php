@@ -12,6 +12,19 @@ use yii\widgets\Menu;
 
 AppAsset::register($this);
 ?>
+
+<?php
+// admin
+// seo
+// user
+if(Yii::$app->user->identity)
+    $user_role = Yii::$app->user->identity->role;
+?>
+
+
+
+
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
@@ -37,9 +50,9 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/user/admin/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
+//            ['label' => 'Home', 'url' => ['/user/admin/index']],
+//            ['label' => 'About', 'url' => ['/site/about']],
+//            ['label' => 'Contact', 'url' => ['/site/contact']],
             Yii::$app->user->isGuest ?
                 ['label' => 'Login', 'url' => ['/site/login']] :
                 [
@@ -54,7 +67,7 @@ AppAsset::register($this);
 
     <div class="container">
         <div class="row">
-        <?php /*guest*/ if(!Yii::$app->getUser()->isGuest){ ?>
+        <?php  if(!Yii::$app->getUser()->isGuest){ ?>
                 <div class="col-xs-3 col-md-3 col-lg-3 admin-panel">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
@@ -78,7 +91,6 @@ AppAsset::register($this);
                         echo Menu::widget([
                             'options'=> ['class'=>'sidebar-list sidebar-e'],
                             'items' => [
-                                ['label' => 'Список групп', 'url' => ['/groups/index'], 'options' =>['class' => 'sidebar-list-item']],
                                 ['label' => 'Новая группа', 'url' => ['/groups/create'], 'options' =>['class' => 'sidebar-list-item']],
                             ]]);
                         ?>
@@ -92,12 +104,11 @@ AppAsset::register($this);
                         echo Menu::widget([
                             'options'=> ['class'=>'sidebar-list sidebar-e'],
                             'items' => [
-                                ['label' => 'Список ключевых слов', 'url' => ['/keys/index'], 'options' =>['class' => 'sidebar-list-item']],
                                 ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
                             ]]);
                         ?>
                     </div>
-
+                <?php if($user_role == 'admin') : ?>
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Пользователи</h3>
@@ -110,9 +121,9 @@ AppAsset::register($this);
                             ]]);
                         ?>
                     </div>
-
+                <?php endif; ?>
                 </div>
-            <?php } ?>
+        <?php } ?>
             <div class="col-xs-9 col-md-9 col-lg-9 <?= Yii::$app->getUser()->isGuest ? '' : 'logged-in' ?>">
                 <?= Breadcrumbs::widget([
                     'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
