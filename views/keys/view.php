@@ -94,7 +94,11 @@ $this->params['breadcrumbs'][] = $this->title;
     $positions = array_values($positions);
 ?>
 
-    <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key', 'key_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+    <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key',
+        'key_id' => Yii::$app->request->get('id'),
+        'periodForKeysFrom' => $periodForKeysFrom,
+        'periodForKeysTill' => $periodForKeysTill,
+    ], ['class'=>'btn btn-primary']) ?>
 
 
     <?php $form = ActiveForm::begin(); ?>

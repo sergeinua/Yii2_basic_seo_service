@@ -357,17 +357,17 @@ class KeysController extends Controller
 
         $model = KeyPosition::find()->where(['key_id' => $items])->all();
 
-        if($periodForKeysFrom){
+        if(isset($periodForKeysFrom)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
         }
 
-        if($periodForKeysTill){
+        if(isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
         }
 
-        if($periodForKeysFrom and $periodForKeysTill){
+        if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
         }
@@ -388,6 +388,30 @@ class KeysController extends Controller
         $key_id = $request['key_id'];
 
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
+
+        if($request['periodForKeysFrom']) {
+            $periodForKeysFrom = $request['periodForKeysFrom'];
+            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+        }
+        if($request['periodForKeysTill']) {
+            $periodForKeysTill = $request['periodForKeysTill'];
+            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+        }
+
+        if(isset($periodForKeysFrom)){
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+        }
+
+        if(isset($periodForKeysTill)){
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+        }
+
+        if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+        }
 
         return $this->render('excel', [
             'model' => $model,
