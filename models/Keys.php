@@ -61,8 +61,8 @@ class Keys extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'title' => 'Title',
-            'status' => 'Status',
+            'title' => 'Ключевое слово',
+            'status' => 'Состояние',
         ];
     }
 /*

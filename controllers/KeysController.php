@@ -6,7 +6,6 @@ use app\models\GroupKey;
 use app\models\Groups;
 use app\models\ProjectGroup;
 use app\models\Projects;
-use Faker\Provider\DateTime;
 use Yii;
 use app\models\Keys;
 use app\models\KeysSearch;
@@ -19,6 +18,7 @@ use yii\helpers\Json;
 use app\models\KeyPosition;
 use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
+use DateTime;
 
 
 /**
@@ -62,8 +62,18 @@ class KeysController extends Controller
      */
     public function actionView($id)
     {
+        if($periodForKeysFrom = Yii::$app->getRequest()->post('periodForKeysFrom')) {
+            $periodForKeysFrom = DateTime::createFromFormat('Y-m-d', $periodForKeysFrom)->format('dmY');
+        }
+        if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
+            $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
+        }
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'periodForKeysFrom' => $periodForKeysFrom,
+            'periodForKeysTill' => $periodForKeysTill,
+
         ]);
     }
 
