@@ -362,7 +362,7 @@ class KeysController extends Controller
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
         $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
         $items=[];
@@ -412,9 +412,8 @@ class KeysController extends Controller
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
-
         if(isset($periodForKeysFrom)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
@@ -496,7 +495,7 @@ class KeysController extends Controller
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
 
         if(isset($periodForKeysFrom)){
