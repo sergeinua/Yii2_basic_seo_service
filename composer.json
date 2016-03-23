@@ -31,7 +31,8 @@
         "miloschuman/yii2-highcharts-widget": "*",
         "moonlandsoft/yii2-phpexcel": "*",
         "kartik-v/yii2-date-range": "*",
-        "symfony/var-dumper": "^3.0"
+        "symfony/var-dumper": "^3.0",
+        "kartik-v/yii2-mpdf": "dev-master"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

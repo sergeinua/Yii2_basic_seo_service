@@ -20,6 +20,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\Expression;
 use DateTime;
 use yii\filters\AccessControl;
+use app\components\Additional;
 
 
 /**
@@ -36,12 +37,12 @@ class KeysController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key', 'pdf-key'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
                     [
-                        'actions' => ['index', 'view', 'excel-group', 'excel-key'],
+                        'actions' => ['index', 'view', 'excel-group', 'excel-key', 'pdf-key'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
@@ -468,5 +469,47 @@ class KeysController extends Controller
                 $this->actionPlace($project_id, $project_link, $group_id, $key['title'], $key['id']);
             }
         }
+    }
+
+    public function actionPdfKey(){
+        $this->layout = '@app/views/layouts/main-pdf.php';
+
+        $request = Yii::$app->getRequest()->get();
+        $key_id = $request['key_id'];
+
+        $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
+
+        if(isset($request['periodForKeysFrom'])) {
+            $periodForKeysFrom = $request['periodForKeysFrom'];
+            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+        }
+
+        if(isset($request['periodForKeysTill'])) {
+            $periodForKeysTill = $request['periodForKeysTill'];
+            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+        }
+
+        if(isset($periodForKeysFrom)){
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+        }
+
+        if(isset($periodForKeysTill)){
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+        }
+
+        if(isset($periodForKeysFrom) and isset($periodForKeysTill)) {
+            $model = KeyPosition::find()->where(['key_id' => $key_id])
+                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+        }
+
+        $content = $this->render('pdf', [
+
+            'model' => $model,
+        ]);
+        $fileName = 'keys';
+        $header = 'Keys list';
+        Additional::getPdf($content, $fileName, $header);
     }
 }

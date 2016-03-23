@@ -100,6 +100,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'periodForKeysTill' => $periodForKeysTill,
     ], ['class'=>'btn btn-primary']) ?>
 
+    <?= Html::a(Yii::t('app', 'Экспорт в PDF'), ['/keys/pdf-key',
+        'key_id' => Yii::$app->request->get('id'),
+        'periodForKeysFrom' => $periodForKeysFrom,
+        'periodForKeysTill' => $periodForKeysTill,
+    ], ['class'=>'btn btn-primary']) ?>
+
 
     <?php $form = ActiveForm::begin(); ?>
 
