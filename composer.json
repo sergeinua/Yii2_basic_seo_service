@@ -32,7 +32,8 @@
         "moonlandsoft/yii2-phpexcel": "*",
         "kartik-v/yii2-date-range": "*",
         "symfony/var-dumper": "^3.0",
-        "kartik-v/yii2-mpdf": "dev-master"
+        "kartik-v/yii2-mpdf": "dev-master",
+        "google/apiclient": "^2.0.0@RC"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

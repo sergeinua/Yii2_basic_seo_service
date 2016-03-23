@@ -21,6 +21,9 @@ use yii\db\Expression;
 use DateTime;
 use yii\filters\AccessControl;
 use app\components\Additional;
+use Google_Client;
+use Google_Service_Books;
+use Google_Service_Analytics;
 
 
 /**
@@ -37,7 +40,7 @@ class KeysController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key', 'pdf-key'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key', 'pdf-key', 'google'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
@@ -354,10 +357,12 @@ class KeysController extends Controller
         if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
         }
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
         $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
         $items=[];
@@ -402,10 +407,12 @@ class KeysController extends Controller
         if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
         }
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
 
         if(isset($periodForKeysFrom)){
@@ -482,26 +489,32 @@ class KeysController extends Controller
         if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
+            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
         }
+
 
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
+            $periodForKeysTill = mktime(0,0,0,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
 
         if(isset($periodForKeysFrom)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])
+                ->orderBy('date DESC, time_from_today DESC')->all();
         }
 
         if(isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+                ->andFilterWhere(['<=', 'date', $periodForKeysTill])
+                ->orderBy('date DESC, time_from_today DESC')->all();
         }
 
         if(isset($periodForKeysFrom) and isset($periodForKeysTill)) {
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])
+                ->orderBy('date DESC, time_from_today DESC')->all();
         }
 
         $content = $this->render('pdf', [
@@ -512,4 +525,20 @@ class KeysController extends Controller
         $header = 'Keys list';
         Additional::getPdf($content, $fileName, $header);
     }
+
+    public function actionGoogle(){
+        $client = new Google_Client();
+        $client->setApplicationName("Client_Library_Examples");
+        $client->setDeveloperKey("AIzaSyAS57f0f1-8ZLL1q8fiutpNs3bTU38zE8I");
+
+        $service = new Google_Service_Analytics($client);
+        $optParams = array('filter' => 'free-ebooks');
+        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
+
+        foreach ($results as $item) {
+            dump($item['volumeInfo']['title']);//, "<br /> \n";
+        }
+        die;
+    }
+
 }
