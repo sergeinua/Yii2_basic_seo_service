@@ -24,6 +24,7 @@ use app\components\Additional;
 use Google_Client;
 use Google_Service_Books;
 use Google_Service_Analytics;
+use Google_Auth_AssertionCredentials;
 
 
 /**
@@ -341,6 +342,11 @@ class KeysController extends Controller
         $response = Json::decode($response);
 
         for ($i=0; $i<10; $i++) {
+            if(!isset($response['items'])){
+                //if the limit of the updating attempts is exceeded
+                break;
+                $this->redirect(Yii::$app->request->referrer);
+            }
             if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
                 $project_pos = $i + 1 + $start_pos;
                 break;
@@ -552,22 +558,26 @@ class KeysController extends Controller
 
         // Load the Google API PHP Client Library.
 //        require_once 'google-api-php-client/src/Google/autoload.php';
+//        require_once Yii::$app->basePath . '/vendor/google/apiclient/src/Google/autoload.php';
 
 
 
         // Use the developers console and replace the values with your
         // service account email, and relative location of your key file.
-        $service_account_email = '<Replace with your service account email address.>';
-        $key_file_location = '<Replace with /path/to/generated/client_secrets.p12>';
+        $service_account_email = '356532283258-compute@developer.gserviceaccount.com';
+        $key_file_location = Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12';
 
         // Create and configure a new client object.
         $client = new Google_Client();
-        $client->setApplicationName("HelloAnalytics");
+        $client->setApplicationName("SiteAnalytics");
         $analytics = new Google_Service_Analytics($client);
 
         // Read the generated client_secrets.p12 key.
         $key = file_get_contents($key_file_location);
-        $cred = new Google_Auth_AssertionCredentials(
+//        dump($key);
+
+//        $cred = new Google_Auth_AssertionCredentials(
+        $cred = $client->setAuthConfig(
             $service_account_email,
             array(Google_Service_Analytics::ANALYTICS_READONLY),
             $key
