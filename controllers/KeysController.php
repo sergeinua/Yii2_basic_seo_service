@@ -40,7 +40,8 @@ class KeysController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key', 'pdf-key', 'google'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'excel-group', 'excel-key',
+                            'pdf-key', 'update-single-key', 'update-all-keys','google', 'scheduled'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
@@ -218,7 +219,6 @@ class KeysController extends Controller
 
         foreach($keys as $key){
             $key_title = Keys::find()->where(['id' => $key->key_id])->one()['title'];
-
             $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
         }
         return $this->redirect(Yii::$app->request->referrer);
@@ -250,6 +250,8 @@ class KeysController extends Controller
 
 
         global $project_position;
+        $project_position=0;
+        $result=0;
 
 //        $request = Yii::$app->request->get();
 //        $project_link = $request['project_link'];
@@ -275,7 +277,7 @@ class KeysController extends Controller
             $language = Groups::find()->where(['id' => $group_id])->one()->language;
 
         // $start_pos - defining the start position for the google api search
-        if($p = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->one()){
+        if($p = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('id DESC')->one()){
             /** @var KeyPosition $p */
             $start = $p->position;
         } else {
@@ -303,11 +305,11 @@ class KeysController extends Controller
 
             $result = $this->getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language);
 
-            if (!isset($result)) {
+            if ($result == 0) {
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos - 10, $googlehost, $language);
             }
 
-            if (!isset($result)) {
+            if ($result == 0) {
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos + 10, $googlehost, $language);
             }
 
@@ -321,6 +323,7 @@ class KeysController extends Controller
                 'position' => $project_position,
             ]))->save();
         }
+
 //
 //        return $this->redirect(Yii::$app->request->referrer);
     }
@@ -328,6 +331,7 @@ class KeysController extends Controller
     public function getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language)
     {
         global $project_pos;
+        $project_pos=0;
         $apiClient = new CustomSearch();
         $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
         $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
@@ -525,19 +529,134 @@ class KeysController extends Controller
         Additional::getPdf($content, $fileName, $header);
     }
 
-    public function actionGoogle(){
+//    public function actionGoogle_(){
+//        $client = new Google_Client();
+//        $client->setApplicationName("Client_Library_Examples");
+//        $client->setDeveloperKey("AIzaSyAS57f0f1-8ZLL1q8fiutpNs3bTU38zE8I");
+//
+//        $service = new Google_Service_Analytics($client);
+//        //$optParams = array('filter' => 'free-ebooks');
+////        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
+//        dump($service);
+//
+////        foreach ($results as $item) {
+////            dump($item['volumeInfo']['title']);//, "<br /> \n";
+////        }
+//        die;
+//    }
+
+
+    function getService()
+    {
+        // Creates and returns the Analytics service object.
+
+        // Load the Google API PHP Client Library.
+//        require_once 'google-api-php-client/src/Google/autoload.php';
+
+
+
+        // Use the developers console and replace the values with your
+        // service account email, and relative location of your key file.
+        $service_account_email = '<Replace with your service account email address.>';
+        $key_file_location = '<Replace with /path/to/generated/client_secrets.p12>';
+
+        // Create and configure a new client object.
         $client = new Google_Client();
-        $client->setApplicationName("Client_Library_Examples");
-        $client->setDeveloperKey("AIzaSyAS57f0f1-8ZLL1q8fiutpNs3bTU38zE8I");
+        $client->setApplicationName("HelloAnalytics");
+        $analytics = new Google_Service_Analytics($client);
 
-        $service = new Google_Service_Analytics($client);
-        $optParams = array('filter' => 'free-ebooks');
-        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
-
-        foreach ($results as $item) {
-            dump($item['volumeInfo']['title']);//, "<br /> \n";
+        // Read the generated client_secrets.p12 key.
+        $key = file_get_contents($key_file_location);
+        $cred = new Google_Auth_AssertionCredentials(
+            $service_account_email,
+            array(Google_Service_Analytics::ANALYTICS_READONLY),
+            $key
+        );
+        $client->setAssertionCredentials($cred);
+        if($client->getAuth()->isAccessTokenExpired()) {
+            $client->getAuth()->refreshTokenWithAssertion($cred);
         }
+
+        return $analytics;
+    }
+
+    function getFirstprofileId(&$analytics) {
+        // Get the user's first view (profile) ID.
+
+        // Get the list of accounts for the authorized user.
+        $accounts = $analytics->management_accounts->listManagementAccounts();
+
+        if (count($accounts->getItems()) > 0) {
+            $items = $accounts->getItems();
+            $firstAccountId = $items[0]->getId();
+
+            // Get the list of properties for the authorized user.
+            $properties = $analytics->management_webproperties
+                ->listManagementWebproperties($firstAccountId);
+
+            if (count($properties->getItems()) > 0) {
+                $items = $properties->getItems();
+                $firstPropertyId = $items[0]->getId();
+
+                // Get the list of views (profiles) for the authorized user.
+                $profiles = $analytics->management_profiles
+                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
+
+                if (count($profiles->getItems()) > 0) {
+                    $items = $profiles->getItems();
+
+                    // Return the first view (profile) ID.
+                    return $items[0]->getId();
+
+                } else {
+                    throw new Exception('No views (profiles) found for this user.');
+                }
+            } else {
+                throw new Exception('No properties found for this user.');
+            }
+        } else {
+            throw new Exception('No accounts found for this user.');
+        }
+    }
+
+    function getResults(&$analytics, $profileId) {
+        // Calls the Core Reporting API and queries for the number of sessions
+        // for the last seven days.
+        return $analytics->data_ga->get(
+            'ga:' . $profileId,
+            '7daysAgo',
+            'today',
+            'ga:sessions');
+    }
+
+    function printResults(&$results) {
+        // Parses the response from the Core Reporting API and prints
+        // the profile name and total sessions.
+        if (count($results->getRows()) > 0) {
+
+            // Get the profile name.
+            $profileName = $results->getProfileInfo()->getProfileName();
+
+            // Get the entry for the first entry in the first row.
+            $rows = $results->getRows();
+            $sessions = $rows[0][0];
+
+            // Print the results.
+            print "First view (profile) found: $profileName\n";
+            print "Total sessions: $sessions\n";
+        } else {
+            print "No results found.\n";
+        }
+    }
+    public function actionGoogle()
+    {
+        $analytics = $this->getService();
+        $profile = $this->getFirstProfileId($analytics);
+        $results = $this->getResults($analytics, $profile);
+        $this->printResults($results);
         die;
     }
+
+
 
 }
