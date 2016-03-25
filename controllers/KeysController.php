@@ -551,7 +551,7 @@ class KeysController extends Controller
 //        die;
 //    }
 
-
+/*
     function getService()
     {
         // Creates and returns the Analytics service object.
@@ -570,21 +570,42 @@ class KeysController extends Controller
         // Create and configure a new client object.
         $client = new Google_Client();
         $client->setApplicationName("SiteAnalytics");
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+        $client->useApplicationDefaultCredentials();
+        $client->setScopes(['https://www.googleapis.com/auth/books']);
+        dump($client);
+
         $analytics = new Google_Service_Analytics($client);
+        dump($analytics);
+
+        $accessToken = $client->getAccessToken();
+        dump($accessToken);
+
+        file_put_contents( Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json', json_encode($accessToken));
 
         // Read the generated client_secrets.p12 key.
         $key = file_get_contents($key_file_location);
 //        dump($key);
+//
+////        $cred = new Google_Auth_AssertionCredentials(
+//        $cred = $client->setAuthConfig(
+//            $service_account_email,
+//            array(Google_Service_Analytics::ANALYTICS_READONLY),
+//            $key
+//        );
+        die();
+//        $client->setAuthConfig(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '//components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+        $client->useApplicationDefaultCredentials();
+        $client->setScopes(['https://www.googleapis.com/auth/books']);
+        $service = new Google_Service_Books($client);
+        $results = $service->volumes->listVolumes('Henry David Thoreau');
+        dump($results);
 
-//        $cred = new Google_Auth_AssertionCredentials(
-        $cred = $client->setAuthConfig(
-            $service_account_email,
-            array(Google_Service_Analytics::ANALYTICS_READONLY),
-            $key
-        );
-        $client->setAssertionCredentials($cred);
-        if($client->getAuth()->isAccessTokenExpired()) {
-            $client->getAuth()->refreshTokenWithAssertion($cred);
+
+//        $client->setAssertionCredentials($cred);
+        if($client->isAccessTokenExpired()) {
+            $client->refreshTokenWithAssertion();
         }
 
         return $analytics;
@@ -666,7 +687,154 @@ class KeysController extends Controller
         $this->printResults($results);
         die;
     }
+*/
 
+
+///*
+//    /**
+//     * Get Analytics API object
+//     */
+//    function getService( $service_account_email, $key ) {
+//        // Creates and returns the Analytics service object.
+//
+//        // Load the Google API PHP Client Library.
+//
+//
+//        // Create and configure a new client object.
+//        $client = new Google_Client();
+//        $client->setApplicationName( 'Google Analytics Dashboard' );
+//        $analytics = new Google_Service_Analytics( $client );
+//
+//        // Read the generated client_secrets.p12 key.
+//        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+//        $client->useApplicationDefaultCredentials();
+//
+//        if( $client->isAccessTokenExpired() ) {
+//            $client->refreshTokenWithAssertion();
+//        }
+//
+//        return $analytics;
+//    }
+//
+//    public function actionGoogle()
+//    {
+//
+//
+//        /**
+//         * Set Google service account details
+//         */
+//        $google_account = array(
+//            'email'   => '356532283258-compute@developer.gserviceaccount.com',
+//            'key'     => file_get_contents( Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12' ),
+//            'profile' => '86449576'
+//        );
+//
+//        /**
+//         * Get Analytics API instance
+//         */
+//        $analytics = $this->getService(
+//            $google_account['email'],
+//            $google_account['key']
+//        );
+//
+//        /**
+//         * Query the Analytics data
+//         */
+//        $results = $analytics->data_ga->get(
+//            'ga:' . $google_account['profile'],
+//            '30daysAgo',
+//            'today',
+//            'ga:sessions',
+//            array(
+//                'dimensions' => 'ga:country',
+//                'sort' => '-ga:sessions',
+//                'max-results' => 20
+//            ));
+//        $rows = $results->getRows();
+//        var_dump($rows);
+//
+//    }
+
+    function getService()
+    {
+        // Creates and returns the Analytics service object.
+        // Load the Google API PHP Client Library.
+
+
+
+        // Create and configure a new client object.
+        $client = new \Google_Client();
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+        $client->useApplicationDefaultCredentials();
+        $client->addScope('https://www.googleapis.com/auth/analytics.readonly');
+//        dump(new \Google_Service_Analytics($client));die;
+//        dump($client);die;
+        return new \Google_Service_Analytics($client);
+    }
+    function getFirstprofileId(&$analytics) {
+//        require Yii::$app->basePath . '/vendor/google/apiclient/src/Google/Service/Analytics.php';
+            // Get the user's first view (profile) ID.
+        // Get the list of accounts for the authorized user.
+
+        $accounts = $analytics->management_accounts->listManagementAccounts();
+        if (count($accounts->getItems()) > 0) {
+            $items = $accounts->getItems();
+            $firstAccountId = $items[0]->getId();
+            // Get the list of properties for the authorized user.
+            $properties = $analytics->management_webproperties
+                ->listManagementWebproperties($firstAccountId);
+            if (count($properties->getItems()) > 0) {
+                $items = $properties->getItems();
+                $firstPropertyId = $items[0]->getId();
+                // Get the list of views (profiles) for the authorized user.
+                $profiles = $analytics->management_profiles
+                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
+                if (count($profiles->getItems()) > 0) {
+                    $items = $profiles->getItems();
+                    // Return the first view (profile) ID.
+                    return $items[0]->getId();
+                } else {
+                    throw new Exception('No views (profiles) found for this user.');
+                }
+            } else {
+                throw new Exception('No properties found for this user.');
+            }
+        } else {
+            throw new Exception('No accounts found for this user.');
+        }
+    }
+    function getResults(&$analytics, $profileId) {
+        // Calls the Core Reporting API and queries for the number of sessions
+        // for the last seven days.
+        return $analytics->data_ga->get(
+            'ga:' . $profileId,
+            '7daysAgo',
+            'today',
+            'ga:sessions');
+    }
+    function printResults(&$results) {
+        // Parses the response from the Core Reporting API and prints
+        // the profile name and total sessions.
+        if (count($results->getRows()) > 0) {
+            // Get the profile name.
+            $profileName = $results->getProfileInfo()->getProfileName();
+            // Get the entry for the first entry in the first row.
+            $rows = $results->getRows();
+            $sessions = $rows[0][0];
+            // Print the results.
+            print "First view (profile) found: $profileName\n";
+            print "Total sessions: $sessions\n";
+        } else {
+            print "No results found.\n";
+        }
+    }
+
+    public function actionGoogle(){
+        $analytics = $this->getService();
+        $profile = $this->getFirstProfileId($analytics);
+        $results = $this->getResults($analytics, $profile);
+        printResults($results);
+    }
 
 
 }
