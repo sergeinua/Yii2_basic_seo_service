@@ -1,5 +1,5 @@
 <?php
-
+use app\components\gapi;
 /* @var $this yii\web\View */
 
 $this->title = 'My Yii Application';
@@ -50,4 +50,69 @@ $this->title = 'My Yii Application';
         </div>
 
     </div>
+</div>
+
+
+<?php
+//require Yii::$app->basePath . '/components/gapi.php';
+define('ga_profile_id','86449576');
+$ga = new gapi("356532283258-compute@developer.gserviceaccount.com", Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12');
+//$ga->requestReportData(ga_profile_id,array('browser','browserVersion'),array('pageviews','visits'));
+$ga->requestReportData(ga_profile_id,array('source'),['visits']);
+?>
+<!--<table>-->
+<!--    <tr>-->
+<!--        <th>Browser &amp; Browser Version</th>-->
+<!--        <th>Pageviews</th>-->
+<!--        <th>Visits</th>-->
+<!--    </tr>-->
+<!--    --><?php
+//    foreach($ga->getResults() as $result):
+//        ?>
+<!--        <tr>-->
+<!--            <td>--><?php //echo $result ?><!--</td>-->
+<!--            <td>--><?php //echo $result->getPageviews() ?><!--</td>-->
+<!--            <td>--><?php //echo $result->getVisits() ?><!--</td>-->
+<!--        </tr>-->
+<!--        --><?php
+//    endforeach
+//    ?>
+<!--</table>-->
+<!---->
+<!--<table>-->
+<!--    <tr>-->
+<!--        <th>Total Results</th>-->
+<!--        <td>--><?php //echo $ga->getTotalResults() ?><!--</td>-->
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <th>Total Pageviews</th>-->
+<!--        <td>--><?php //echo $ga->getPageviews() ?>
+<!--    </tr>-->
+<!--    <tr>-->
+<!--        <th>Total Visits</th>-->
+<!--        <td>--><?php //echo $ga->getVisits() ?><!--</td>-->
+<!--    </tr>-->
+<!--</table>-->
+
+<div>
+
+</div>
+<div>
+    <table>
+       <?php foreach($ga->getResults() as $result):
+            ?>
+<?php //dump($result);?>
+               <?php $item_visits = $result->getMetrics(); ?>
+           <?php $item_dimensions = $result->getDimensions(); ?>
+<hr>
+        <?php echo $item_visits['visits']; ?>
+        <?php echo $item_dimensions['source']; ?>
+           <hr>
+
+
+
+            <?php
+        endforeach
+        ?>
+    </table>
 </div>

@@ -5,6 +5,7 @@ use yii\widgets\DetailView;
 use miloschuman\highcharts\Highcharts;
 use kartik\daterange\DateRangePicker;
 use yii\widgets\ActiveForm;
+use yii\bootstrap\Tabs;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Projects */
@@ -135,27 +136,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php endif; ?>
 
 
-    <?php
-        $i=0;
-        $dates=[];
-        $visibility=[];
-        for($i=0; $i<count($project_vis_model); $i++){
-            $dates[$i] = date($project_vis_model[$i]['date']);
-            $visibility[$i] = $project_vis_model[$i]['visibility'];
-        }
-        for($i=0; $i<count($dates); $i++) {
-            $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
-        };
-    ?>
-
+    <?php //project's visibility
+    $dates=[];
+    $visibility=[];
+    for($i=0; $i<count($project_vis_model); $i++){
+        $dates[$i] = date($project_vis_model[$i]['date']);
+        $visibility[$i] = $project_vis_model[$i]['visibility'];
+    }
+    for($i=0; $i<count($dates); $i++) {
+        $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
+    }; ?>
         <?= Highcharts::widget([
             'options' => [
-                'title' => ['text' => Yii::t("app", "Ключевые слова проекта")],
+                'title' => ['text' => Yii::t('app', 'Видимость ключевых слов проекта')],
                 'xAxis' => [
                     'categories' => $dates,
                 ],
                 'yAxis' => [
-                    'title' => ['text' => Yii::t("app", "Видимость %")]
+                    'title' => ['text' => Yii::t('app', 'Видимость %')]
                 ],
                 'series' => [
                     ['name' => $this->title, 'data' => $visibility],
@@ -164,6 +162,325 @@ $this->params['breadcrumbs'][] = $this->title;
         ]); ?>
 
     </div>
+
+    <?php //sources
+    $visits=[];
+    $sources=[];
+    foreach($api_source as $item) :
+        $visits[$i] = $item->getMetrics()['visits'];
+        $sources[$i] = $item->getDimensions()['source'];
+        $i++;
+    endforeach;
+    $visits = array_reverse($visits);
+    $sources = array_reverse($sources); ?>
+
+    <div>
+        <?= Highcharts::widget([
+            'scripts' => [
+                'highcharts-more',
+            ],
+            'options' => [
+                'chart' => [
+                    'type' => 'bar',
+                    'inverted' => false,
+                ],
+                'title' => ['text' => Yii::t('app', 'Источники трафика')],
+                'xAxis' => [
+                    'categories' => $sources,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Количество')]
+                ],
+                'legend' => [
+                    'enabled' => false
+                ],
+                'series' => [[
+                    'name' => Yii::t('app', 'Переходов'),
+                    'data' => $visits,
+                ]]
+            ]
+        ]);?>
+    </div>
+
+    <?php //browsers
+    $visits=[];
+    $browsers=[];
+    foreach($api_browser as $item) :
+        //setting quantity of the displayed results
+        if($i>(count($api_browser)-20)) {
+            $visits[$i] = $item->getMetrics()['visits'];
+            $browsers[$i] = $item->getDimensions()['browser'] . '-' . $item->getDimensions()['browserVersion'];
+        }
+        $i++;
+    endforeach;
+    $visits = array_reverse($visits);
+    $browsers = array_reverse($browsers); ?>
+
+    <div>
+        <?= Highcharts::widget([
+            'scripts' => [
+                'highcharts-more',
+            ],
+            'options' => [
+                'chart' => [
+                    'type' => 'bar',
+                    'inverted' => false,
+                ],
+                'title' => ['text' => Yii::t('app', 'Браузеры')],
+                'xAxis' => [
+                    'categories' => $browsers,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Количество')]
+                ],
+                'legend' => [
+                    'enabled' => false
+                ],
+                'series' => [[
+                    'name' => Yii::t('app', 'Количество'),
+                    'data' => $visits,
+                ]]
+            ]
+        ]); ?>
+    </div>
+
+    <?php //os
+    $visits=[];
+    $os=[];
+    foreach($api_os as $item) :
+        $visits[$i] = $item->getMetrics()['visits'];
+        $os[$i] = $item->getDimensions()['operatingSystem'];
+        $i++;
+    endforeach;
+    $visits = array_reverse($visits);
+    $os = array_reverse($os); ?>
+
+    <div>
+        <?= Highcharts::widget([
+            'scripts' => [
+                'highcharts-more',
+            ],
+            'options' => [
+                'chart' => [
+                    'type' => 'column',
+                    'inverted' => false,
+                ],
+                'title' => ['text' => Yii::t('app', 'ОС')],
+                'xAxis' => [
+                    'categories' => $os,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Количество')]
+                ],
+                'legend' => [
+                    'enabled' => false
+                ],
+                'series' => [[
+                    'name' => Yii::t('app', 'Количество'),
+                    'data' => $visits,
+                ]]
+            ]
+        ]); ?>
+    </div>
+
+    <?php //brands
+    $visits=[];
+    $brands=[];
+    foreach($api_device as $item) :
+        $visits[$i] = $item->getMetrics()['visits'];
+        $brands[$i] = $item->getDimensions()['mobileDeviceBranding'];
+        $i++;
+    endforeach;
+    $visits = array_reverse($visits);
+    $brands = array_reverse($brands); ?>
+
+    <div>
+        <?= Highcharts::widget([
+            'scripts' => [
+                'highcharts-more',
+            ],
+            'options' => [
+                'chart' => [
+                    'type' => 'column',
+                    'inverted' => false,
+                ],
+                'title' => ['text' => Yii::t('app', 'Устройства')],
+                'xAxis' => [
+                    'categories' => $brands,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Количество')]
+                ],
+                'legend' => [
+                    'enabled' => false
+                ],
+                'series' => [[
+                    'name' => Yii::t('app', 'Количество'),
+                    'data' => $visits,
+                ]]
+            ]
+        ]);?>
+    </div>
+
+
+    <?php //users & sessions
+    $users = 0;
+    $sessions = 0;
+    $new_users = 0;
+    foreach($api_users as $item) :
+        $users += $item->getMetrics()['users'];
+        $new_users += $item->getMetrics()['newUsers'];
+        $sessions += $item->getDimensions()['sessionCount'];
+    endforeach;
+    $session_duration = 0;
+    $page_views = 0;
+    $bounce_rate = 0;
+    foreach($api_sessions as $item) :
+        $session_duration += $item->getMetrics()['sessionDuration'];
+        $page_views += $item->getMetrics()['pageviews'];
+        $bounce_rate += $item->getMetrics()['bounceRate'];
+    endforeach;
+    $bounce_rate = $bounce_rate / count($api_sessions) * 100; ?>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th><?= Yii::t('app', 'Сеансы'); ?></th>
+                <th><?= Yii::t('app', 'Пользователи'); ?></th>
+                <th><?= Yii::t('app', 'Просмотры страниц'); ?></th>
+                <th><?= Yii::t('app', 'Новые пользователи'); ?></th>
+                <th><?= Yii::t('app', 'Страниц/сеанс'); ?></th>
+                <th><?= Yii::t('app', 'Показатель отказов'); ?></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><?= $users; ?></td>
+                <td><?= $sessions; ?></td>
+                <td><?= $page_views; ?></td>
+                <td><?= round($new_users / $users * 100); ?> %</td>
+                <td><?= round($page_views / $users, 2); ?></td>
+                <td><?= $bounce_rate; ?></td>
+
+            </tr>
+        </tbody>
+    </table>
+
+    <?php //languages
+    $lng = [];
+    $visits = [];
+    $i = 0;
+    foreach($api_lng as $item) :
+        $lng[$i] = $item->getDimensions()['language'];
+        $visits[$i] = $item->getMetrics()['visits'];
+        $i++;
+    endforeach;
+    $lng = array_reverse($lng);
+    $visits = array_reverse($visits);
+    ?>
+
+    <h3><?= Yii::t('app', 'Язык'); ?></h3>
+    <table class='table table-striped table-hover'>
+        <thead>
+        <tr>
+            <th><?= Yii::t('app', 'Язык'); ?></th>
+            <th><?= Yii::t('app', 'Пользователи'); ?></th>
+            <th>%</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <?php for($i=0; $i<count($lng); $i++) : ?>
+                <tr>
+                    <td><?= $lng[$i]; ?></td>
+                    <td><?= $visits[$i]; ?></td>
+                    <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
+                </tr>
+            <?php endfor; ?>
+
+        </tr>
+        </tbody>
+    </table>
+
+
+
+
+    <?php //countries
+    $country = [];
+    $visits = [];
+    $i = 0;
+    foreach($api_country as $item) :
+        $country[$i] = $item->getDimensions()['countryIsoCode'];
+        $visits[$i] = $item->getMetrics()['visits'];
+
+        $i++;
+    endforeach;
+    $country = array_reverse($country);
+    $visits = array_reverse($visits);
+    ?>
+
+    <h3><?= Yii::t('app', 'Страны'); ?></h3>
+    <table class='table table-striped table-hover'>
+        <thead>
+        <tr>
+            <th><?= Yii::t('app', 'Страна'); ?></th>
+            <th><?= Yii::t('app', 'Пользователей'); ?></th>
+            <th>%</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <?php for($i=0; $i<count($country); $i++) : ?>
+        <tr>
+            <td>
+                <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
+                    'id' => Yii::$app->request->get('id'),
+                    'country' => $country[$i],
+                ]) ?>
+            </td>
+            <td><?= $visits[$i]; ?></td>
+            <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
+        </tr>
+        <?php endfor; ?>
+
+        </tr>
+        </tbody>
+    </table>
+
+    <?php if(Yii::$app->request->get('country')) : ?>
+        <h3><?= Yii::t('app', 'Города'); ?></h3>
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th><?= Yii::t('app', 'Город'); ?></th>
+                <th><?= Yii::t('app', 'Пользователей'); ?></th>
+            </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($api_city as $city) { ?>
+                    <tr>
+                        <td><?= $city['city_id'] ?></td>
+                        <td><?= $city['visits'] ?></td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\ApiCity;
+use app\models\CityName;
 use app\models\ProjectVisibility;
 use Yii;
 use app\models\Projects;
@@ -11,6 +13,8 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use DateTime;
 use yii\filters\AccessControl;
+use app\components\gapi;
+use yii\db\Query;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -68,6 +72,49 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
+        /**
+         * Google Analytics data
+         * @param object $api_browser
+         * @param object $api_source
+         *
+         */
+        //google analytics api data
+        $ga = $this->setGapiParams();
+        //total views & browsers
+        $api_browser = $this->getApiBrowser($ga);
+        //defining source & visits
+        $api_source = $this->getApiSource($ga);
+        //os
+        $api_os = $this->getApiOs($ga);
+        //device
+        $api_device = $this->getApiDevice($ga);
+        //users
+        $api_users = $this->getApiUsers($ga);
+        // sessions
+        $api_sessions = $this->getApiSessions($ga);
+        //language
+        $api_lng = $this->getApiLanguages($ga);
+        //country
+        $api_country = $this->getApiCountry($ga);
+        //city
+        if(Yii::$app->request->get('country'))
+            $api_city = $this->actionGetApiCities($ga);
+
+//        $api_city = $this->actionGetApiCities($ga);
+
+
+
+
+
+//        if(Yii::$app->request->get('country')){
+//            $country = Yii::$app->request->get('country');
+//
+//
+//        }
+
+
+
+
         // none of the periods are defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
@@ -97,6 +144,15 @@ class ProjectsController extends Controller
             'project_vis_model' => $project_vis_model,
             'periodFrom' => $periodFrom,
             'periodTill' => $periodTill,
+            'api_browser' => $api_browser,
+            'api_source' => $api_source,
+            'api_os' => $api_os,
+            'api_device' => $api_device,
+            'api_users' => $api_users,
+            'api_sessions' => $api_sessions,
+            'api_lng' => $api_lng,
+            'api_country' => $api_country,
+            'api_city' => isset($api_city) ? $api_city : null,
         ]);
     }
 
@@ -164,5 +220,103 @@ class ProjectsController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    public function actionGetApiCities($ga){
+        $country = Yii::$app->request->get('country');
+        if(ApiCity::find()->one()){
+            $model = ApiCity::find()->one();
+            if((time() - $model->created_at) > 20 * 60)
+                $this->actionUpdateApiCities($ga);
+
+        } else { // there's no existing data
+            $this->actionUpdateApiCities($ga);
+        }
+        //TODO: add country iso here
+        //$model = ApiCity::find()->select('city_id')->where(['country_iso' => $country])->distinct()->all();
+        $query = new Query();
+        $query->select('city_id, visits')
+                ->from('api_city')
+                ->where(['country_iso' => $country])
+                ->distinct('city_id');
+
+
+        $model = $query->all();
+        return $model;
+    }
+
+    public function actionUpdateApiCities($ga){
+        $api_city = $this->getApiCity($ga);
+        foreach($api_city as $item) :
+            $model = new ApiCity();
+            $model->city_id = $item->getDimensions()['cityId'];
+            $model->country_iso = $item->getDimensions()['countryIsoCode'];
+            $model->visits = $item->getMetrics()['visits'];
+            $model->created_at = date('U');
+            $model->save();
+        endforeach;
+    }
+
+    public function actionImportCityNames(){
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '-1');
+        $csv = [];
+        $lines = file(Yii::$app->basePath . '/components/API_Location.csv', FILE_IGNORE_NEW_LINES);
+
+        foreach ($lines as $key => $value)
+        {
+            $csv[$key] = str_getcsv($value);
+            $model = new CityName();
+            $model->criteriaId = $csv[$key][0];
+            $model->name = $csv[$key][1];
+            $model->canonicalName = $csv[$key][2];
+            $model->parentId = $csv[$key][3];
+            $model->countryCode = $csv[$key][4];
+            $model->targetType = $csv[$key][5];
+            $model->status = $csv[$key][6];
+            $model->save();
+        }
+    }
+
+    public function setGapiParams(){
+        define('ga_profile_id','86449576');
+
+        return new gapi("356532283258-compute@developer.gserviceaccount.com", Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12');
+    }
+
+    public function getApiBrowser($ga){
+        return $ga->requestReportData(ga_profile_id,['browser','browserVersion'], ['pageviews','visits']);
+    }
+
+    public function getApiSource($ga){
+        return $ga->requestReportData(ga_profile_id, ['source'], ['visits']);
+    }
+
+    public function getApiOs($ga){
+        return $ga->requestReportData(ga_profile_id,['operatingSystem'], ['visits']);
+    }
+
+    public function getApiDevice($ga){
+        return $ga->requestReportData(ga_profile_id,['mobileDeviceBranding'], ['visits']);
+    }
+
+    public function getApiUsers($ga){
+        return $ga->requestReportData(ga_profile_id,['sessionCount'],['users', 'newUsers']);
+    }
+
+    public function getApiSessions($ga){
+        return $ga->requestReportData(ga_profile_id,['sessionDurationBucket'], ['sessionDuration', 'pageviews', 'bounceRate']);
+    }
+
+    public function getApiLanguages($ga){
+        return $ga->requestReportData(ga_profile_id,['language'], ['visits']);
+    }
+
+    public function getApiCountry($ga){
+        return $ga->requestReportData(ga_profile_id,['countryIsoCode'], ['visits']);
+    }
+
+    public function getApiCity($ga){
+        return $ga->requestReportData(ga_profile_id,['cityId', 'countryIsoCode'], ['visits']);
     }
 }
