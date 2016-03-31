@@ -405,48 +405,48 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 
+    <?php if(!Yii::$app->request->get('country')) : ?>
+        <?php //countries
+        $country = [];
+        $visits = [];
+        $i = 0;
+        foreach($api_country as $item) :
+            $country[$i] = $item->getDimensions()['countryIsoCode'];
+            $visits[$i] = $item->getMetrics()['visits'];
+            $i++;
+        endforeach;
+        $country = array_reverse($country);
+        $visits = array_reverse($visits);
+        ?>
 
-    <?php //countries
-    $country = [];
-    $visits = [];
-    $i = 0;
-    foreach($api_country as $item) :
-        $country[$i] = $item->getDimensions()['countryIsoCode'];
-        $visits[$i] = $item->getMetrics()['visits'];
+        <h3><?= Yii::t('app', 'Страны'); ?></h3>
+        <table class='table table-striped table-hover'>
+            <thead>
+            <tr>
+                <th><?= Yii::t('app', 'Страна'); ?></th>
+                <th><?= Yii::t('app', 'Пользователей'); ?></th>
+                <th>%</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <?php for($i=0; $i<count($country); $i++) : ?>
+            <tr>
+                <td>
+                    <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
+                        'id' => Yii::$app->request->get('id'),
+                        'country' => $country[$i],
+                    ]) ?>
+                </td>
+                <td><?= $visits[$i]; ?></td>
+                <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
+            </tr>
+            <?php endfor; ?>
 
-        $i++;
-    endforeach;
-    $country = array_reverse($country);
-    $visits = array_reverse($visits);
-    ?>
-
-    <h3><?= Yii::t('app', 'Страны'); ?></h3>
-    <table class='table table-striped table-hover'>
-        <thead>
-        <tr>
-            <th><?= Yii::t('app', 'Страна'); ?></th>
-            <th><?= Yii::t('app', 'Пользователей'); ?></th>
-            <th>%</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <?php for($i=0; $i<count($country); $i++) : ?>
-        <tr>
-            <td>
-                <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
-                    'id' => Yii::$app->request->get('id'),
-                    'country' => $country[$i],
-                ]) ?>
-            </td>
-            <td><?= $visits[$i]; ?></td>
-            <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
-        </tr>
-        <?php endfor; ?>
-
-        </tr>
-        </tbody>
-    </table>
+            </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
 
     <?php if(Yii::$app->request->get('country')) : ?>
         <h3><?= Yii::t('app', 'Города'); ?></h3>

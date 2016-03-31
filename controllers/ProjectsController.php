@@ -100,19 +100,6 @@ class ProjectsController extends Controller
         if(Yii::$app->request->get('country'))
             $api_city = $this->actionGetApiCities($ga);
 
-//        $api_city = $this->actionGetApiCities($ga);
-
-
-
-
-
-//        if(Yii::$app->request->get('country')){
-//            $country = Yii::$app->request->get('country');
-//
-//
-//        }
-
-
 
 
         // none of the periods are defined
@@ -222,31 +209,46 @@ class ProjectsController extends Controller
         }
     }
 
+    /**
+     * Finds the quantity of the users, that came from the defined country
+     * If period (20 min) exceeds - updates visits
+     * @param object $ga
+     * @return ApiCity
+     */
     public function actionGetApiCities($ga){
         $country = Yii::$app->request->get('country');
         if(ApiCity::find()->one()){
             $model = ApiCity::find()->one();
-            if((time() - $model->created_at) > 20 * 60)
+            if((time() - $model->created_at) > 20 * 60 * 60)
                 $this->actionUpdateApiCities($ga);
 
         } else { // there's no existing data
             $this->actionUpdateApiCities($ga);
         }
-        //TODO: add country iso here
-        //$model = ApiCity::find()->select('city_id')->where(['country_iso' => $country])->distinct()->all();
+
         $query = new Query();
         $query->select('city_id, visits')
                 ->from('api_city')
                 ->where(['country_iso' => $country])
-                ->distinct('city_id');
-
-
+                ->distinct('city_id')
+                ->orderBy('visits desc');
         $model = $query->all();
+
+        $i=0;
+        foreach($model as $item) :
+            $model[$i]['city_id'] = CityName::find()->where(['criteriaId' => $item['city_id']])->one()['name'];
+            $i++;
+        endforeach;
         return $model;
     }
 
+    /**
+     * Updates the quantity of the users, that came from the defined country
+     *@param object $ga
+     */
     public function actionUpdateApiCities($ga){
         $api_city = $this->getApiCity($ga);
+        ApiCity::deleteAll();
         foreach($api_city as $item) :
             $model = new ApiCity();
             $model->city_id = $item->getDimensions()['cityId'];
@@ -257,12 +259,16 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Updates city & country names
+     * source: Google Analytics Api .csv file
+     */
     public function actionImportCityNames(){
+        CityName::deleteAll();
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', '-1');
-        $csv = [];
         $lines = file(Yii::$app->basePath . '/components/API_Location.csv', FILE_IGNORE_NEW_LINES);
-
+        $csv = [];
         foreach ($lines as $key => $value)
         {
             $csv[$key] = str_getcsv($value);
@@ -278,9 +284,11 @@ class ProjectsController extends Controller
         }
     }
 
+    /**
+     * Sets params for gapi class (Google Analytics Api)
+     */
     public function setGapiParams(){
         define('ga_profile_id','86449576');
-
         return new gapi("356532283258-compute@developer.gserviceaccount.com", Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12');
     }
 
