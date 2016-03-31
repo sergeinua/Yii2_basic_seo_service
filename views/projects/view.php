@@ -6,6 +6,7 @@ use miloschuman\highcharts\Highcharts;
 use kartik\daterange\DateRangePicker;
 use yii\widgets\ActiveForm;
 use yii\bootstrap\Tabs;
+use yii\base\View;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Projects */
@@ -367,113 +368,22 @@ $this->params['breadcrumbs'][] = $this->title;
         </tbody>
     </table>
 
-    <?php //languages
-    $lng = [];
-    $visits = [];
-    $i = 0;
-    foreach($api_lng as $item) :
-        $lng[$i] = $item->getDimensions()['language'];
-        $visits[$i] = $item->getMetrics()['visits'];
-        $i++;
-    endforeach;
-    $lng = array_reverse($lng);
-    $visits = array_reverse($visits);
-    ?>
 
-    <h3><?= Yii::t('app', 'Язык'); ?></h3>
-    <table class='table table-striped table-hover'>
-        <thead>
-        <tr>
-            <th><?= Yii::t('app', 'Язык'); ?></th>
-            <th><?= Yii::t('app', 'Пользователи'); ?></th>
-            <th>%</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <?php for($i=0; $i<count($lng); $i++) : ?>
-                <tr>
-                    <td><?= $lng[$i]; ?></td>
-                    <td><?= $visits[$i]; ?></td>
-                    <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
-                </tr>
-            <?php endfor; ?>
-
-        </tr>
-        </tbody>
-    </table>
-
-
-
-    <?php if(!Yii::$app->request->get('country')) : ?>
-        <?php //countries
-        $country = [];
-        $visits = [];
-        $i = 0;
-        foreach($api_country as $item) :
-            $country[$i] = $item->getDimensions()['countryIsoCode'];
-            $visits[$i] = $item->getMetrics()['visits'];
-            $i++;
-        endforeach;
-        $country = array_reverse($country);
-        $visits = array_reverse($visits);
-        ?>
-
-        <h3><?= Yii::t('app', 'Страны'); ?></h3>
-        <table class='table table-striped table-hover'>
-            <thead>
-            <tr>
-                <th><?= Yii::t('app', 'Страна'); ?></th>
-                <th><?= Yii::t('app', 'Пользователей'); ?></th>
-                <th>%</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <?php for($i=0; $i<count($country); $i++) : ?>
-            <tr>
-                <td>
-                    <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
-                        'id' => Yii::$app->request->get('id'),
-                        'country' => $country[$i],
-                    ]) ?>
-                </td>
-                <td><?= $visits[$i]; ?></td>
-                <td><?= round($visits[$i] / array_sum($visits) * 100, 2) ?></td>
-            </tr>
-            <?php endfor; ?>
-
-            </tr>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-    <?php if(Yii::$app->request->get('country')) : ?>
-        <h3><?= Yii::t('app', 'Города'); ?></h3>
-        <table class="table table-striped table-hover">
-            <thead>
-            <tr>
-                <th><?= Yii::t('app', 'Город'); ?></th>
-                <th><?= Yii::t('app', 'Пользователей'); ?></th>
-            </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($api_city as $city) { ?>
-                    <tr>
-                        <td><?= $city['city_id'] ?></td>
-                        <td><?= $city['visits'] ?></td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-
-
-
-
-
-
+    <?= Tabs::widget([
+        'items' => [
+            [
+                'label' => ($api_city == null) ? Yii::t('app', 'Страны') : Yii::t('app', 'Города'),
+                'content' => View::render('_second_tab', [
+                    'api_country' => $api_country,
+                    'api_city' => $api_city,
+                ]),
+                'active' => true,
+            ],
+            [
+                'label' => Yii::t('app', 'Язык'),
+                'content' => View::render('_first_tab', ['api_lng' => $api_lng]),
+            ],
+        ]]); ?>
 
 
 
