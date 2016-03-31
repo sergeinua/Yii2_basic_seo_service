@@ -3,6 +3,7 @@
 namespace app\components;
 
 use yii\base\Exception;
+use Yii;
 
 /**
  * GAPI - Google Analytics PHP Interface
@@ -165,11 +166,21 @@ class gapi {
         if ($start_date==null) {
             // Use the day that Google Analytics was released (1 Jan 2005).
             $start_date = '2016-01-01';
+            //start_date is sent from the project's view
+            if($date_from = Yii::$app->getRequest()->post('periodForProjectFrom'))
+                $start_date = $date_from;
+            if($date_from = Yii::$app->getRequest()->get('periodForProjectFrom'))
+                $start_date = $date_from;
         } elseif (is_int($start_date)) {
             // Perhaps we are receiving a Unix timestamp.
             $start_date = date('Y-m-d', $start_date);
         }
         $parameters['start-date'] = $start_date;
+        //end_date is sent from the project's view
+        if($date_till = Yii::$app->getRequest()->post('periodForProjectTill'))
+            $end_date = $date_till;
+        if($date_till = Yii::$app->getRequest()->get('periodForProjectTill'))
+            $end_date = $date_till;
         if ($end_date==null) {
             $end_date = date('Y-m-d');
         } elseif (is_int($end_date)) {

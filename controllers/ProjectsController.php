@@ -76,6 +76,13 @@ class ProjectsController extends Controller
          * Google Analytics data
          * @param object $api_browser
          * @param object $api_source
+         * @param object $api_os
+         * @param object $api_device
+         * @param object $api_users
+         * @param object $api_sessions
+         * @param object $api_lng
+         * @param object $api_country
+         * @param object $api_city
          *
          */
         //google analytics api data
@@ -100,9 +107,7 @@ class ProjectsController extends Controller
         if(Yii::$app->request->get('country'))
             $api_city = $this->actionGetApiCities($ga);
 
-
-
-        // none of the periods are defined
+        // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
         if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
@@ -212,6 +217,7 @@ class ProjectsController extends Controller
     /**
      * Finds the quantity of the users, that came from the defined country
      * If period (20 min) exceeds - updates visits
+     * If the date range isset - updates ApiCity model
      * @param object $ga
      * @return ApiCity
      */
@@ -221,7 +227,6 @@ class ProjectsController extends Controller
             $model = ApiCity::find()->one();
             if((time() - $model->created_at) > 20 * 60 * 60)
                 $this->actionUpdateApiCities($ga);
-
         } else { // there's no existing data
             $this->actionUpdateApiCities($ga);
         }

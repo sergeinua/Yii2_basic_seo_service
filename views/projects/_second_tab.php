@@ -34,6 +34,8 @@ use yii\helpers\Html;
                         <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
                             'id' => Yii::$app->request->get('id'),
                             'country' => $country[$i],
+                            'periodForProjectFrom' => Yii::$app->getRequest()->post('periodForProjectFrom') ? Yii::$app->getRequest()->post('periodForProjectFrom') : null,
+                            'periodForProjectTill' => Yii::$app->getRequest()->post('periodForProjectTill') ? Yii::$app->getRequest()->post('periodForProjectTill') : null,
                         ]) ?>
                     </td>
                     <td><?= $visits[$i]; ?></td>
