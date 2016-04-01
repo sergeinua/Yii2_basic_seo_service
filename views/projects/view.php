@@ -339,9 +339,9 @@ $this->params['breadcrumbs'][] = $this->title;
     foreach($api_sessions as $item) :
         $session_duration += $item->getMetrics()['sessionDuration'];
         $page_views += $item->getMetrics()['pageviews'];
-        $bounce_rate += $item->getMetrics()['bounceRate'];
+        $bounce_rate += $item->getMetrics()['bounces'];
     endforeach;
-    $bounce_rate = $bounce_rate / count($api_sessions) * 100; ?>
+    $bounce_rate = $bounce_rate / $users * 100; ?>
 
     <table class="table table-striped table-hover">
         <thead>
@@ -362,7 +362,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= $page_views; ?></td>
                 <td><?= round($new_users / $users * 100); ?> %</td>
                 <td><?= round($page_views / $users, 2); ?></td>
-                <td><?= $bounce_rate; ?></td>
+                <td><?= round($bounce_rate, 2); ?> %</td>
 
             </tr>
         </tbody>

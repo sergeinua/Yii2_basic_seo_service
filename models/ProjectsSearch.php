@@ -65,10 +65,11 @@ class ProjectsSearch extends Projects
 
         /**
          * all projects're visible for admin only
-         * the rest can access only defined (via ProjectUser model) projects
+         * the rest can view only defined (via ProjectUser model) projects
         */
-        if(Yii::$app->user->identity->role == 'admin') {
+        if(Yii::$app->user->identity->role != 'admin') {
             $user_id = Yii::$app->user->identity->id;
+            /** projects of the current user **/
             $project_list = ProjectUser::find()->where(['user_id' => $user_id])->all();
             $projects = [];
             foreach($project_list as $key => $value) :

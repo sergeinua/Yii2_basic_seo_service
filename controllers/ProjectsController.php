@@ -323,7 +323,7 @@ class ProjectsController extends Controller
     }
 
     public function getApiSessions($ga){
-        return $ga->requestReportData(ga_profile_id,['sessionDurationBucket'], ['sessionDuration', 'pageviews', 'bounceRate']);
+        return $ga->requestReportData(ga_profile_id,['sessionDurationBucket'], ['sessionDuration', 'pageviews', 'bounces']);
     }
 
     public function getApiLanguages($ga){
