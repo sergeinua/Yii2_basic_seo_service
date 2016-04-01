@@ -12,7 +12,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="projects-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <h1><?= Yii::t('app', 'Проекты') ?></h1>
     <?php  //echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>

@@ -71,59 +71,59 @@ if(Yii::$app->user->identity)
     <div class="container">
         <div class="row">
             <div class="col-xs-3 col-md-3 col-lg-3 admin-panel">
+                <!-- BEGIN show menu only for authorized users -->
+                <?php  if(isset($user_role)) : ?>
+                    <?php  if($user_role == 'admin') : ?>
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><?= Yii::t('app', 'Меню'); ?></h3>
+                            </div>
+                            <?php
+                            echo Menu::widget([
+                                'options'=> ['class'=>'sidebar-list sidebar-e'],
+                                'items' => [
+                                    ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                    ['label' => 'Пользователи проектов', 'url' => ['/project-user/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                    ['label' => 'Новый проект', 'url' => ['/projects/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                    ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
 
-                <?php  if($user_role == 'admin') : ?>
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Проекты</h3>
+                                    ['label' => Yii::t('app', 'Загрузить список проектов'), 'url' => ['projects/get-api-analytics-models'], 'options' =>['class' => 'sidebar-list-item']],
+                                ]]);
+                            ?>
                         </div>
-                        <?php
-                        echo Menu::widget([
-                            'options'=> ['class'=>'sidebar-list sidebar-e'],
-                            'items' => [
-                                ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Пользователи проектов', 'url' => ['/project-user/index'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Новый проект', 'url' => ['/projects/create'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => Yii::t('app', 'Загрузить список проектов'), 'url' => ['projects/get-api-analytics-models'], 'options' =>['class' => 'sidebar-list-item']],
-                            ]]);
-                        ?>
-                    </div>
-            <?php endif; ?>
+                    <?php endif; ?>
 
-            <?php  if($user_role == 'seo') : ?>
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Группы</h3>
+                    <?php  if($user_role == 'seo') : ?>
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><?= Yii::t('app', 'Меню'); ?></h3>
+                            </div>
+                            <?php
+                            echo Menu::widget([
+                                'options'=> ['class'=>'sidebar-list sidebar-e'],
+                                'items' => [
+                                    ['label' => 'Новая группа', 'url' => ['/groups/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                ]]);
+                            ?>
                         </div>
-                        <?php
-                        echo Menu::widget([
-                            'options'=> ['class'=>'sidebar-list sidebar-e'],
-                            'items' => [
-                                ['label' => 'Новая группа', 'url' => ['/groups/create'], 'options' =>['class' => 'sidebar-list-item']],
-                            ]]);
-                        ?>
-                    </div>
-            <?php endif; ?>
+                    <?php endif; ?>
 
-            <?php  if($user_role == 'user') : ?>
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Ключевые слова</h3>
+                    <?php  if($user_role == 'user') : ?>
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><?= Yii::t('app', 'Меню'); ?></h3>
+                            </div>
+                            <?php
+                            echo Menu::widget([
+                                'options'=> ['class'=>'sidebar-list sidebar-e'],
+                                'items' => [
+                                    ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                ]]);
+                            ?>
                         </div>
-                        <?php
-                        echo Menu::widget([
-                            'options'=> ['class'=>'sidebar-list sidebar-e'],
-                            'items' => [
-                                ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
-                                ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
-                            ]]);
-                        ?>
-                    </div>
+                    <?php endif; ?>
+            <!-- END show menu only for authorized users -->
             <?php endif; ?>
-
-
         </div>
 
             <div class="col-xs-9 col-md-9 col-lg-9 <?= Yii::$app->getUser()->isGuest ? '' : 'logged-in' ?>">

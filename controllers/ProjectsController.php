@@ -112,8 +112,6 @@ class ProjectsController extends Controller
         if(Yii::$app->request->get('country'))
             $api_city = $this->actionGetApiCities($ga);
 
-
-
         // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
