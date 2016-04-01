@@ -14,9 +14,12 @@ AppAsset::register($this);
 ?>
 
 <?php
-// admin
-// seo
-// user
+
+/**
+* admin
+* seo
+* user
+**/
 if(Yii::$app->user->identity)
     $user_role = Yii::$app->user->identity->role;
 ?>
@@ -67,8 +70,9 @@ if(Yii::$app->user->identity)
 
     <div class="container">
         <div class="row">
-        <?php  if(!Yii::$app->getUser()->isGuest){ ?>
-                <div class="col-xs-3 col-md-3 col-lg-3 admin-panel">
+            <div class="col-xs-3 col-md-3 col-lg-3 admin-panel">
+
+                <?php  if($user_role == 'admin') : ?>
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Проекты</h3>
@@ -78,11 +82,17 @@ if(Yii::$app->user->identity)
                             'options'=> ['class'=>'sidebar-list sidebar-e'],
                             'items' => [
                                 ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Пользователи проектов', 'url' => ['/project-user/index'], 'options' =>['class' => 'sidebar-list-item']],
                                 ['label' => 'Новый проект', 'url' => ['/projects/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => Yii::t('app', 'Загрузить список проектов'), 'url' => ['projects/get-api-analytics-models'], 'options' =>['class' => 'sidebar-list-item']],
                             ]]);
                         ?>
                     </div>
+            <?php endif; ?>
 
+            <?php  if($user_role == 'seo') : ?>
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Группы</h3>
@@ -95,7 +105,9 @@ if(Yii::$app->user->identity)
                             ]]);
                         ?>
                     </div>
+            <?php endif; ?>
 
+            <?php  if($user_role == 'user') : ?>
                     <div class="panel panel-primary">
                         <div class="panel-heading">
                             <h3 class="panel-title">Ключевые слова</h3>
@@ -105,25 +117,15 @@ if(Yii::$app->user->identity)
                             'options'=> ['class'=>'sidebar-list sidebar-e'],
                             'items' => [
                                 ['label' => 'Новое ключевое слово', 'url' => ['/keys/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
                             ]]);
                         ?>
                     </div>
-                <?php if($user_role == 'admin') : ?>
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">Пользователи</h3>
-                        </div>
-                        <?php
-                        echo Menu::widget([
-                            'options'=> ['class'=>'sidebar-list sidebar-e'],
-                            'items' => [
-                                ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
-                            ]]);
-                        ?>
-                    </div>
-                <?php endif; ?>
-                </div>
-        <?php } ?>
+            <?php endif; ?>
+
+
+        </div>
+
             <div class="col-xs-9 col-md-9 col-lg-9 <?= Yii::$app->getUser()->isGuest ? '' : 'logged-in' ?>">
                 <?= Breadcrumbs::widget([
                     'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],

@@ -39,6 +39,11 @@ class ProjectsController extends Controller
                         'allow' => true,
                         'roles' => ['user'],
                     ],
+                    [
+                        'actions' => ['get-api-analytics-models'],
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
                 ],
             ],
             'verbs' => [
@@ -106,6 +111,8 @@ class ProjectsController extends Controller
         //city
         if(Yii::$app->request->get('country'))
             $api_city = $this->actionGetApiCities($ga);
+
+
 
         // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
@@ -332,4 +339,26 @@ class ProjectsController extends Controller
     public function getApiCity($ga){
         return $ga->requestReportData(ga_profile_id,['cityId', 'countryIsoCode'], ['visits']);
     }
+
+
+    /**
+     * Adds new projects via Google Analytics Api
+     */
+    public function actionGetApiAnalyticsModels(){
+        $ga = $this->setGapiParams();
+        $result = $ga->requestAccountData();
+        dump($result);
+        $exists = null;
+        foreach($result as $item) :
+            $exists = Projects::find()->where(['title' => $item->getwebsiteUrl() . '/'])->one();
+            if(!$exists){
+                $model = new Projects();
+                $model->title = $item->getwebsiteUrl() . '/';
+                $model->status = '1';
+                $model->save();
+            }
+        endforeach;
+    }
+
+
 }

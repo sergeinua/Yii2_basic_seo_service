@@ -129,7 +129,6 @@ class ProjectVisibilityController extends Controller
      */
     public function actionUpdatePosition()
     {
-        echo '<pre>';
         $request = Yii::$app->request->get();
         $project_id = $request['project_id'];
         $groups = ProjectGroup::find()->where(['project_id' => $project_id])->all();
