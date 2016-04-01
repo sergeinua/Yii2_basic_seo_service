@@ -63,6 +63,21 @@ class ProjectsSearch extends Projects
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        /**
+         * all projects're visible for admin only
+         * the rest can access only defined (via ProjectUser model) projects
+        */
+        if(Yii::$app->user->identity->role == 'admin') {
+            $user_id = Yii::$app->user->identity->id;
+            $project_list = ProjectUser::find()->where(['user_id' => $user_id])->all();
+            $projects = [];
+            foreach($project_list as $key => $value) :
+                $projects[$key] = $value->project_id;
+            endforeach;
+
+            $query->andFilterWhere(['id' => $projects]);
+        }
+
         return $dataProvider;
     }
 }
