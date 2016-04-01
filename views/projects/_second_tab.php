@@ -31,7 +31,7 @@ use yii\helpers\Html;
                     <?php for($i=0; $i<count($country); $i++) : ?>
                 <tr>
                     <td>
-                        <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/view',
+                        <?= Html::a('<span>' . $country[$i] . '</span>', ['/projects/show-analytics',
                             'id' => Yii::$app->request->get('id'),
                             'country' => $country[$i],
                             'periodForProjectFrom' => Yii::$app->getRequest()->post('periodForProjectFrom') ? Yii::$app->getRequest()->post('periodForProjectFrom') : null,
