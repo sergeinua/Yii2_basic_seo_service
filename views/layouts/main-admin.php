@@ -102,7 +102,7 @@ if(Yii::$app->user->identity)
                             echo Menu::widget([
                                 'options'=> ['class'=>'sidebar-list sidebar-e'],
                                 'items' => [
-                                    ['label' => 'Новая группа', 'url' => ['/groups/create'], 'options' =>['class' => 'sidebar-list-item']],
+                                    ['label' => 'Список проектов', 'url' => ['/projects/index'], 'options' =>['class' => 'sidebar-list-item']],
                                 ]]);
                             ?>
                         </div>
@@ -122,8 +122,36 @@ if(Yii::$app->user->identity)
                             ?>
                         </div>
                     <?php endif; ?>
-            <!-- END show menu only for authorized users -->
+                    <!--MENU_ITEM_1_BEGIN seen in the project controller only -->
+                    <?php if(Yii::$app->controller->id == 'projects' &&
+                        Yii::$app->controller->action->id == 'view' ||
+                        Yii::$app->controller->action->id == 'show-prodvigator' ||
+                        Yii::$app->controller->action->id == 'show-analytics') : ?>
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><?= Yii::t('app', 'Проект'); ?></h3>
+                            </div>
+                            <?php
+                            echo Menu::widget([
+                                'options'=> ['class'=>'sidebar-list sidebar-e'],
+                                'items' => [
+                                    ['label' => 'Аналитика', 'url' => ['/projects/show-analytics',
+                                        'id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')
+                                    ],
+                                        'options' =>['class' => 'sidebar-list-item']],
+                                    ['label' => 'Продвигатор', 'url' => ['/projects/show-prodvigator',
+                                        'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')
+                                    ],
+                                        'options' =>['class' => 'sidebar-list-item']],
+                                ]]);
+                            ?>
+                        </div>
+                    <?php endif; ?>
+                    <!--MENU_ITEM_1_END -->
+
+
             <?php endif; ?>
+            <!-- END show menu only for authorized users -->
         </div>
 
             <div class="col-xs-9 col-md-9 col-lg-9 <?= Yii::$app->getUser()->isGuest ? '' : 'logged-in' ?>">

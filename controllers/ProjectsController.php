@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\ApiCity;
 use app\models\CityName;
+use app\models\ProdvigatorData;
 use app\models\ProjectVisibility;
 use Yii;
 use app\models\Projects;
@@ -30,12 +31,14 @@ class ProjectsController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete',
+                            'show-analytics', 'show-prodvigator', 'update-prodvigator'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
                     [
-                        'actions' => ['index', 'view'],
+                        'actions' => ['index', 'view', 'show-analytics',
+                            'show-prodvigator', 'update-prodvigator'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
@@ -77,79 +80,79 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
-        /**
-         * Google Analytics data
-         * @param object $api_browser
-         * @param object $api_source
-         * @param object $api_os
-         * @param object $api_device
-         * @param object $api_users
-         * @param object $api_sessions
-         * @param object $api_lng
-         * @param object $api_country
-         * @param object $api_city
-         *
-         */
-        //google analytics api data
-        $ga = $this->setGapiParams();
-        //total views & browsers
-        $api_browser = $this->getApiBrowser($ga);
-        //defining source & visits
-        $api_source = $this->getApiSource($ga);
-        //os
-        $api_os = $this->getApiOs($ga);
-        //device
-        $api_device = $this->getApiDevice($ga);
-        //users
-        $api_users = $this->getApiUsers($ga);
-        // sessions
-        $api_sessions = $this->getApiSessions($ga);
-        //language
-        $api_lng = $this->getApiLanguages($ga);
-        //country
-        $api_country = $this->getApiCountry($ga);
-        //city
-        if(Yii::$app->request->get('country'))
-            $api_city = $this->actionGetApiCities($ga);
-
-        // none of the periods is defined
-        $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
-
-        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
-            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
-        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
-            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
-
-        //period from is defined
-        if($periodFrom){
-            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
-        }
-        //period till is defined
-        if($periodTill){
-            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['<=', 'date', $periodTill])->all();
-        }
-        //periods from & till are defined
-        if($periodFrom and $periodTill){
-            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
-        }
+//        /**
+//         * Google Analytics data
+//         * @param object $api_browser
+//         * @param object $api_source
+//         * @param object $api_os
+//         * @param object $api_device
+//         * @param object $api_users
+//         * @param object $api_sessions
+//         * @param object $api_lng
+//         * @param object $api_country
+//         * @param object $api_city
+//         *
+//         */
+//        //google analytics api data
+//        $ga = $this->setGapiParams();
+//        //total views & browsers
+//        $api_browser = $this->getApiBrowser($ga);
+//        //defining source & visits
+//        $api_source = $this->getApiSource($ga);
+//        //os
+//        $api_os = $this->getApiOs($ga);
+//        //device
+//        $api_device = $this->getApiDevice($ga);
+//        //users
+//        $api_users = $this->getApiUsers($ga);
+//        // sessions
+//        $api_sessions = $this->getApiSessions($ga);
+//        //language
+//        $api_lng = $this->getApiLanguages($ga);
+//        //country
+//        $api_country = $this->getApiCountry($ga);
+//        //city
+//        if(Yii::$app->request->get('country'))
+//            $api_city = $this->actionGetApiCities($ga);
+//
+//        // none of the periods is defined
+//        $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
+//
+//        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
+//            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
+//        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
+//            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
+//
+//        //period from is defined
+//        if($periodFrom){
+//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+//                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
+//        }
+//        //period till is defined
+//        if($periodTill){
+//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+//                ->andFilterWhere(['<=', 'date', $periodTill])->all();
+//        }
+//        //periods from & till are defined
+//        if($periodFrom and $periodTill){
+//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+//                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
+//        }
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'project_vis_model' => $project_vis_model,
-            'periodFrom' => $periodFrom,
-            'periodTill' => $periodTill,
-            'api_browser' => $api_browser,
-            'api_source' => $api_source,
-            'api_os' => $api_os,
-            'api_device' => $api_device,
-            'api_users' => $api_users,
-            'api_sessions' => $api_sessions,
-            'api_lng' => $api_lng,
-            'api_country' => $api_country,
-            'api_city' => isset($api_city) ? $api_city : null,
+//            'project_vis_model' => $project_vis_model,
+//            'periodFrom' => $periodFrom,
+//            'periodTill' => $periodTill,
+//            'api_browser' => $api_browser,
+//            'api_source' => $api_source,
+//            'api_os' => $api_os,
+//            'api_device' => $api_device,
+//            'api_users' => $api_users,
+//            'api_sessions' => $api_sessions,
+//            'api_lng' => $api_lng,
+//            'api_country' => $api_country,
+//            'api_city' => isset($api_city) ? $api_city : null,
         ]);
     }
 
@@ -357,6 +360,138 @@ class ProjectsController extends Controller
             }
         endforeach;
     }
+
+    /**
+     * Displays analytics for a single Projects model.
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionShowAnalytics($id){
+        /**
+         * Google Analytics data
+         * @param object $api_browser
+         * @param object $api_source
+         * @param object $api_os
+         * @param object $api_device
+         * @param object $api_users
+         * @param object $api_sessions
+         * @param object $api_lng
+         * @param object $api_country
+         * @param object $api_city
+         *
+         */
+        //google analytics api data
+        $ga = $this->setGapiParams();
+        //total views & browsers
+        $api_browser = $this->getApiBrowser($ga);
+        //defining source & visits
+        $api_source = $this->getApiSource($ga);
+        //os
+        $api_os = $this->getApiOs($ga);
+        //device
+        $api_device = $this->getApiDevice($ga);
+        //users
+        $api_users = $this->getApiUsers($ga);
+        // sessions
+        $api_sessions = $this->getApiSessions($ga);
+        //language
+        $api_lng = $this->getApiLanguages($ga);
+        //country
+        $api_country = $this->getApiCountry($ga);
+        //city
+        if(Yii::$app->request->get('country'))
+            $api_city = $this->actionGetApiCities($ga);
+
+        // none of the periods is defined
+        $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
+
+        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
+            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
+        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
+            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
+
+        //period from is defined
+        if($periodFrom){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
+        }
+        //period till is defined
+        if($periodTill){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['<=', 'date', $periodTill])->all();
+        }
+        //periods from & till are defined
+        if($periodFrom and $periodTill){
+            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
+                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
+        }
+
+
+        return $this->render('analytics', [
+            'model' => $this->findModel($id),
+            'project_vis_model' => $project_vis_model,
+            'periodFrom' => $periodFrom,
+            'periodTill' => $periodTill,
+            'api_browser' => $api_browser,
+            'api_source' => $api_source,
+            'api_os' => $api_os,
+            'api_device' => $api_device,
+            'api_users' => $api_users,
+            'api_sessions' => $api_sessions,
+            'api_lng' => $api_lng,
+            'api_country' => $api_country,
+            'api_city' => isset($api_city) ? $api_city : null,
+        ]);
+
+    }
+
+    public function actionShowProdvigator($project_id){
+        $project_id = Yii::$app->request->get('project_id');
+        $project_title = Projects::find()->where(['id' => $project_id])->one();
+        $project_title = $project_title->title;
+        $model = ProdvigatorData::find()->where(['domain' => $project_title])->orderBy('date desc')->all();
+
+
+
+        return $this->render('prodvigator', [
+            'model' => $model,
+        ]);
+    }
+
+
+    public function actionUpdateProdvigator($project_id){
+        $token = '5ad8502ce921ed31373f3bf136b8c002';
+        $domain = 'http://www.reclamare.ua';
+        $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
+        $result = json_decode(file_get_contents($url));
+
+        $project_title = Projects::find()->where(['id' => $project_id])->one();
+        $project_title = $project_title->title;
+
+        foreach($result->result as $item) :
+            $id = md5($project_id . $item->date);
+            if(!ProdvigatorData::find()->where(['id' => $id])->exists()) {
+                $model = new ProdvigatorData();
+                $model->id = md5($project_id . $item->date);
+                $model->domain = $project_title;
+                $model->keywords = $item->keywords;
+                $model->traff = $item->traff;
+                $model->new_keywords = $item->new_keywords;
+                $model->out_keywords = $item->out_keywords;
+                $model->rised_keywords = $item->rised_keywords;
+                $model->down_keywords = $item->down_keywords;
+                $model->visible = $item->visible;
+                $model->cost_min = $item->cost_min;
+                $model->cost_max = $item->cost_max;
+                $model->ad_keywords = $item->ad_keywords;
+                $model->ads = $item->ads;
+                $model->date = $item->date;
+                $model->save();
+            }
+        endforeach;
+
+    }
+
 
 
 }

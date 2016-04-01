@@ -25,9 +25,14 @@ class ProjectVisibilityController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-position'],
                         'allow' => true,
-                        'roles' => ['admin'],
+                        'roles' => ['seo'],
+                    ],
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-position'],
+                        'allow' => true,
+                        'roles' => ['user'],
                     ],
                 ],
             ],
@@ -154,7 +159,7 @@ class ProjectVisibilityController extends Controller
         }
         $top_ten = $top_ten / count($group_keys) * 100;
 
-        $date = date('dmY');
+        $date = date('Ymd');
         $id = md5($project_id . $date);
         $exists = ProjectVisibility::find()->where(['id' => $id])->exists();
 

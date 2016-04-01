@@ -367,18 +367,18 @@ if(isset($sort)){
         }
         // formatting dates
         for($i=0; $i<count($dates); $i++) {
-            $dates[$i] = DateTime::createFromFormat('dmY', $dates[$i])->format('d-m-Y');
+            $dates[$i] = DateTime::createFromFormat('Ymd', $dates[$i])->format('d-m-Y');
         }; ?>
 
         <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
             <div><?= Yii::t('app', 'Выбранный период') ?>
                 <?php if($periodForKeysFrom) : ?>
                     <?= Yii::t('app', 'с') ?>
-                    <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('Ymd', $periodForKeysFrom)->format('d-m-Y') ?>
                 <?php endif; ?>
                 <?php if($periodForKeysTill) : ?>
                     <?= Yii::t('app', 'по') ?>
-                    <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('Ymd', $periodForKeysTill)->format('d-m-Y') ?>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
