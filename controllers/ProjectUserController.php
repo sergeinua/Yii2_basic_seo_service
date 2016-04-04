@@ -91,12 +91,15 @@ class ProjectUserController extends Controller
         endforeach;
 
         if ($model->load(Yii::$app->request->post())) {
+            $user_list = Yii::$app->request->post('ProjectUser');
+            $user_list = $user_list['user_id'];
+
             foreach($user_list as $key => $value) :
-                $model->id = md5($key . $model->project_id);
+                $model->id = md5($value . $model->project_id);
                 if(!ProjectUser::find()->where(['id' => $model->id])->exists()){
                     $new_model = new ProjectUser();
-                    $new_model->id = md5($key . $model->project_id);
-                    $new_model->user_id = $key;
+                    $new_model->id = md5($value . $model->project_id);
+                    $new_model->user_id = $value;
                     $new_model->project_id = $model->project_id;
                     $new_model->save();
                 }

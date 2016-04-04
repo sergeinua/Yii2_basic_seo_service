@@ -446,7 +446,7 @@ class ProjectsController extends Controller
     }
 
     public function actionShowProdvigator($project_id){
-        $project_id = Yii::$app->request->get('project_id');
+//        $project_id = Yii::$app->request->get('project_id');
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
         $model = ProdvigatorData::find()->where(['domain' => $project_title])->orderBy('date desc')->all();

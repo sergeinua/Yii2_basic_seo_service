@@ -14,7 +14,7 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'project_id')->dropDownList($project_list)->label(Yii::t('app', 'Проекты')) ?>
 
-    <?= $form->field($model, 'user_id')->dropDownList($user_list, ['multiple' => 'true'])->label(Yii::t('app', 'Пользователи')) ?>
+    <?= $form->field($model, 'user_id')->dropDownList($user_list, ['multiple' => true])->label(Yii::t('app', 'Пользователи')) ?>
 
     <div class="form-group">
         <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Создать') : Yii::t('app', 'Обновить'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
