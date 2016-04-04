@@ -135,14 +135,16 @@ if(Yii::$app->user->identity)
                             echo Menu::widget([
                                 'options'=> ['class'=>'sidebar-list sidebar-e'],
                                 'items' => [
-                                    ['label' => 'Аналитика', 'url' => ['/projects/show-analytics',
-                                        'id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')
+                                    [
+                                        'label' => 'Аналитика', 'url' => ['/projects/show-analytics',
+                                        'id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
+                                        'options' =>['class' => 'sidebar-list-item']
                                     ],
-                                        'options' =>['class' => 'sidebar-list-item']],
-                                    ['label' => 'Продвигатор', 'url' => ['/projects/show-prodvigator',
-                                        'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')
+                                    [
+                                        'label' => 'Продвигатор', 'url' => ['/projects/show-prodvigator',
+                                        'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
+                                        'options' =>['class' => 'sidebar-list-item']
                                     ],
-                                        'options' =>['class' => 'sidebar-list-item']],
                                 ]]);
                             ?>
                         </div>

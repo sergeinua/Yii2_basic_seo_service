@@ -124,7 +124,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <!--        --><!--?php //$form = ActiveForm::end(); ?>
 <!---->
 <!--        --><!--?php //if($periodFrom || $periodTill) : ?>
-<!--            <div>--><!--?//= Yii::t('app', 'Выбранный период') ?>
+<!--            <div>--><!--?//= Yii::t('app', 'Выбран период') ?>
 <!--                --><!--?php //if($periodFrom) : ?>
 <!--                    --><!--?//= Yii::t('app', 'с') ?>
 <!--                    --><!--?//= DateTime::createFromFormat('dmY', $periodFrom)->format('d-m-Y') ?>

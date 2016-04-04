@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\ApiCity;
 use app\models\CityName;
 use app\models\ProdvigatorData;
+use app\models\ProdvigatorOrganic;
 use app\models\ProjectVisibility;
 use Yii;
 use app\models\Projects;
@@ -31,13 +32,13 @@ class ProjectsController extends Controller
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete',
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'show-organic',
                             'show-analytics', 'show-prodvigator', 'update-prodvigator'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
                     [
-                        'actions' => ['index', 'view', 'show-analytics',
+                        'actions' => ['index', 'view', 'show-analytics', 'show-organic',
                             'show-prodvigator', 'update-prodvigator'],
                         'allow' => true,
                         'roles' => ['user'],
@@ -280,7 +281,7 @@ class ProjectsController extends Controller
         CityName::deleteAll();
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', '-1');
-        $lines = file(Yii::$app->basePath . '/components/API_Location.csv', FILE_IGNORE_NEW_LINES);
+        $lines = file(Yii::$app->basePath . Yii::$app->params['gapi_city_names_import_file_path'], FILE_IGNORE_NEW_LINES);
         $csv = [];
         foreach ($lines as $key => $value)
         {
@@ -301,8 +302,8 @@ class ProjectsController extends Controller
      * Sets params for gapi class (Google Analytics Api)
      */
     public function setGapiParams(){
-        define('ga_profile_id','86449576');
-        return new gapi("356532283258-compute@developer.gserviceaccount.com", Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12');
+        define('ga_profile_id',Yii::$app->params['gapi_profile_id']);
+        return new gapi(Yii::$app->params['gapi_google_service_account_email'], Yii::$app->basePath . Yii::$app->params['gapi_p_12_file_path']);
     }
 
     public function getApiBrowser($ga){
@@ -446,22 +447,68 @@ class ProjectsController extends Controller
     }
 
     public function actionShowProdvigator($project_id){
-//        $project_id = Yii::$app->request->get('project_id');
+
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
-        $model = ProdvigatorData::find()->where(['domain' => $project_title])->orderBy('date desc')->all();
-
-
+        /** date by default is date() - half year */
+        $default_date_from = date('Y-m-d', strtotime('-6 months'));
+        $model = ProdvigatorData::find()
+            ->where(['domain' => $project_title])
+            ->andFilterWhere(['>', 'date', $default_date_from])
+            ->orderBy('date desc')
+            ->all();
+        $model_organic = ProdvigatorOrganic::find()
+            ->where(['domain' => $project_title])
+            ->andFilterWhere(['>', 'date', $default_date_from])
+            ->orderBy('date desc')
+            ->orderBy('position asc')
+            ->all();
+        /** dateFrom isset */
+        if($dateFrom = Yii::$app->request->post('dateFrom')) {
+            $model = ProdvigatorData::find()->where(['domain' => $project_title])
+                ->andFilterWhere(['>=', 'date', $dateFrom])
+                ->orderBy('date desc')
+                ->all();
+            $model_organic = ProdvigatorOrganic::find()->where(['domain' => $project_title])
+                ->andFilterWhere(['>=', 'date', $dateFrom])
+                ->orderBy('date desc')
+                ->all();
+        }
+        /** dateTill isset */
+        if($dateTill = Yii::$app->request->post('dateTill')) {
+            $model = ProdvigatorData::find()->where(['domain' => $project_title])
+                ->andFilterWhere(['>=', 'date', $dateTill])
+                ->orderBy('date desc')
+                ->all();
+            $model_organic = ProdvigatorOrganic::find()->where(['domain' => $project_title])
+                ->andFilterWhere(['>=', 'date', $dateTill])
+                ->orderBy('date desc')
+                ->all();
+        }
+        /** dateFrom & dateTill isset */
+        if(($dateFrom = Yii::$app->request->post('dateFrom')) and ($dateTill = Yii::$app->request->post('dateTill'))) {
+            $model = ProdvigatorData::find()
+                ->where(['domain' => $project_title])
+                ->andFilterWhere(['between', 'date', $dateFrom, $dateTill])
+                ->orderBy('date desc')
+                ->all();
+            $model_organic = ProdvigatorOrganic::find()
+                ->where(['domain' => $project_title])
+                ->andFilterWhere(['between', 'date', $dateFrom, $dateTill])
+                ->orderBy('date desc')
+                ->all();
+        }
 
         return $this->render('prodvigator', [
             'model' => $model,
+            'model_organic' => $model_organic,
         ]);
     }
 
 
     public function actionUpdateProdvigator($project_id){
-        $token = '5ad8502ce921ed31373f3bf136b8c002';
-        $domain = 'http://www.reclamare.ua';
+        $token = Yii::$app->params['prodvigator_token'];
+        $domain = Projects::find()->where(['id' => $project_id])->one()->title;
         $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
         $result = json_decode(file_get_contents($url));
 
@@ -490,6 +537,7 @@ class ProjectsController extends Controller
             }
         endforeach;
 
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
 

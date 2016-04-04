@@ -254,21 +254,6 @@ class KeysController extends Controller
         $project_position=0;
         $result=0;
 
-//        $request = Yii::$app->request->get();
-//        $project_link = $request['project_link'];
-//        $key_id = $request['key_id'];
-//        $key_title = Keys::find()->where(['id' => $key_id])->one()->title;
-//        $group_id = $request['group_id'];
-//        $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
-
-//        echo '<pre>';
-//        var_dump($project_id);
-//        var_dump($project_link);
-//        var_dump($group_id);
-//        var_dump($key_title);
-//        var_dump($key_id);
-
-
         $googlehost = Projects::find()->where(['id' => $project_id])->one()->googlehost;
         $language = Projects::find()->where(['id' => $project_id])->one()->language;
 
@@ -325,8 +310,6 @@ class KeysController extends Controller
             ]))->save();
         }
 
-//
-//        return $this->redirect(Yii::$app->request->referrer);
     }
 
     public function getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language)
@@ -334,8 +317,8 @@ class KeysController extends Controller
         global $project_pos;
         $project_pos=0;
         $apiClient = new CustomSearch();
-        $apiClient->setApiKey('AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE');
-        $apiClient->setCustomSearchEngineId('006254468391416147805:-jyqgokuwi8');
+        $apiClient->setApiKey(Yii::$app->params['google_api_search_api_key']);
+        $apiClient->setCustomSearchEngineId(Yii::$app->params['google_api_search_custom_search_engine_id']);
         $apiClient->setQuery($key_title);
 
         $response = $apiClient->executeRequest($start_pos, $googlehost, $language);

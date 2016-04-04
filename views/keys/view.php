@@ -142,7 +142,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php $form = ActiveForm::end(); ?>
 
     <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
-        <div><?= Yii::t('app', 'Выбранный период') ?>
+        <div><?= Yii::t('app', 'Выбран период') ?>
             <?php if($periodForKeysFrom) : ?>
                 <?= Yii::t('app', 'с') ?>
                 <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
