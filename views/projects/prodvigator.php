@@ -30,8 +30,22 @@ if(Yii::$app->request->post('dateFrom'))
     $periodFrom = Yii::$app->request->post('dateFrom');
 if(Yii::$app->request->post('dateTill'))
     $periodTill = Yii::$app->request->post('dateTill');
-
-
+// min quantity of the visibility
+$max_quan = max($vis_quan);
+// max quantity of the visibility
+$min_quan = min($vis_quan);
+// array key for max quantity of the visibility
+$max_key = 0;
+// array key for max quantity of the visibility
+$min_key = 0;
+foreach($vis_quan as $key => $value) :
+    if($value == $max_quan)
+        $max_key = $key;
+    if($value == $min_quan)
+        $min_key = $key;
+endforeach;
+dump($max_key);
+dump($min_key);
 
 ?>
 
@@ -85,11 +99,27 @@ if(Yii::$app->request->post('dateTill'))
 
     <?php $form = ActiveForm::end(); ?>
 
-
 <?= Html::a(Yii::t('app', 'Обновить данные продвигатора'), ['/projects/update-prodvigator', 'project_id' => Yii::$app->request->get('project_id')], ['class'=>'btn btn-primary']) ?>
 
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th><?= Yii::t('app', 'Максимальная видимость'); ?></th>
+                <th><?= Yii::t('app', 'Минимальная видимость'); ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><?= $max_quan; ?></td>
+                <td><?= $min_quan; ?></td>
+            </tr>
+            <tr>
+                <td><?= $vis_dates[$max_key]; ?></td>
+                <td><?= $vis_dates[$min_key]; ?></td>
+            </tr>
+        </tbody>
+    </table>
 
-<div>
     <?= Highcharts::widget([
         'scripts' => [
             'highcharts-more',
@@ -173,8 +203,6 @@ if(Yii::$app->request->post('dateTill'))
         </tr>
     </tbody>
 </table>
-
-
 
 <?php if(Yii::$app->request->get('show_organic')) : ?>
     <table class="table table-striped table-hover">
