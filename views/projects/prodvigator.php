@@ -96,7 +96,7 @@ if(Yii::$app->request->post('dateTill'))
         ],
         'options' => [
             'chart' => [
-                'type' => 'column',
+                'type' => 'area',
                 'inverted' => false,
             ],
             'title' => ['text' => Yii::t('app', 'История изменения видимости')],
@@ -124,7 +124,7 @@ if(Yii::$app->request->post('dateTill'))
         ],
         'options' => [
             'chart' => [
-                'type' => 'bar',
+                'type' => 'area',
                 'inverted' => false,
             ],
             'title' => ['text' => Yii::t('app', 'История изменения количества фраз')],
