@@ -13,7 +13,9 @@ use app\models\Projects;
 <div>
     <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
 
-    <?= Html::a(Yii::t('app', 'Обновить данные'), ['/project-visibility/update-position', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
+    <div><?= Yii::t('app', 'Последнее обновление: '); ?></div>
+
+    <?= Html::a(Yii::t('app', 'Обновить данные аналитики'), ['/projects/update-analytics-data', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 
     <?php $form = ActiveForm::begin(); ?>
 
@@ -96,15 +98,14 @@ use app\models\Projects;
 </div>
 
 <?php //sources
-$visits=[];
-$sources=[];
+$visits = [];
+$sources = [];
+$i = 0;
 foreach($api_source as $item) :
-    $visits[$i] = $item->getMetrics()['visits'];
-    $sources[$i] = $item->getDimensions()['source'];
+    $visits[$i] = $item->visits;
+    $sources[$i] = $item->source;
     $i++;
-endforeach;
-$visits = array_reverse($visits);
-$sources = array_reverse($sources); ?>
+endforeach; ?>
 
 <div>
     <?= Highcharts::widget([
@@ -135,18 +136,14 @@ $sources = array_reverse($sources); ?>
 </div>
 
 <?php //browsers
-$visits=[];
-$browsers=[];
+$visits = [];
+$browsers = [];
+$i = 0;
 foreach($api_browser as $item) :
-    //setting quantity of the displayed results
-    if($i>(count($api_browser)-20)) {
-        $visits[$i] = $item->getMetrics()['visits'];
-        $browsers[$i] = $item->getDimensions()['browser'] . '-' . $item->getDimensions()['browserVersion'];
-    }
+    $visits[$i] = $item->visits;
+    $browsers[$i] = $item->browser . '-' . $item->browserVersion;
     $i++;
-endforeach;
-$visits = array_reverse($visits);
-$browsers = array_reverse($browsers); ?>
+endforeach; ?>
 
 <div>
     <?= Highcharts::widget([
@@ -177,15 +174,14 @@ $browsers = array_reverse($browsers); ?>
 </div>
 
 <?php //os
-$visits=[];
-$os=[];
+$visits = [];
+$os = [];
+$i = 0;
 foreach($api_os as $item) :
-    $visits[$i] = $item->getMetrics()['visits'];
-    $os[$i] = $item->getDimensions()['operatingSystem'];
+    $visits[$i] = $item->visits;
+    $os[$i] = $item->os;
     $i++;
-endforeach;
-$visits = array_reverse($visits);
-$os = array_reverse($os); ?>
+endforeach; ?>
 
 <div>
     <?= Highcharts::widget([
@@ -216,15 +212,14 @@ $os = array_reverse($os); ?>
 </div>
 
 <?php //brands
-$visits=[];
-$brands=[];
+$visits = [];
+$brands = [];
+$i = 0;
 foreach($api_device as $item) :
-    $visits[$i] = $item->getMetrics()['visits'];
-    $brands[$i] = $item->getDimensions()['mobileDeviceBranding'];
+    $visits[$i] = $item->visits;
+    $brands[$i] = $item->brand;
     $i++;
-endforeach;
-$visits = array_reverse($visits);
-$brands = array_reverse($brands); ?>
+endforeach; ?>
 
 <div>
     <?= Highcharts::widget([
@@ -260,17 +255,17 @@ $users = 0;
 $sessions = 0;
 $new_users = 0;
 foreach($api_users as $item) :
-    $users += $item->getMetrics()['users'];
-    $new_users += $item->getMetrics()['newUsers'];
-    $sessions += $item->getDimensions()['sessionCount'];
+    $users += $item->users;
+    $new_users += $item->new_users;
+    $sessions += $item->session_count;
 endforeach;
 $session_duration = 0;
 $page_views = 0;
 $bounce_rate = 0;
 foreach($api_sessions as $item) :
-    $session_duration += $item->getMetrics()['sessionDuration'];
-    $page_views += $item->getMetrics()['pageviews'];
-    $bounce_rate += $item->getMetrics()['bounces'];
+    $session_duration += $item->session_duration;
+    $page_views += $item->pageviews;
+    $bounce_rate += $item->bounces;
 endforeach;
 $bounce_rate = $bounce_rate / $users * 100; ?>
 
@@ -316,16 +311,5 @@ $bounce_rate = $bounce_rate / $users * 100; ?>
             'content' => View::render('_first_tab', ['api_lng' => $api_lng]),
         ],
     ]]); ?>
-
-
-
-
-
-
-
-
-
-
-
 
 </div>

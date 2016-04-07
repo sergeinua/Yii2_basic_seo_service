@@ -143,10 +143,8 @@ class ProjectVisibilityController extends Controller
      * Updates the percentage of the key position items visibility
      *
      */
-    public function actionUpdatePosition()
+    public function actionUpdatePosition($project_id)
     {
-        $request = Yii::$app->request->get();
-        $project_id = $request['project_id'];
         $groups = ProjectGroup::find()->where(['project_id' => $project_id])->all();
         foreach($groups as $group){
             $group_keys = GroupKey::find()->where(['group_id' => $group->group_id])->all();
@@ -175,6 +173,5 @@ class ProjectVisibilityController extends Controller
             $model->visibility = $top_ten;
             $model->save();
         }
-        return $this->redirect(Yii::$app->request->referrer);
     }
 }

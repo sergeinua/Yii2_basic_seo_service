@@ -5,13 +5,10 @@ $lng = [];
 $visits = [];
 $i = 0;
 foreach($api_lng as $item) :
-    $lng[$i] = $item->getDimensions()['language'];
-    $visits[$i] = $item->getMetrics()['visits'];
+    $lng[$i] = $item->language;
+    $visits[$i] = $item->visits;
     $i++;
-endforeach;
-$lng = array_reverse($lng);
-$visits = array_reverse($visits);
-?>
+endforeach; ?>
 
 <h3><?= Yii::t('app', 'Язык'); ?></h3>
 <table class='table table-striped table-hover'>
