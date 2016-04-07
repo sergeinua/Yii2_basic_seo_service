@@ -25,6 +25,7 @@ use Yii;
  * @property integer $region_queries_count_wide
  * @property string $types
  * @property integer $geo_names
+ * @property integer $modified_at
  */
 class ProdvigatorOrganic extends \yii\db\ActiveRecord
 {
@@ -42,7 +43,7 @@ class ProdvigatorOrganic extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'region_queries_count', 'found_results', 'position', 'keyword_id'], 'integer'],
+            [['id', 'region_queries_count', 'found_results', 'position', 'keyword_id', 'modified_at'], 'integer'],
             [['cost'], 'number'],
             [['date', 'domain', 'region_queries_count_wide', 'geo_names'], 'string', 'max' => 500],
             [['keyword', 'url'], 'string', 'max' => 500],

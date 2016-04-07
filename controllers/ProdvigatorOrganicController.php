@@ -123,33 +123,4 @@ class ProdvigatorOrganicController extends Controller
         }
     }
 
-    public function actionGetData(){
-        $token = Yii::$app->params['prodvigator_token'];
-        $project_id = Yii::$app->request->get('project_id');
-        $domain = Projects::find()->where(['id' => $project_id])->one()->title;
-        $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token;
-        $result = json_decode(file_get_contents($url));
-        ProdvigatorOrganic::deleteAll();
-        foreach($result->result->hits as $item) :
-            $model = new ProdvigatorOrganic();
-            $model->region_queries_count = $item->region_queries_count;
-            $model->domain = $domain;
-            $model->keyword = $item->keyword;
-            $model->url = $item->url;
-            $model->right_spell = $item->right_spell;
-            $model->dynamic = $item->dynamic;
-            $model->found_results = $item->found_results;
-            $model->url_crc = $item->url_crc;
-            $model->cost = $item->cost;
-            $model->concurrency = $item->concurrency;
-            $model->position = $item->position;
-            $model->date = $item->date;
-            $model->keyword_id = $item->keyword_id;
-            $model->subdomain = $item->subdomain;
-            $model->region_queries_count_wide = $item->region_queries_count_wide;
-//            $model->types = $item->types;
-//            $model->geo_names = $item->geo_names;
-            $model->save();
-        endforeach;
-    }
 }

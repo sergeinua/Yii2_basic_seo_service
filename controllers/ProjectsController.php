@@ -394,27 +394,49 @@ class ProjectsController extends Controller
 
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
-
+        ProdvigatorData::deleteAll(['domain' => $domain]);
         foreach($result->result as $item) :
-            $id = md5($project_id . $item->date);
-            if(!ProdvigatorData::find()->where(['id' => $id])->exists()) {
-                $model = new ProdvigatorData();
-                $model->id = md5($project_id . $item->date);
-                $model->domain = $project_title;
-                $model->keywords = $item->keywords;
-                $model->traff = $item->traff;
-                $model->new_keywords = $item->new_keywords;
-                $model->out_keywords = $item->out_keywords;
-                $model->rised_keywords = $item->rised_keywords;
-                $model->down_keywords = $item->down_keywords;
-                $model->visible = $item->visible;
-                $model->cost_min = $item->cost_min;
-                $model->cost_max = $item->cost_max;
-                $model->ad_keywords = $item->ad_keywords;
-                $model->ads = $item->ads;
-                $model->date = $item->date;
-                $model->save();
-            }
+            $model = new ProdvigatorData();
+            $model->id = md5($project_id . $item->date);
+            $model->domain = $project_title;
+            $model->keywords = $item->keywords;
+            $model->traff = $item->traff;
+            $model->new_keywords = $item->new_keywords;
+            $model->out_keywords = $item->out_keywords;
+            $model->rised_keywords = $item->rised_keywords;
+            $model->down_keywords = $item->down_keywords;
+            $model->visible = $item->visible;
+            $model->cost_min = $item->cost_min;
+            $model->cost_max = $item->cost_max;
+            $model->ad_keywords = $item->ad_keywords;
+            $model->ads = $item->ads;
+            $model->date = $item->date;
+            $model->modified_at = date('U');
+            $model->save();
+        endforeach;
+        // ProdvigatorOrganic
+        $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token;
+        $result = json_decode(file_get_contents($url));
+        ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
+        foreach($result->result->hits as $item) :
+            $model = new ProdvigatorOrganic();
+            $model->region_queries_count = $item->region_queries_count;
+            $model->domain = $domain;
+            $model->keyword = $item->keyword;
+            $model->url = $item->url;
+            $model->right_spell = $item->right_spell;
+            $model->dynamic = $item->dynamic;
+            $model->found_results = $item->found_results;
+            $model->url_crc = $item->url_crc;
+            $model->cost = $item->cost;
+            $model->concurrency = $item->concurrency;
+            $model->position = $item->position;
+            $model->date = $item->date;
+            $model->keyword_id = $item->keyword_id;
+            $model->subdomain = $item->subdomain;
+            $model->region_queries_count_wide = $item->region_queries_count_wide;
+            $model->modified_at = date('U');
+            $model->save();
         endforeach;
 
         return $this->redirect(Yii::$app->request->referrer);

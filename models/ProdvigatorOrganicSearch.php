@@ -18,7 +18,8 @@ class ProdvigatorOrganicSearch extends ProdvigatorOrganic
     public function rules()
     {
         return [
-            [['id', 'region_queries_count', 'dynamic', 'found_results', 'url_crc', 'concurrency', 'position', 'date', 'keyword_id', 'region_queries_count_wide', 'geo_names'], 'integer'],
+            [['id', 'region_queries_count', 'dynamic', 'found_results', 'url_crc', 'concurrency', 'position', 'date',
+                'keyword_id', 'region_queries_count_wide', 'geo_names', 'modified_at'], 'integer'],
             [['domain', 'keyword', 'url', 'right_spell', 'subdomain', 'types'], 'safe'],
             [['cost'], 'number'],
         ];

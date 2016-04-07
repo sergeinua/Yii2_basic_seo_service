@@ -19,7 +19,7 @@ class ProdvigatorDataSearch extends ProdvigatorData
     {
         return [
             [['id', 'domain'], 'safe'],
-            [['keywords', 'traff', 'new_keywords', 'out_keywords', 'rised_keywords', 'down_keywords', 'ad_keywords', 'ads', 'date'], 'integer'],
+            [['keywords', 'traff', 'new_keywords', 'out_keywords', 'rised_keywords', 'down_keywords', 'ad_keywords', 'ads', 'date', 'modified_at'], 'integer'],
             [['visible', 'cost_min', 'cost_max'], 'number'],
         ];
     }

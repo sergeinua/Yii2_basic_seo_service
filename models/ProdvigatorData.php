@@ -21,6 +21,7 @@ use Yii;
  * @property integer $ad_keywords
  * @property integer $ads
  * @property string $date
+ * @property integer $modified_at
  */
 class ProdvigatorData extends \yii\db\ActiveRecord
 {
@@ -39,7 +40,7 @@ class ProdvigatorData extends \yii\db\ActiveRecord
     {
         return [
             [['id', 'domain', 'keywords', 'traff', 'new_keywords', 'out_keywords', 'rised_keywords', 'down_keywords', 'visible', 'cost_min', 'cost_max', 'ad_keywords', 'ads', 'date'], 'required'],
-            [['keywords', 'traff', 'new_keywords', 'out_keywords', 'rised_keywords', 'down_keywords', 'ad_keywords', 'ads'], 'integer'],
+            [['keywords', 'traff', 'new_keywords', 'out_keywords', 'rised_keywords', 'down_keywords', 'ad_keywords', 'ads', 'modified_at'], 'integer'],
             [['visible', 'cost_min', 'cost_max'], 'number'],
             [['id', 'domain', 'date'], 'string', 'max' => 50],
         ];

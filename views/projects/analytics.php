@@ -6,14 +6,25 @@ use yii\bootstrap\Tabs;
 use yii\base\View;
 use yii\helpers\Html;
 use app\models\Projects;
+use app\models\ApiBrowser;
 
 ?>
 
+<?php //gapi data last
+date_default_timezone_set('Europe/Kiev');
+$last_modified = ApiBrowser::find()
+    ->where(['project_id' => Yii::$app->request->get('id')])
+    ->orderBy('date asc')
+    ->one()['date'];
+?>
 
 <div>
     <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
 
-    <div><?= Yii::t('app', 'Последнее обновление: '); ?></div>
+    <div>
+        <?= Yii::t('app', 'Последнее обновление: '); ?>
+        <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:m:s'); ?>
+    </div>
 
     <?= Html::a(Yii::t('app', 'Обновить данные аналитики'), ['/projects/update-analytics-data', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 

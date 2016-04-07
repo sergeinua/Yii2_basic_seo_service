@@ -5,6 +5,7 @@ use yii\bootstrap\Html;
 use kartik\daterange\DateRangePicker;
 use yii\bootstrap\ActiveForm;
 use app\models\ProdvigatorData;
+use app\models\Projects;
 
 ?>
 
@@ -96,6 +97,19 @@ endforeach; ?>
         </div>
 
     <?php $form = ActiveForm::end(); ?>
+<?php
+date_default_timezone_set('Europe/Kiev');
+$last_modified = ProdvigatorData::find()
+    ->where(['domain' => Projects::find()->where(['id' => Yii::$app->request->get('project_id')])->one()['title']])
+    ->orderBy('date asc')
+    ->one()['modified_at'];
+?>
+
+
+    <div>
+        <?= Yii::t('app', 'Последнее обновление: '); ?>
+        <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:m:s'); ?>
+    </div>
 
 <?= Html::a(Yii::t('app', 'Обновить данные продвигатора'), ['/projects/update-prodvigator', 'project_id' => Yii::$app->request->get('project_id')], ['class'=>'btn btn-primary']) ?>
 
