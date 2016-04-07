@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\CityName;
+use app\models\ApiBrowser;
 
 /**
- * CityNameSearch represents the model behind the search form about `app\models\CityName`.
+ * ApiBrowserSearch represents the model behind the search form about `app\models\ApiBrowser`.
  */
-class CityNameSearch extends CityName
+class ApiBrowserSearch extends ApiBrowser
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class CityNameSearch extends CityName
     public function rules()
     {
         return [
-            [['criteriaId', 'parentId', 'countryCode', 'project_id'], 'integer'],
-            [['name', 'canonicalName', 'targetType', 'status'], 'safe'],
+            [['id', 'pageviews', 'visits', 'browserVersion', 'date'], 'integer'],
+            [['browser'], 'safe'],
         ];
     }
 
@@ -41,7 +41,7 @@ class CityNameSearch extends CityName
      */
     public function search($params)
     {
-        $query = CityName::find();
+        $query = ApiBrowser::find();
 
         // add conditions that should always apply here
 
@@ -59,15 +59,14 @@ class CityNameSearch extends CityName
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'criteriaId' => $this->criteriaId,
-            'parentId' => $this->parentId,
-            'countryCode' => $this->countryCode,
+            'id' => $this->id,
+            'pageviews' => $this->pageviews,
+            'visits' => $this->visits,
+            'browserVersion' => $this->browserVersion,
+            'date' => $this->date,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'canonicalName', $this->canonicalName])
-            ->andFilterWhere(['like', 'targetType', $this->targetType])
-            ->andFilterWhere(['like', 'status', $this->status]);
+        $query->andFilterWhere(['like', 'browser', $this->browser]);
 
         return $dataProvider;
     }

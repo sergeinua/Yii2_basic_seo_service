@@ -14,6 +14,7 @@ use Yii;
  * @property string $countryCode
  * @property string $targetType
  * @property string $status
+ * @property integer $project_id
  */
 class CityName extends \yii\db\ActiveRecord
 {
@@ -31,8 +32,8 @@ class CityName extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['criteriaId', 'name', 'canonicalName', 'parentId', 'countryCode', 'targetType', 'status'], 'required'],
-            [['criteriaId', 'parentId'], 'integer'],
+            [['criteriaId', 'name', 'canonicalName', 'parentId', 'countryCode', 'targetType', 'status', 'project_id'], 'required'],
+            [['criteriaId', 'parentId', 'project_id'], 'integer'],
             [['name', 'canonicalName', 'countryCode'], 'string', 'max' => 100],
             [['targetType', 'status'], 'string', 'max' => 20],
         ];

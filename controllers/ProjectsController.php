@@ -2,11 +2,18 @@
 
 namespace app\controllers;
 
+use app\models\ApiBrowser;
 use app\models\ApiCity;
+use app\models\ApiDevice;
+use app\models\ApiOs;
+use app\models\ApiSessions;
+use app\models\ApiSource;
+use app\models\ApiUsers;
 use app\models\CityName;
 use app\models\ProdvigatorData;
 use app\models\ProdvigatorOrganic;
 use app\models\ProjectVisibility;
+use GuzzleHttp\Client;
 use Yii;
 use app\models\Projects;
 use app\models\ProjectsSearch;
@@ -17,6 +24,7 @@ use DateTime;
 use yii\filters\AccessControl;
 use app\components\gapi;
 use yii\db\Query;
+use yii\widgets\DetailView;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -44,7 +52,7 @@ class ProjectsController extends Controller
                         'roles' => ['user'],
                     ],
                     [
-                        'actions' => ['get-api-analytics-models'],
+                        'actions' => ['get-api-analytics-models', 'client-list'],
                         'allow' => true,
                         'roles' => ['admin'],
                     ],
@@ -81,79 +89,9 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
-//        /**
-//         * Google Analytics data
-//         * @param object $api_browser
-//         * @param object $api_source
-//         * @param object $api_os
-//         * @param object $api_device
-//         * @param object $api_users
-//         * @param object $api_sessions
-//         * @param object $api_lng
-//         * @param object $api_country
-//         * @param object $api_city
-//         *
-//         */
-//        //google analytics api data
-//        $ga = $this->setGapiParams();
-//        //total views & browsers
-//        $api_browser = $this->getApiBrowser($ga);
-//        //defining source & visits
-//        $api_source = $this->getApiSource($ga);
-//        //os
-//        $api_os = $this->getApiOs($ga);
-//        //device
-//        $api_device = $this->getApiDevice($ga);
-//        //users
-//        $api_users = $this->getApiUsers($ga);
-//        // sessions
-//        $api_sessions = $this->getApiSessions($ga);
-//        //language
-//        $api_lng = $this->getApiLanguages($ga);
-//        //country
-//        $api_country = $this->getApiCountry($ga);
-//        //city
-//        if(Yii::$app->request->get('country'))
-//            $api_city = $this->actionGetApiCities($ga);
-//
-//        // none of the periods is defined
-//        $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
-//
-//        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
-//            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
-//        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
-//            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
-//
-//        //period from is defined
-//        if($periodFrom){
-//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-//                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
-//        }
-//        //period till is defined
-//        if($periodTill){
-//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-//                ->andFilterWhere(['<=', 'date', $periodTill])->all();
-//        }
-//        //periods from & till are defined
-//        if($periodFrom and $periodTill){
-//            $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-//                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
-//        }
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-//            'project_vis_model' => $project_vis_model,
-//            'periodFrom' => $periodFrom,
-//            'periodTill' => $periodTill,
-//            'api_browser' => $api_browser,
-//            'api_source' => $api_source,
-//            'api_os' => $api_os,
-//            'api_device' => $api_device,
-//            'api_users' => $api_users,
-//            'api_sessions' => $api_sessions,
-//            'api_lng' => $api_lng,
-//            'api_country' => $api_country,
-//            'api_city' => isset($api_city) ? $api_city : null,
         ]);
     }
 
@@ -230,25 +168,26 @@ class ProjectsController extends Controller
      * @param object $ga
      * @return ApiCity
      */
-    public function actionGetApiCities($ga){
+    public function actionGetApiCities($ga, $project_id){
         $country = Yii::$app->request->get('country');
-        if(ApiCity::find()->one()){
-            $model = ApiCity::find()->one();
+        if(ApiCity::find()->where(['project_id' => $project_id])->one()){
+            $model = ApiCity::find()->where(['project_id' => $project_id])->one();
             if((time() - $model->created_at) > 20 * 60 * 60)
-                $this->actionUpdateApiCities($ga);
+                $this->actionUpdateApiCities($ga, $project_id);
         } else { // there's no existing data
-            $this->actionUpdateApiCities($ga);
+            $this->actionUpdateApiCities($ga, $project_id);
         }
 
         $query = new Query();
         $query->select('city_id, visits')
                 ->from('api_city')
                 ->where(['country_iso' => $country])
+                ->andFilterWhere(['project_id' => $project_id])
                 ->distinct('city_id')
                 ->orderBy('visits desc');
         $model = $query->all();
 
-        $i=0;
+        $i = 0;
         foreach($model as $item) :
             $model[$i]['city_id'] = CityName::find()->where(['criteriaId' => $item['city_id']])->one()['name'];
             $i++;
@@ -260,15 +199,16 @@ class ProjectsController extends Controller
      * Updates the quantity of the users, that came from the defined country
      *@param object $ga
      */
-    public function actionUpdateApiCities($ga){
+    public function actionUpdateApiCities($ga, $project_id){
         $api_city = $this->getApiCity($ga);
-        ApiCity::deleteAll();
+        ApiCity::deleteAll(['project_id' => 4]);
         foreach($api_city as $item) :
             $model = new ApiCity();
             $model->city_id = $item->getDimensions()['cityId'];
             $model->country_iso = $item->getDimensions()['countryIsoCode'];
             $model->visits = $item->getMetrics()['visits'];
             $model->created_at = date('U');
+            $model->project_id = $project_id;
             $model->save();
         endforeach;
     }
@@ -381,28 +321,37 @@ class ProjectsController extends Controller
          * @param object $api_city
          *
          */
+        $project_id = Yii::$app->request->get('id');
         //google analytics api data
         $ga = $this->setGapiParams();
         //total views & browsers
-        $api_browser = $this->getApiBrowser($ga);
+        $api_browser = $this->getBrowserModel($project_id);
         //defining source & visits
-        $api_source = $this->getApiSource($ga);
+        $api_source = $this->getSourceModel($project_id);
         //os
-        $api_os = $this->getApiOs($ga);
+        $api_os = $this->getOsModel($project_id);
         //device
-        $api_device = $this->getApiDevice($ga);
+        $api_device = $this->getDeviceModel($project_id);
         //users
-        $api_users = $this->getApiUsers($ga);
+        $api_users = $this->getUserModel($project_id);
+
+
         // sessions
-        $api_sessions = $this->getApiSessions($ga);
+        $api_sessions = $this->getSessionsModel($project_id);
+
+
+
+
+        die;
+
         //language
         $api_lng = $this->getApiLanguages($ga);
         //country
         $api_country = $this->getApiCountry($ga);
         //city
+        $project_id = Yii::$app->request->get('id');
         if(Yii::$app->request->get('country'))
-            $api_city = $this->actionGetApiCities($ga);
-
+            $api_city = $this->actionGetApiCities($ga, $project_id);
         // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
@@ -465,7 +414,8 @@ class ProjectsController extends Controller
             ->all();
         /** dateFrom isset */
         if($dateFrom = Yii::$app->request->post('dateFrom')) {
-            $model = ProdvigatorData::find()->where(['domain' => $project_title])
+            $model = ProdvigatorData::find()
+                ->where(['domain' => $project_title])
                 ->andFilterWhere(['>=', 'date', $dateFrom])
                 ->orderBy('date desc')
                 ->all();
@@ -476,7 +426,8 @@ class ProjectsController extends Controller
         }
         /** dateTill isset */
         if($dateTill = Yii::$app->request->post('dateTill')) {
-            $model = ProdvigatorData::find()->where(['domain' => $project_title])
+            $model = ProdvigatorData::find()
+                ->where(['domain' => $project_title])
                 ->andFilterWhere(['>=', 'date', $dateTill])
                 ->orderBy('date desc')
                 ->all();
@@ -540,6 +491,228 @@ class ProjectsController extends Controller
         return $this->redirect(Yii::$app->request->referrer);
     }
 
+    public function updateApiBrowser($api_browser, $project_id){
+        ApiBrowser::deleteAll(['project_id' => $project_id]);
+        foreach($api_browser as $item) :
+            $model = new ApiBrowser();
+            $model->pageviews = $item->getMetrics()['pageviews'];
+            $model->visits = $item->getMetrics()['visits'];
+            $model->browser = $item->getDimensions()['browser'];
+            $model->browserVersion = $item->getDimensions()['browserVersion'];
+            $model->date = date('U');
+            $model->project_id = $project_id;
+            $model->save();
+        endforeach;
+    }
+
+    public function getBrowserModel($project_id){
+        return ApiBrowser::find()->where(['project_id' => $project_id])->all();
+    }
+
+    public function updateApiSource($api_source, $project_id){
+        ApiSource::deleteAll(['project_id' => $project_id]);
+        foreach($api_source as $item) :
+            $model = new ApiSource();
+            $model->visits = $item->getMetrics()['visits'];
+            $model->source = $item->getDimensions()['source'];
+            $model->project_id = $project_id;
+            $model->date = date('U');
+            $model->save();
+        endforeach;
+    }
+
+    public function getSourceModel($project_id){
+        return ApiSource::find()->where(['project_id' => $project_id])->all();
+    }
+
+    public function updateApiOs($api_os, $project_id){
+        ApiOs::deleteAll(['project_id' => $project_id]);
+        foreach($api_os as $item) :
+            $model = new ApiOs();
+            $model->visits = $item->getMetrics()['visits'];
+            $model->os = $item->getDimensions()['operatingSystem'];
+            $model->project_id = $project_id;
+            $model->date = date('U');
+            $model->save();
+        endforeach;
+    }
+
+    public function getOsModel($project_id){
+        return ApiOs::find()->where(['project_id' => $project_id])->all();
+    }
+
+    public function updateApiDevice($api_device, $project_id){
+        ApiDevice::deleteAll(['project_id' => $project_id]);
+        foreach($api_device as $item) :
+            $model = new ApiDevice();
+            $model->visits = $item->getMetrics()['visits'];
+            $model->brand = $item->getDimensions()['mobileDeviceBranding'];
+            $model->project_id = $project_id;
+            $model->date = date('U');
+            $model->save();
+        endforeach;
+    }
+
+    public function getDeviceModel($project_id){
+        return ApiDevice::find()->where(['project_id' => $project_id])->all();
+    }
+
+    public function updateApiUsers($api_users, $project_id){
+        ApiUsers::deleteAll(['project_id' => $project_id]);
+        foreach($api_users as $item) :
+            $model = new ApiUsers();
+            $model->users = $item->getMetrics()['users'];
+            $model->new_users = $item->getMetrics()['newUsers'];
+            $model->session_count = $item->getDimensions()['sessionCount'];
+            $model->project_id = $project_id;
+            $model->date = date('U');
+            $model->save();
+        endforeach;
+    }
+
+    public function getUserModel($project_id){
+        return ApiUsers::find()->where(['project_id' => $project_id])->all();
+    }
+
+    public function updateApiSessions($api_sessions, $project_id){
+        dump($api_sessions);
+        ApiSessions::deleteAll(['project_id' => $project_id]);
+        foreach($api_sessions as $item) :
+            $model = new ApiSessions();
+            $model->session_duration = $item->getMetrics()['sessionDuration'];
+            $model->pageviews = $item->getMetrics()['pageviews'];
+            $model->bounces = $item->getMetrics()['bounces'];
+            $model->project_id = $project_id;
+            $model->session_duration_bucket = $item->getDimensions()['sessionDurationBucket'];
+            $model->date = date('U');
+            $model->save(false);
+        endforeach;
+    }
+
+    public function getSessionsModel($project_id){
+        return ApiSessions::find()->where(['project_id' => $project_id])->all();
+    }
+
+
+
+
+//
+//
+//    function getService()
+//    {
+//        // Creates and returns the Analytics service object.
+//
+//        // Load the Google API PHP Client Library.
+////        require_once 'google-api-php-client/src/Google/autoload.php';
+//
+//        // Use the developers console and replace the values with your
+//        // service account email, and relative location of your key file.
+//        $service_account_email = Yii::$app->params['gapi_google_service_account_email'];
+//        $key_file_location = Yii::$app->basePath . Yii::$app->params['gapi_p_12_file_path'];
+//
+//        // Create and configure a new client object.
+//        $client = new \Google_Client();
+//        $client->setApplicationName("HelloAnalytics");
+//        $analytics = new \Google_Service_Analytics($client);
+//
+//        // Read the generated client_secrets.p12 key.
+////        $key = file_get_contents($key_file_location);
+////        dump(file_get_contents(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json'));die;
+//        $client->setAuthConfig(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
+////        $client->setAssertionCredentials($cred);
+//        if($client->isAccessTokenExpired()) {
+//            $client->refreshTokenWithAssertion();
+//        }
+//
+//        return $analytics;
+//    }
+//
+//    function getFirstprofileId(&$analytics) {
+//        // Get the user's first view (profile) ID.
+//
+//        // Get the list of accounts for the authorized user.
+//        $accounts = $analytics->management_accounts->listManagementAccounts();
+//        dump($accounts);die;
+//        if (count($accounts->getItems()) > 0) {
+//            $items = $accounts->getItems();
+//            $firstAccountId = $items[0]->getId();
+//
+//            // Get the list of properties for the authorized user.
+//            $properties = $analytics->management_webproperties
+//                ->listManagementWebproperties($firstAccountId);
+//
+//            if (count($properties->getItems()) > 0) {
+//                $items = $properties->getItems();
+//                $firstPropertyId = $items[0]->getId();
+//
+//                // Get the list of views (profiles) for the authorized user.
+//                $profiles = $analytics->management_profiles
+//                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
+//
+//                if (count($profiles->getItems()) > 0) {
+//                    $items = $profiles->getItems();
+//
+//                    // Return the first view (profile) ID.
+//                    return $items[0]->getId();
+//
+//                } else {
+//                    throw new Exception('No views (profiles) found for this user.');
+//                }
+//            } else {
+//                throw new Exception('No properties found for this user.');
+//            }
+//        } else {
+//            throw new Exception('No accounts found for this user.');
+//        }
+//    }
+//
+//    function getResults(&$analytics, $profileId) {
+//        // Calls the Core Reporting API and queries for the number of sessions
+//        // for the last seven days.
+//        return $analytics->data_ga->get(
+//            'ga:' . $profileId,
+//            '7daysAgo',
+//            'today',
+//            'ga:sessions');
+//    }
+//
+//    function printResults(&$results) {
+//        // Parses the response from the Core Reporting API and prints
+//        // the profile name and total sessions.
+//        if (count($results->getRows()) > 0) {
+//
+//            // Get the profile name.
+//            $profileName = $results->getProfileInfo()->getProfileName();
+//
+//            // Get the entry for the first entry in the first row.
+//            $rows = $results->getRows();
+//            $sessions = $rows[0][0];
+//
+//            // Print the results.
+//            print "First view (profile) found: $profileName\n";
+//            print "Total sessions: $sessions\n";
+//        } else {
+//            print "No results found.\n";
+//        }
+//    }
+//
+//
+//    public function actionClientList()
+//    {
+////        $analytics = $this->getService();
+////        $profile = $this->getFirstProfileId($analytics);
+////        $results = $this->getResults($analytics, $profile);
+////        printResults($results);
+////        GET https://www.googleapis.com/analytics/v3/management/accounts?key={YOUR_API_KEY}
+//        $curl = curl_init();
+//        curl_setopt_array($curl, array(
+//            CURLOPT_RETURNTRANSFER => 1,
+//            CURLOPT_URL => 'https://www.googleapis.com/analytics/v3/management/accounts?key=AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE'
+//        ));
+//        $result = curl_exec($curl);
+//        dump($result);die;
+//
+//    }
 
 
 }

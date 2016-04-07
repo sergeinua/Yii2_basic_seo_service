@@ -31,9 +31,11 @@ if(Yii::$app->request->post('dateFrom'))
 if(Yii::$app->request->post('dateTill'))
     $periodTill = Yii::$app->request->post('dateTill');
 // min quantity of the visibility
-$max_quan = max($vis_quan);
+if($vis_quan)
+    $max_quan = max($vis_quan);
 // max quantity of the visibility
-$min_quan = min($vis_quan);
+if($vis_quan)
+    $min_quan = min($vis_quan);
 // array key for max quantity of the visibility
 $max_key = 0;
 // array key for max quantity of the visibility
@@ -43,11 +45,7 @@ foreach($vis_quan as $key => $value) :
         $max_key = $key;
     if($value == $min_quan)
         $min_key = $key;
-endforeach;
-dump($max_key);
-dump($min_key);
-
-?>
+endforeach; ?>
 
     <?php if($periodFrom || $periodTill) : ?>
         <div><?= Yii::t('app', 'Выбран период'); ?>
@@ -101,24 +99,26 @@ dump($min_key);
 
 <?= Html::a(Yii::t('app', 'Обновить данные продвигатора'), ['/projects/update-prodvigator', 'project_id' => Yii::$app->request->get('project_id')], ['class'=>'btn btn-primary']) ?>
 
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th><?= Yii::t('app', 'Максимальная видимость'); ?></th>
-                <th><?= Yii::t('app', 'Минимальная видимость'); ?></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><?= $max_quan; ?></td>
-                <td><?= $min_quan; ?></td>
-            </tr>
-            <tr>
-                <td><?= $vis_dates[$max_key]; ?></td>
-                <td><?= $vis_dates[$min_key]; ?></td>
-            </tr>
-        </tbody>
-    </table>
+    <?php if($vis_quan) : ?>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><?= Yii::t('app', 'Максимальная видимость'); ?></th>
+                    <th><?= Yii::t('app', 'Минимальная видимость'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?= $max_quan; ?></td>
+                    <td><?= $min_quan; ?></td>
+                </tr>
+                <tr>
+                    <td><?= $vis_dates[$max_key]; ?></td>
+                    <td><?= $vis_dates[$min_key]; ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
 
     <?= Highcharts::widget([
         'scripts' => [
@@ -181,56 +181,58 @@ dump($min_key);
             'show_organic' => Yii::$app->request->get('show_organic') ? null : 1,
         ], ['class'=>'btn btn-primary']); ?>
 
-<table class="table table-striped table-hover">
-    <thead>
-    <tr>
-        <th><?= Yii::t('app', 'Всего'); ?></th>
-        <th><?= Yii::t('app', 'Новых'); ?></th>
-        <th><?= Yii::t('app', 'Потерянных'); ?></th>
-        <th><?= Yii::t('app', 'Выросших'); ?></th>
-        <th><?= Yii::t('app', 'Упавших'); ?></th>
-        <th><?= Yii::t('app', 'Суммарный трафик'); ?></th>
-    </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><?= $model[0]->keywords; ?></td>
-            <td><?= $model[0]->new_keywords; ?></td>
-            <td><?= $model[0]->out_keywords; ?></td>
-            <td><?= $model[0]->rised_keywords; ?></td>
-            <td><?= $model[0]->down_keywords; ?></td>
-            <td><?= $model[0]->traff; ?></td>
-        </tr>
-    </tbody>
-</table>
-
-<?php if(Yii::$app->request->get('show_organic')) : ?>
-    <table class="table table-striped table-hover">
-        <thead>
+    <?php if($model) : ?>
+        <table class="table table-striped table-hover">
+            <thead>
             <tr>
-                <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
-                <th><?= Yii::t('app', 'Позиция'); ?></th>
-                <th><?= Yii::t('app', 'Количество запросов'); ?></th>
-                <th><?= Yii::t('app', 'Стоимость $'); ?></th>
-                <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
-                <th><?= Yii::t('app', 'Результатов'); ?></th>
-                <th><?= Yii::t('app', 'URL'); ?></th>
-
+                <th><?= Yii::t('app', 'Всего'); ?></th>
+                <th><?= Yii::t('app', 'Новых'); ?></th>
+                <th><?= Yii::t('app', 'Потерянных'); ?></th>
+                <th><?= Yii::t('app', 'Выросших'); ?></th>
+                <th><?= Yii::t('app', 'Упавших'); ?></th>
+                <th><?= Yii::t('app', 'Суммарный трафик'); ?></th>
             </tr>
-        </thead>
-        <tbody>
-        <?php foreach($model_organic as $item) : ?>
-            <tr>
-                <td><?= $item->keyword; ?></td>
-                <td><?= $item->position; ?></td>
-                <td><?= $item->region_queries_count; ?></td>
-                <td><?= $item->cost; ?></td>
-                <td><?= $item->concurrency; ?></td>
-                <td><?= $item->found_results; ?></td>
-                <td><?= $item->url; ?></td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?= $model[0]->keywords; ?></td>
+                    <td><?= $model[0]->new_keywords; ?></td>
+                    <td><?= $model[0]->out_keywords; ?></td>
+                    <td><?= $model[0]->rised_keywords; ?></td>
+                    <td><?= $model[0]->down_keywords; ?></td>
+                    <td><?= $model[0]->traff; ?></td>
+                </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
 
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php endif; ?>
+    <?php if(Yii::$app->request->get('show_organic')) : ?>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
+                    <th><?= Yii::t('app', 'Позиция'); ?></th>
+                    <th><?= Yii::t('app', 'Количество запросов'); ?></th>
+                    <th><?= Yii::t('app', 'Стоимость $'); ?></th>
+                    <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
+                    <th><?= Yii::t('app', 'Результатов'); ?></th>
+                    <th><?= Yii::t('app', 'URL'); ?></th>
+
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach($model_organic as $item) : ?>
+                <tr>
+                    <td><?= $item->keyword; ?></td>
+                    <td><?= $item->position; ?></td>
+                    <td><?= $item->region_queries_count; ?></td>
+                    <td><?= $item->cost; ?></td>
+                    <td><?= $item->concurrency; ?></td>
+                    <td><?= $item->found_results; ?></td>
+                    <td><?= $item->url; ?></td>
+
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>

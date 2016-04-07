@@ -10,7 +10,6 @@ use app\models\Projects;
 ?>
 
 
-
 <div>
     <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
 

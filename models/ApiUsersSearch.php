@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\CityName;
+use app\models\ApiUsers;
 
 /**
- * CityNameSearch represents the model behind the search form about `app\models\CityName`.
+ * ApiUsersSearch represents the model behind the search form about `app\models\ApiUsers`.
  */
-class CityNameSearch extends CityName
+class ApiUsersSearch extends ApiUsers
 {
     /**
      * @inheritdoc
@@ -18,8 +18,7 @@ class CityNameSearch extends CityName
     public function rules()
     {
         return [
-            [['criteriaId', 'parentId', 'countryCode', 'project_id'], 'integer'],
-            [['name', 'canonicalName', 'targetType', 'status'], 'safe'],
+            [['id', 'users', 'new_users', 'session_count', 'project_id', 'date'], 'integer'],
         ];
     }
 
@@ -41,7 +40,7 @@ class CityNameSearch extends CityName
      */
     public function search($params)
     {
-        $query = CityName::find();
+        $query = ApiUsers::find();
 
         // add conditions that should always apply here
 
@@ -59,15 +58,13 @@ class CityNameSearch extends CityName
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'criteriaId' => $this->criteriaId,
-            'parentId' => $this->parentId,
-            'countryCode' => $this->countryCode,
+            'id' => $this->id,
+            'users' => $this->users,
+            'new_users' => $this->new_users,
+            'session_count' => $this->session_count,
+            'project_id' => $this->project_id,
+            'date' => $this->date,
         ]);
-
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'canonicalName', $this->canonicalName])
-            ->andFilterWhere(['like', 'targetType', $this->targetType])
-            ->andFilterWhere(['like', 'status', $this->status]);
 
         return $dataProvider;
     }
