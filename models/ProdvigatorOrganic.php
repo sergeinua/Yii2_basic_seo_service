@@ -22,7 +22,7 @@ use Yii;
  * @property integer $date
  * @property integer $keyword_id
  * @property string $subdomain
- * @property integer $region_queries_count_wide
+ * @property string $region_queries_count_wide
  * @property string $types
  * @property integer $geo_names
  * @property integer $modified_at

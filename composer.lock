@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4bdfc7a0d5e70973f5d17677503be9ed",
-    "content-hash": "f6efe4156a805e0a84b443b6a237dc82",
+    "hash": "28d9a70974523f2b10a6cf4d7a950214",
+    "content-hash": "167752f6280afdbe51b2508a37c7283c",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -623,6 +623,47 @@
             "time": "2016-03-03 02:03:58"
         },
         {
+            "name": "googleads/googleads-php-lib",
+            "version": "8.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleads/googleads-php-lib.git",
+                "reference": "681cec877e9672120a574bdbe8f6583faffdb814"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleads/googleads-php-lib/zipball/681cec877e9672120a574bdbe8f6583faffdb814",
+                "reference": "681cec877e9672120a574bdbe8f6583faffdb814",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/Google/Api/Ads/AdWords/Lib",
+                    "src/Google/Api/Ads/Dfp/Lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "src/"
+            ],
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Google",
+                    "homepage": "https://github.com/googleads/googleads-php-lib/contributors"
+                }
+            ],
+            "description": "Google Ads APIs Client Library for PHP (AdWords and DFP)",
+            "homepage": "https://github.com/googleads/googleads-php-lib",
+            "time": "2016-04-08 05:50:03"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "6.2.0",
             "source": {
@@ -1043,7 +1084,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-mpdf/zipball/873a4f10ba961bbf3c63c9ede82a13d407f00acf",
+                "url": "https://api.github.com/repos/kartik-v/yii2-mpdf/zipball/5232c7b0a6a9f2b128df12b112343315c38688a3",
                 "reference": "873a4f10ba961bbf3c63c9ede82a13d407f00acf",
                 "shasum": ""
             },
