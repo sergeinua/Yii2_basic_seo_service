@@ -374,11 +374,11 @@ if(isset($sort)){
             <div><?= Yii::t('app', 'Выбран период') ?>
                 <?php if($periodForKeysFrom) : ?>
                     <?= Yii::t('app', 'с') ?>
-                    <?= DateTime::createFromFormat('Ymd', $periodForKeysFrom)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
                 <?php endif; ?>
                 <?php if($periodForKeysTill) : ?>
                     <?= Yii::t('app', 'по') ?>
-                    <?= DateTime::createFromFormat('Ymd', $periodForKeysTill)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

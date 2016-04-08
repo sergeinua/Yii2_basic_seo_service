@@ -9,6 +9,7 @@ use app\models\Projects;
 use Yii;
 use app\models\Keys;
 use app\models\KeysSearch;
+use yii\base\Model;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -16,15 +17,11 @@ use app\models\KeysForm;
 use app\components\Google\Api\CustomSearch;
 use yii\helpers\Json;
 use app\models\KeyPosition;
-use yii\behaviors\TimestampBehavior;
-use yii\db\Expression;
 use DateTime;
 use yii\filters\AccessControl;
 use app\components\Additional;
-use Google_Client;
-use Google_Service_Books;
-use Google_Service_Analytics;
 use Google_Auth_AssertionCredentials;
+use yii\db\Query;
 
 
 /**
@@ -380,9 +377,39 @@ class KeysController extends Controller
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
         }
 
-        return $this->render('excel', [
-            'model' => $model,
-        ]);
+        $objPHPExcel = new \PHPExcel();
+        $sheet=0;
+        $objPHPExcel->setActiveSheetIndex($sheet);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
+            ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
+
+        $i=1;
+        foreach($model as $item) :
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i).'1', date('Y-m-d', $item->date));
+            $i++;
+        endforeach;
+
+        $row=2;
+        foreach($model as $item) :
+            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
+            $row++;
+        endforeach;
+//TODO: not finished yet
+        $i=0;
+        foreach($model as $item) :
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1).'2', $item->position);
+            $i++;
+        endforeach;
+
+        $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $fileName = Yii::getAlias('@app/web/download/'.$filename);
+        $objWriter->save($fileName);
+        return Yii::$app->getResponse()->sendFile($fileName);
     }
 
     /**
@@ -422,9 +449,38 @@ class KeysController extends Controller
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
         }
 
-        return $this->render('excel', [
-            'model' => $model,
-        ]);
+
+        $objPHPExcel = new \PHPExcel();
+        $sheet=0;
+        $objPHPExcel->setActiveSheetIndex($sheet);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+        $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
+            ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
+
+        $i=1;
+        foreach($model as $item) :
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i).'1', date('Y-m-d', $item->date));
+            $i++;
+        endforeach;
+
+        $row=2;
+        $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
+
+        $i=0;
+        foreach($model as $item) :
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1).'2', $item->position);
+            $i++;
+        endforeach;
+
+        $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $fileName = Yii::getAlias('@app/web/download/'.$filename);
+        $objWriter->save($fileName);
+        return Yii::$app->getResponse()->sendFile($fileName);
+
     }
 
     /**

@@ -417,6 +417,7 @@ class ProjectsController extends Controller
         // ProdvigatorOrganic
         $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token;
         $result = json_decode(file_get_contents($url));
+        dump($result);die;
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
         foreach($result->result->hits as $item) :
             $model = new ProdvigatorOrganic();
@@ -436,7 +437,7 @@ class ProjectsController extends Controller
             $model->subdomain = $item->subdomain;
             $model->region_queries_count_wide = $item->region_queries_count_wide;
             $model->modified_at = date('U');
-            $model->save();
+            $model->save(false);
         endforeach;
 
         return $this->redirect(Yii::$app->request->referrer);

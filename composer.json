@@ -35,7 +35,8 @@
         "kartik-v/yii2-mpdf": "dev-master",
         "google/apiclient": "^2.0.0@RC",
         "guzzlehttp/guzzle": "~6.0",
-        "guzzlehttp/ring": "^1.1"
+        "guzzlehttp/ring": "^1.1",
+        "phpoffice/phpexcel": "dev-develop"
 
     },
     "require-dev": {
