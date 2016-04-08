@@ -420,9 +420,14 @@ class ProjectsController extends Controller
 
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
 
-        $cnt = ceil($result->result->total);
+        $cnt = ceil($result->result->total / 1000);
+
         for ($i=0; $i<$cnt; $i++){
-            $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000&page=' . $i;
+            if($i == 0)
+                $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000';
+            else
+                $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000&page=' . ($i+1);
+
             $result = json_decode(file_get_contents($url));
             foreach($result->result->hits as $item) :
                 $model = new ProdvigatorOrganic();
@@ -444,7 +449,7 @@ class ProjectsController extends Controller
                 $model->modified_at = date('U');
                 $model->save(false);
             endforeach;
-        }
+        }die;
 
 
 
