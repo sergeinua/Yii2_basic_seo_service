@@ -393,17 +393,23 @@ class KeysController extends Controller
         endforeach;
 
         $row=2;
-        foreach($model as $item) :
-            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
-            $row++;
-        endforeach;
+//        foreach($model as $item) :
+//            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
+//            $row++;
+//        endforeach;
 //TODO: not finished yet
         $i=0;
-        foreach($model as $item) :
-            $objPHPExcel->getActiveSheet()
-                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1).'2', $item->position);
-            $i++;
-        endforeach;
+        $row=2;
+        foreach($model as $mod){
+            $i=0;
+            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$mod->title);
+            foreach ($model as $item) :
+                $objPHPExcel->getActiveSheet()
+                    ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i + 1) . $row, $item->position);
+                $i++;
+            endforeach;
+            $row++;
+        }
 
         $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');

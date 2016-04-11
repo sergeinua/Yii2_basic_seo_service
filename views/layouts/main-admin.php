@@ -145,6 +145,11 @@ if(Yii::$app->user->identity)
                                         'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
                                         'options' =>['class' => 'sidebar-list-item']
                                     ],
+                                    [
+                                        'label' => 'AdWords', 'url' => ['/projects/get-adwords-data',
+                                        'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
+                                        'options' =>['class' => 'sidebar-list-item']
+                                    ],
                                 ]]);
                             ?>
                         </div>

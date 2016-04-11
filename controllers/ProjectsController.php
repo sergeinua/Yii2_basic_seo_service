@@ -26,7 +26,16 @@ use DateTime;
 use yii\filters\AccessControl;
 use app\components\gapi;
 use yii\db\Query;
-use yii\widgets\DetailView;
+use AdWordsUser;
+use BudgetOperation;
+use Campaign;
+use Budget;
+use BiddingStrategyConfiguration;
+use Google\Api\Response\Data\Parser\Exception;
+use Selector;
+use Predicate;
+use ReportDefinition;
+use ReportUtils;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -43,13 +52,13 @@ class ProjectsController extends Controller
                 'rules' => [
                     [
                         'actions' => ['index', 'view', 'create', 'update', 'delete', 'show-organic',
-                            'show-analytics', 'show-prodvigator', 'update-prodvigator', 'update-analytics-data'],
+                            'show-analytics', 'show-prodvigator', 'update-prodvigator', 'update-analytics-data', 'get-adwords-data'],
                         'allow' => true,
                         'roles' => ['seo'],
                     ],
                     [
                         'actions' => ['index', 'view', 'show-analytics', 'show-organic',
-                            'show-prodvigator', 'update-prodvigator', 'update-analytics-data'],
+                            'show-prodvigator', 'update-prodvigator', 'update-analytics-data', 'get-adwords-data'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
@@ -392,34 +401,32 @@ class ProjectsController extends Controller
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
 
-//        $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
-//        $result = json_decode(file_get_contents($url));
-//        ProdvigatorData::deleteAll(['domain' => $domain]);
-//        foreach($result->result as $item) :
-//            $model = new ProdvigatorData();
-//            $model->id = md5($project_id . $item->date);
-//            $model->domain = $project_title;
-//            $model->keywords = $item->keywords;
-//            $model->traff = $item->traff;
-//            $model->new_keywords = $item->new_keywords;
-//            $model->out_keywords = $item->out_keywords;
-//            $model->rised_keywords = $item->rised_keywords;
-//            $model->down_keywords = $item->down_keywords;
-//            $model->visible = $item->visible;
-//            $model->cost_min = $item->cost_min;
-//            $model->cost_max = $item->cost_max;
-//            $model->ad_keywords = $item->ad_keywords;
-//            $model->ads = $item->ads;
-//            $model->date = $item->date;
-//            $model->modified_at = date('U');
-//            $model->save();
-//        endforeach;
+        $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
+        $result = json_decode(file_get_contents($url));
+        ProdvigatorData::deleteAll(['domain' => $domain]);
+        foreach($result->result as $item) :
+            $model = new ProdvigatorData();
+            $model->id = md5($project_id . $item->date);
+            $model->domain = $project_title;
+            $model->keywords = $item->keywords;
+            $model->traff = $item->traff;
+            $model->new_keywords = $item->new_keywords;
+            $model->out_keywords = $item->out_keywords;
+            $model->rised_keywords = $item->rised_keywords;
+            $model->down_keywords = $item->down_keywords;
+            $model->visible = $item->visible;
+            $model->cost_min = $item->cost_min;
+            $model->cost_max = $item->cost_max;
+            $model->ad_keywords = $item->ad_keywords;
+            $model->ads = $item->ads;
+            $model->date = $item->date;
+            $model->modified_at = date('U');
+            $model->save();
+        endforeach;
         // ProdvigatorOrganic
         $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000';
         $result = json_decode(file_get_contents($url));
-
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
-
         $cnt = ceil($result->result->total / 1000);
 
         for ($i=0; $i<$cnt; $i++){
@@ -449,9 +456,7 @@ class ProjectsController extends Controller
                 $model->modified_at = date('U');
                 $model->save(false);
             endforeach;
-        }die;
-
-
+        }
 
         return $this->redirect(Yii::$app->request->referrer);
     }
@@ -803,7 +808,7 @@ class ProjectsController extends Controller
         }
     }
 
-
+    //TODO: not finished yet
     public function actionClientList()
     {
         $analytics = $this->getService();
@@ -821,5 +826,84 @@ class ProjectsController extends Controller
 //
     }
 
+    public function actionGetAdwordsData(){
+        $user = new AdWordsUser();
+        // Get the CampaignService.
+        $campaignService = $user->GetService('CampaignService');
+
+        try {
+            // Get AdWordsUser from credentials in "../auth.ini"
+            // relative to the AdWordsUser.php file's directory.
+            $user = new AdWordsUser();
+
+            // Log every SOAP XML request and response.
+            $user->LogAll();
+
+            // Download the report to a file in the same directory as the example.
+            $filePath = '@app/web/download/report.csv';
+
+            // Run the example.
+            DownloadCriteriaReportExample($user, $filePath);
+        } catch (Exception $e) {
+            printf("An error has occurred: %s\n", $e->getMessage());
+        }
+
+
+
+
+    }
+
+    /**
+     * Runs the example.
+     * @param AdWordsUser $user the user to run the example with
+     * @param string $filePath the path of the file to download the report to
+     */
+    function DownloadCriteriaReportExample(AdWordsUser $user, $filePath) {
+        // Load the service, so that the required classes are available.
+        $user->LoadService('ReportDefinitionService', ADWORDS_VERSION);
+        // Optional: Set clientCustomerId to get reports of your child accounts
+        // $user->SetClientCustomerId('INSERT_CLIENT_CUSTOMER_ID_HERE');
+
+        // Create selector.
+        $selector = new Selector();
+        $selector->fields = array('CampaignId', 'AdGroupId', 'Id', 'Criteria',
+            'CriteriaType', 'Impressions', 'Clicks', 'Cost');
+
+        // Optional: use predicate to filter out paused criteria.
+        $selector->predicates[] = new Predicate('Status', 'NOT_IN', array('PAUSED'));
+
+        // Create report definition.
+        $reportDefinition = new ReportDefinition();
+        $reportDefinition->selector = $selector;
+        $reportDefinition->reportName = 'Criteria performance report #' . uniqid();
+        $reportDefinition->dateRangeType = 'LAST_7_DAYS';
+        $reportDefinition->reportType = 'CRITERIA_PERFORMANCE_REPORT';
+        $reportDefinition->downloadFormat = 'CSV';
+
+        // Set additional options.
+        $options = array('version' => ADWORDS_VERSION);
+
+        // Optional: Set skipReportHeader, skipColumnHeader, skipReportSummary to
+        //     suppress headers or summary rows.
+        // $options['skipReportHeader'] = true;
+        // $options['skipColumnHeader'] = true;
+        // $options['skipReportSummary'] = true;
+        // Optional: Set includeZeroImpressions to include zero impression rows in
+        //     the report output.
+        // $options['includeZeroImpressions'] = true;
+
+        // Download report.
+        ReportUtils::DownloadReport($reportDefinition, $filePath, $user, $options);
+        printf("Report with name '%s' was downloaded to '%s'.\n",
+            $reportDefinition->reportName, $filePath);
+    }
+
+
+
+
+    public function actionShowAdwords(){
+
+        return $this->render('adwords');
+    }
 
 }
