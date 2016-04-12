@@ -384,32 +384,60 @@ class KeysController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
         $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
             ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
-
-        $i=1;
-        foreach($model as $item) :
-            $objPHPExcel->getActiveSheet()
-                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i).'1', date('Y-m-d', $item->date));
+        //defining dates
+        $begin = new \DateTime(date('Y-m-d', $periodForKeysFrom));
+        $end = new \DateTime(date('Y-m-d', $periodForKeysTill));
+        $end = $end->modify( '+1 day' );
+        $interval = new \DateInterval('P1D');
+        $daterange = new \DatePeriod($begin, $interval ,$end);
+        $dates = [];
+        $i = 0;
+        foreach($daterange as $date) :
+            $dates[$i] = $date->format("Y-m-d");
             $i++;
         endforeach;
 
-        $row=2;
-//        foreach($model as $item) :
-//            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
-//            $row++;
-//        endforeach;
-//TODO: not finished yet
-        $i=0;
-        $row=2;
-        foreach($model as $mod){
-            $i=0;
-            $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$mod->title);
-            foreach ($model as $item) :
-                $objPHPExcel->getActiveSheet()
-                    ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i + 1) . $row, $item->position);
-                $i++;
+        for($i=0; $i<count($dates); $i++) {
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1) . '1', $dates[$i]);
+        }
+
+        $highest_col = count($dates);
+
+        $row = 2;
+
+        $keys = [];
+        $i = 0;
+        foreach($model as $item) :
+           $keys[$i] = $item->key_id;
+            $i++;
+        endforeach;
+        $keys = array_unique($keys);
+        $keys = array_values($keys);
+
+        for($n=0; $n<count($keys); $n++) {
+            $selected_model = KeyPosition::find()->where(['key_id' => $keys[$n]])->all();
+            $title = Keys::find()->where(['id' => $selected_model[0]->key_id])->one()->title;
+
+            $objPHPExcel->getActiveSheet()->setCellValue('A' . $row, $title);
+            foreach ($selected_model as $item) :
+                $current_date = date('Y-m-d', $item->date);
+                for ($i = 1; $i <= $highest_col; $i++) {
+                    $col = \PHPExcel_Cell::stringFromColumnIndex($i);
+                    $needed_date = $objPHPExcel->getActiveSheet()->getCell($col . '1')->getValue();
+
+
+                    if ($current_date == $needed_date) :
+                        $objPHPExcel->getActiveSheet()
+                            ->setCellValue($col . $row, $item->position);
+
+                    endif;
+
+                }
             endforeach;
             $row++;
         }
+
 
         $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');

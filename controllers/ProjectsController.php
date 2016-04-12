@@ -36,6 +36,8 @@ use Selector;
 use Predicate;
 use ReportDefinition;
 use ReportUtils;
+//use app\components\ReportDefinition;
+//use app\components\ReportUtils;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -304,12 +306,12 @@ class ProjectsController extends Controller
                 ->andFilterWhere(['>=', 'date', $periodFrom])->all();
         }
         //period till is defined
+        if($periodFrom and $periodTill){
         if($periodTill){
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
                 ->andFilterWhere(['<=', 'date', $periodTill])->all();
         }
         //periods from & till are defined
-        if($periodFrom and $periodTill){
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
                 ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
         }
@@ -843,7 +845,7 @@ class ProjectsController extends Controller
             $filePath = '@app/web/download/report.csv';
 
             // Run the example.
-            DownloadCriteriaReportExample($user, $filePath);
+            $this->DownloadCriteriaReportExample($user, $filePath);
         } catch (Exception $e) {
             printf("An error has occurred: %s\n", $e->getMessage());
         }
@@ -860,7 +862,19 @@ class ProjectsController extends Controller
      */
     function DownloadCriteriaReportExample(AdWordsUser $user, $filePath) {
         // Load the service, so that the required classes are available.
-        $user->LoadService('ReportDefinitionService', ADWORDS_VERSION);
+        $user->LoadService('ReportDefinitionService', 'v201603');
+        $path = dirname(__FILE__) . '/../../../src';
+        dump('@app/vendor/autoload.php');die;
+        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
+        require_once 'Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
+
+//        $path = Yii::$app->basePath . '/vendor/googleads/googleads-php-lib/src';
+//
+//
+//        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
+//
+
+//        require Yii::$app->basePath . '/vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
         // Optional: Set clientCustomerId to get reports of your child accounts
         // $user->SetClientCustomerId('INSERT_CLIENT_CUSTOMER_ID_HERE');
 
@@ -881,7 +895,8 @@ class ProjectsController extends Controller
         $reportDefinition->downloadFormat = 'CSV';
 
         // Set additional options.
-        $options = array('version' => ADWORDS_VERSION);
+//        $options = array('version' => ADWORDS_VERSION);
+        $options = array('version' => 'v201603');
 
         // Optional: Set skipReportHeader, skipColumnHeader, skipReportSummary to
         //     suppress headers or summary rows.
