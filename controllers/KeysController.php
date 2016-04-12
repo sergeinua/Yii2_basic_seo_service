@@ -385,9 +385,16 @@ class KeysController extends Controller
         $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
             ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
         //defining dates
-        $begin = new \DateTime(date('Y-m-d', $periodForKeysFrom));
-        $end = new \DateTime(date('Y-m-d', $periodForKeysTill));
+        if(isset($periodForKeysFrom))
+            $begin = new \DateTime(date('Y-m-d', $periodForKeysFrom));
+        else
+            $begin = new \DateTime(date('Y-m-d', strtotime('-6 month')));
+        if(isset($periodForKeysTill))
+            $end = new \DateTime(date('Y-m-d', $periodForKeysTill));
+        else
+            $end = new \DateTime(date('Y-m-d', strtotime('-1 day')));
         $end = $end->modify( '+1 day' );
+
         $interval = new \DateInterval('P1D');
         $daterange = new \DatePeriod($begin, $interval ,$end);
         $dates = [];
@@ -396,6 +403,7 @@ class KeysController extends Controller
             $dates[$i] = $date->format("Y-m-d");
             $i++;
         endforeach;
+        $dates = array_reverse($dates);
 
         for($i=0; $i<count($dates); $i++) {
             $objPHPExcel->getActiveSheet()
@@ -405,7 +413,6 @@ class KeysController extends Controller
         $highest_col = count($dates);
 
         $row = 2;
-
         $keys = [];
         $i = 0;
         foreach($model as $item) :
@@ -437,7 +444,6 @@ class KeysController extends Controller
             endforeach;
             $row++;
         }
-
 
         $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
