@@ -863,10 +863,15 @@ class ProjectsController extends Controller
     function DownloadCriteriaReportExample(AdWordsUser $user, $filePath) {
         // Load the service, so that the required classes are available.
         $user->LoadService('ReportDefinitionService', 'v201603');
-        $path = dirname(__FILE__) . '/../../../src';
-        dump('@app/vendor/autoload.php');die;
-        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
-        require_once 'Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
+//        $path = dirname(__FILE__) . '/../../../src';
+//
+//        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
+//        require_once 'Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
+        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Lib/AdWordsUser.php');
+        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603/ReportClasses.php');
+        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603/ReportUtils.php');
+
+
 
 //        $path = Yii::$app->basePath . '/vendor/googleads/googleads-php-lib/src';
 //
