@@ -23,7 +23,7 @@ class KeysForm extends Model
     {
         return [
             [['title'], 'required'],
-            [['title'], 'string', 'max' => 500],
+            [['title'], 'string', 'max' => 5000],
             ['status', 'in', 'range' => [self::STATUS_DISABLED, self::STATUS_ENABLED]],
             ['status', 'default', 'value' => self::STATUS_ENABLED],
             [['group_id', 'id'], 'integer']

@@ -152,8 +152,10 @@ class ProjectVisibilityController extends Controller
         $top_ten=0;
         foreach($group_keys as $group_key){
             $keys = Keys::find()->where(['id' => $group_key->key_id])->one();
-            if($keys->position->position <= 10)
-                $top_ten++;
+            if(isset($keys->position->position)) {
+                if ($keys->position->position <= 10)
+                    $top_ten++;
+            }
         }
         $top_ten = $top_ten / count($group_keys) * 100;
 
@@ -163,14 +165,14 @@ class ProjectVisibilityController extends Controller
 
         if($exists) {
             $model = $this->findModel($id);
-            $model->visibility = $top_ten;
+            $model->visibility = round($top_ten);
             $model->update($model->id);
         } else {
             $model = new ProjectVisibility();
             $model->project_id = $project_id;
             $model->date = $date;
             $model->id = $id;
-            $model->visibility = $top_ten;
+            $model->visibility = round($top_ten);
             $model->save();
         }
     }

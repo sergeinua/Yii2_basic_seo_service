@@ -225,6 +225,7 @@ class ProjectsController extends Controller
 
     /**
      * Adds new projects via Google Analytics Api
+     * not in use -
      */
     public function actionGetApiAnalyticsModels(){
         $ga = $this->setGapiParams();

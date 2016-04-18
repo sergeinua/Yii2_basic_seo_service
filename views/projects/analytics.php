@@ -19,6 +19,7 @@ $last_modified = ApiSource::find()
 ?>
 
 <div>
+    <h1><?= Projects::find()->where(['id' => Yii::$app->request->get('id')])->one()->title; ?></h1>
     <h2><?= Yii::t('app', 'Динамика проекта'); ?></h2>
 
     <?php if($last_modified) : ?>
@@ -27,6 +28,8 @@ $last_modified = ApiSource::find()
             <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d h:i:s'); ?>
         </div>
     <?php endif; ?>
+
+    <?= Html::a(Yii::t('app', 'Назад'), Yii::$app->request->referrer, ['class' => 'btn btn-primary']); ?>
 
     <?= Html::a(Yii::t('app', 'Обновить данные аналитики'), ['/projects/update-analytics-data', 'project_id' => Yii::$app->request->get('id')], ['class'=>'btn btn-primary']) ?>
 

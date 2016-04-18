@@ -44,6 +44,8 @@ foreach($vis_quan as $key => $value) :
         $min_key = $key;
 endforeach; ?>
 
+    <h1><?= Projects::find()->where(['id' => Yii::$app->request->get('project_id')])->one()->title; ?></h1>
+
     <?php if($periodFrom || $periodTill) : ?>
         <div><?= Yii::t('app', 'Выбран период'); ?>
             <?php if($periodFrom) : ?>
@@ -89,6 +91,7 @@ endforeach; ?>
         ]); ?>
 
         <div class="form-group">
+            <?= Html::a(Yii::t('app', 'Назад'), Yii::$app->request->referrer, ['class' => 'btn btn-primary']); ?>
             <?= Html::submitButton( Yii::t('app', 'Применить'), ['class' => 'btn btn-primary']) ?>
         </div>
 
@@ -103,7 +106,7 @@ $last_modified = ProdvigatorData::find()
     <?php if($last_modified) : ?>
         <div>
             <?= Yii::t('app', 'Последнее обновление: '); ?>
-            <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:m:s'); ?>
+            <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:i:s'); ?>
         </div>
     <?php endif; ?>
 
