@@ -27,18 +27,17 @@ use yii\filters\AccessControl;
 use app\components\gapi;
 use yii\db\Query;
 use AdWordsUser;
-use BudgetOperation;
-use Campaign;
-use Budget;
+
+
 use BiddingStrategyConfiguration;
 use Google\Api\Response\Data\Parser\Exception;
-use Selector;
-use Predicate;
-use ReportDefinition;
-use ReportUtils;
+
+use app\components\ReportDefinition;
+use app\components\ReportUtils;
+use app\components\Selector;
+use app\components\Predicate;
 //use app\components\ReportDefinition;
 //use app\components\ReportUtils;
-
 /**
  * ProjectsController implements the CRUD actions for Projects model.
  */
@@ -180,7 +179,10 @@ class ProjectsController extends Controller
      * Sets params for gapi class (Google Analytics Api)
      */
     public function setGapiParams(){
-        define('ga_profile_id',Yii::$app->params['gapi_profile_id']);
+        $project_id = Yii::$app->request->get('project_id');
+        $gapi_profile_id = Projects::find()->where(['id' => $project_id])->one()->gapi_profile_id;
+        //  add selection profile_id depending on the project_id
+        define('ga_profile_id', $gapi_profile_id);
         return new gapi(Yii::$app->params['gapi_google_service_account_email'], Yii::$app->basePath . Yii::$app->params['gapi_p_12_file_path']);
     }
 
@@ -227,7 +229,7 @@ class ProjectsController extends Controller
     public function actionGetApiAnalyticsModels(){
         $ga = $this->setGapiParams();
         $result = $ga->requestAccountData();
-        dump($result);
+        dump($result);die;
         $exists = null;
         foreach($result as $item) :
             $exists = Projects::find()->where(['title' => $item->getwebsiteUrl() . '/'])->one();
@@ -259,19 +261,7 @@ class ProjectsController extends Controller
          * @param ApiCity $api_city
          */
 
-
         $project_id = Yii::$app->request->get('id');
-        //google analytics api data
-        $ga = $this->setGapiParams();
-
-
-
-
-//        dump($ga->requestAccountData());die;
-
-
-
-
 
         //total views & browsers
         $api_browser = $this->getBrowserModel($project_id);
@@ -721,8 +711,10 @@ class ProjectsController extends Controller
 
         // Create and configure a new client object.
         $client = new \Google_Client();
+
         $client->setApplicationName("HelloAnalytics");
         $analytics = new \Google_Service_Analytics($client);
+
 
 //        $accounts = $analytics->management_accounts->listManagementAccounts();
 //        dump($accounts);die;
@@ -733,6 +725,7 @@ class ProjectsController extends Controller
 //        $client->setAuthConfig(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
         putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
         $client->useApplicationDefaultCredentials();
+
 //        $client->setAssertionCredentials($cred);
         if($client->isAccessTokenExpired()) {
             $client->refreshTokenWithAssertion();
@@ -813,10 +806,21 @@ class ProjectsController extends Controller
     //TODO: not finished yet
     public function actionClientList()
     {
+        $ga = $this->setGapiParams();
+        dump($ga->requestAccountData());die;
+        dump($ga->getAccounts());die;
+
+
+
+
         $analytics = $this->getService();
-        $profile = $this->getFirstProfileId($analytics);
-        $results = $this->getResults($analytics, $profile);
-        printResults($results);
+//        $profile = $this->getFirstProfileId($analytics);
+//        $results = $this->getResults($analytics, $profile);
+//        printResults($results);
+
+        $profiles = $analytics->management_profiles
+            ->listManagementProfiles('86449576', '~all');
+        dump($profiles);die;
 //        GET https://www.googleapis.com/analytics/v3/management/accounts?key={YOUR_API_KEY}
 //        $curl = curl_init();
 //        curl_setopt_array($curl, array(
@@ -828,58 +832,16 @@ class ProjectsController extends Controller
 //
     }
 
-    public function actionGetAdwordsData(){
-        $user = new AdWordsUser();
-        // Get the CampaignService.
-        $campaignService = $user->GetService('CampaignService');
-
-        try {
-            // Get AdWordsUser from credentials in "../auth.ini"
-            // relative to the AdWordsUser.php file's directory.
-            $user = new AdWordsUser();
-
-            // Log every SOAP XML request and response.
-            $user->LogAll();
-
-            // Download the report to a file in the same directory as the example.
-            $filePath = '@app/web/download/report.csv';
-
-            // Run the example.
-            $this->DownloadCriteriaReportExample($user, $filePath);
-        } catch (Exception $e) {
-            printf("An error has occurred: %s\n", $e->getMessage());
-        }
 
 
 
 
-    }
 
-    /**
-     * Runs the example.
-     * @param AdWordsUser $user the user to run the example with
-     * @param string $filePath the path of the file to download the report to
-     */
+
     function DownloadCriteriaReportExample(AdWordsUser $user, $filePath) {
+
         // Load the service, so that the required classes are available.
         $user->LoadService('ReportDefinitionService', 'v201603');
-//        $path = dirname(__FILE__) . '/../../../src';
-//
-//        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
-//        require_once 'Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
-        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Lib/AdWordsUser.php');
-        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603/ReportClasses.php');
-        require_once('../vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Util/v201603/ReportUtils.php');
-
-
-
-//        $path = Yii::$app->basePath . '/vendor/googleads/googleads-php-lib/src';
-//
-//
-//        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
-//
-
-//        require Yii::$app->basePath . '/vendor/googleads/googleads-php-lib/src/Google/Api/Ads/AdWords/Lib/AdWordsUser.php';
         // Optional: Set clientCustomerId to get reports of your child accounts
         // $user->SetClientCustomerId('INSERT_CLIENT_CUSTOMER_ID_HERE');
 
@@ -900,7 +862,6 @@ class ProjectsController extends Controller
         $reportDefinition->downloadFormat = 'CSV';
 
         // Set additional options.
-//        $options = array('version' => ADWORDS_VERSION);
         $options = array('version' => 'v201603');
 
         // Optional: Set skipReportHeader, skipColumnHeader, skipReportSummary to
@@ -921,9 +882,80 @@ class ProjectsController extends Controller
 
 
 
+
+    public function actionGetAdwordsData(){
+        $filePath = Yii::$app->basePath . 'web/download/report.csv';
+
+        require '../vendor/googleads/googleads-php-lib/examples/AdWords/Auth/GetRefreshToken.php';
+
+
+        // Don't run the example if the file is being included.
+
+
+        try {
+            // Get the client ID and secret from the auth.ini file. If you do not have a
+            // client ID or secret, please create one of type "installed application" in
+            // the Google API console: https://code.google.com/apis/console#access
+            // and set it in the auth.ini file.
+            $user = new AdWordsUser();
+            $user->LogAll();
+
+            // Get the OAuth2 credential.
+            $oauth2Info = $this->GetOAuth2Credential($user);
+            // Enter the refresh token into your auth.ini file.
+            printf("Your refresh token is: %s\n\n", $oauth2Info['refresh_token']);
+            printf("In your auth.ini file, edit the refresh_token line to be:\n"
+                . "refresh_token = \"%s\"\n", $oauth2Info['refresh_token']);
+        } catch (\OAuth2Exception $e) {
+            \ExampleUtils::CheckForOAuth2Errors($e);
+        } catch (\ValidationException $e) {
+            \ExampleUtils::CheckForOAuth2Errors($e);
+        } catch (\Exception $e) {
+            printf("An error has occurred: %s\n", $e->getMessage());
+        }
+
+    }
+
+
+
+
     public function actionShowAdwords(){
 
         return $this->render('adwords');
+    }
+
+    function GetOAuth2Credential($user) {
+        $redirectUri = null;
+        $offline = true;
+        // Get the authorization URL for the OAuth2 token.
+        // No redirect URL is being used since this is an installed application. A web
+        // application would pass in a redirect URL back to the application,
+        // ensuring it's one that has been configured in the API console.
+        // Passing true for the second parameter ($offline) will provide us a refresh
+        // token which can used be refresh the access token when it expires.
+        $OAuth2Handler = $user->GetOAuth2Handler();
+        $authorizationUrl = $OAuth2Handler->GetAuthorizationUrl(
+            $user->GetOAuth2Info(), $redirectUri, $offline);
+        // In a web application you would redirect the user to the authorization URL
+        // and after approving the token they would be redirected back to the
+        // redirect URL, with the URL parameter "code" added. For desktop
+        // or server applications, spawn a browser to the URL and then have the user
+        // enter the authorization code that is displayed.
+        printf("Log in to your AdWords account and open the following URL:\n%s\n\n",
+            $authorizationUrl);
+        print "After approving the token enter the authorization code here: ";
+        $stdin = fopen('php://stdin', 'r');
+        $code = trim(fgets($stdin));
+        fclose($stdin);
+        print "\n";
+        // Get the access token using the authorization code. Ensure you use the same
+        // redirect URL used when requesting authorization.
+        $user->SetOAuth2Info(
+            $OAuth2Handler->GetAccessToken(
+                $user->GetOAuth2Info(), $code, $redirectUri));
+        // The access token expires but the refresh token obtained for offline use
+        // doesn't, and should be stored for later use.
+        return $user->GetOAuth2Info();
     }
 
 }

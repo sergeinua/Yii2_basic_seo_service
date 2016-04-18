@@ -41,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно'),
             ],
             'googlehost',
+            'gapi_profile_id',
             'language',
             [
                 'attribute' => 'upd_period',

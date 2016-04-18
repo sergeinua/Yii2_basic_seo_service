@@ -23,6 +23,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'googlehost')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'gapi_profile_id')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'language')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'upd_period')->dropDownList([

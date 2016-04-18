@@ -2,6 +2,8 @@
 
 namespace app\components;
 
+use AdWordsUser;
+
 class ReportUtils {
 
     /**

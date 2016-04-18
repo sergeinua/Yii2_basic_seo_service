@@ -53,6 +53,11 @@ class KeysController extends Controller
                         'allow' => true,
                         'roles' => ['?'],
                     ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['admin'],
+                    ],
                 ],
             ],
             'verbs' => [
@@ -129,7 +134,8 @@ class KeysController extends Controller
 
             }
 
-            return $this->redirect(['view', 'id' => $keyModel->id]);
+//            return $this->redirect(['view', 'id' => $keyModel->id]);
+            return $this->redirect(['/groups/view', 'id' => $group_id]);
         } else {
             return $this->render('keys', [
                 'model' => $model,
@@ -327,10 +333,12 @@ class KeysController extends Controller
                 break;
                 $this->redirect(Yii::$app->request->referrer);
             }
-            if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
-                $project_pos = $i + 1 + $start_pos;
-                break;
-            }
+            if(isset($response['items'][$i]['link'])) :
+                if (substr($response['items'][$i]['link'], 0, strlen($project_link)) == $project_link){
+                    $project_pos = $i + 1 + $start_pos;
+                    break;
+                }
+            endif;
         }
 
         return $project_pos;
@@ -529,7 +537,6 @@ class KeysController extends Controller
      */
     public function actionScheduled()
     {
-
         $projects = Projects::find()->all();
         // defining all project ids
         $i=0;

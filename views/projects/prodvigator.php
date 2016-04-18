@@ -9,11 +9,7 @@ use app\models\Projects;
 
 ?>
 
-<?php
-/**
- * visibility data
- */
-
+<?php // visibility data
 $vis_dates = [];
 $vis_quan = [];
 $vis_words = [];
@@ -102,14 +98,14 @@ date_default_timezone_set('Europe/Kiev');
 $last_modified = ProdvigatorData::find()
     ->where(['domain' => Projects::find()->where(['id' => Yii::$app->request->get('project_id')])->one()['title']])
     ->orderBy('date asc')
-    ->one()['modified_at'];
-?>
+    ->one()['modified_at']; ?>
 
-
-    <div>
-        <?= Yii::t('app', 'Последнее обновление: '); ?>
-        <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:m:s'); ?>
-    </div>
+    <?php if($last_modified) : ?>
+        <div>
+            <?= Yii::t('app', 'Последнее обновление: '); ?>
+            <?= DateTime::createFromFormat('U', $last_modified)->format('Y-m-d H:m:s'); ?>
+        </div>
+    <?php endif; ?>
 
 <?= Html::a(Yii::t('app', 'Обновить данные продвигатора'), ['/projects/update-prodvigator', 'project_id' => Yii::$app->request->get('project_id')], ['class'=>'btn btn-primary']) ?>
 
@@ -134,60 +130,65 @@ $last_modified = ProdvigatorData::find()
         </table>
     <?php endif; ?>
 
-    <?= Highcharts::widget([
-        'scripts' => [
-            'highcharts-more',
-        ],
-        'options' => [
-            'chart' => [
-                'type' => 'area',
-                'inverted' => false,
+    <?php if($vis_dates && $vis_quan) : ?>
+        <?= Highcharts::widget([
+            'scripts' => [
+                'highcharts-more',
             ],
-            'title' => ['text' => Yii::t('app', 'История изменения видимости')],
-            'xAxis' => [
-                'categories' => $vis_dates,
-            ],
-            'yAxis' => [
-                'title' => ['text' => Yii::t('app', 'Видимость')]
-            ],
-            'legend' => [
-                'enabled' => false
-            ],
-            'series' => [[
-                'name' => Yii::t('app', 'Видимость'),
-                'data' => $vis_quan,
-            ]]
-        ]
-    ]);?>
+            'options' => [
+                'chart' => [
+                    'type' => 'area',
+                    'inverted' => false,
+                ],
+                'title' => ['text' => Yii::t('app', 'История изменения видимости')],
+                'xAxis' => [
+                    'categories' => $vis_dates,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Видимость')]
+                ],
+                'legend' => [
+                    'enabled' => false
+                ],
+                'series' => [[
+                    'name' => Yii::t('app', 'Видимость'),
+                    'data' => $vis_quan,
+                ]]
+            ]
+        ]); ?>
+    <?php endif; ?>
+
 </div>
 
-<div>
-    <?= Highcharts::widget([
-        'scripts' => [
-            'highcharts-more',
-        ],
-        'options' => [
-            'chart' => [
-                'type' => 'area',
-                'inverted' => false,
-            ],
-            'title' => ['text' => Yii::t('app', 'История изменения количества фраз')],
-            'xAxis' => [
-                'categories' => $vis_dates,
-            ],
-            'yAxis' => [
-                'title' => ['text' => Yii::t('app', 'Количество фраз')]
-            ],
-            'legend' => [
-                'enabled' => false
-            ],
-            'series' => [[
-                'name' => Yii::t('app', 'Количество фраз'),
-                'data' => $vis_words,
-            ]]
-        ]
-    ]);?>
-</div>
+    <?php if($vis_dates && $vis_words) : ?>
+        <div>
+            <?= Highcharts::widget([
+                'scripts' => [
+                    'highcharts-more',
+                ],
+                'options' => [
+                    'chart' => [
+                        'type' => 'area',
+                        'inverted' => false,
+                    ],
+                    'title' => ['text' => Yii::t('app', 'История изменения количества фраз')],
+                    'xAxis' => [
+                        'categories' => $vis_dates,
+                    ],
+                    'yAxis' => [
+                        'title' => ['text' => Yii::t('app', 'Количество фраз')]
+                    ],
+                    'legend' => [
+                        'enabled' => false
+                    ],
+                    'series' => [[
+                        'name' => Yii::t('app', 'Количество фраз'),
+                        'data' => $vis_words,
+                    ]]
+                ]
+            ]);?>
+        </div>
+    <?php endif; ?>
 
     <?= Html::a(Yii::$app->request->get('show_organic') ? Yii::t('app', 'Назад') : Yii::t('app', 'Поисковые запросы в органическом поиске'),
         ['/projects/show-prodvigator',
@@ -221,32 +222,32 @@ $last_modified = ProdvigatorData::find()
     <?php endif; ?>
 
     <?php if(Yii::$app->request->get('show_organic')) : ?>
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
-                    <th><?= Yii::t('app', 'Позиция'); ?></th>
-                    <th><?= Yii::t('app', 'Количество запросов'); ?></th>
-                    <th><?= Yii::t('app', 'Стоимость $'); ?></th>
-                    <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
-                    <th><?= Yii::t('app', 'Результатов'); ?></th>
-                    <th><?= Yii::t('app', 'URL'); ?></th>
-
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach($model_organic as $item) : ?>
-                <tr>
-                    <td><?= $item->keyword; ?></td>
-                    <td><?= $item->position; ?></td>
-                    <td><?= $item->region_queries_count; ?></td>
-                    <td><?= $item->cost; ?></td>
-                    <td><?= $item->concurrency; ?></td>
-                    <td><?= $item->found_results; ?></td>
-                    <td><?= $item->url; ?></td>
-
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+        <?php if($model_organic) : ?>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
+                        <th><?= Yii::t('app', 'Позиция'); ?></th>
+                        <th><?= Yii::t('app', 'Количество запросов'); ?></th>
+                        <th><?= Yii::t('app', 'Стоимость $'); ?></th>
+                        <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
+                        <th><?= Yii::t('app', 'Результатов'); ?></th>
+                        <th><?= Yii::t('app', 'URL'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach($model_organic as $item) : ?>
+                    <tr>
+                        <td><?= $item->keyword; ?></td>
+                        <td><?= $item->position; ?></td>
+                        <td><?= $item->region_queries_count; ?></td>
+                        <td><?= $item->cost; ?></td>
+                        <td><?= $item->concurrency; ?></td>
+                        <td><?= $item->found_results; ?></td>
+                        <td><?= $item->url; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     <?php endif; ?>

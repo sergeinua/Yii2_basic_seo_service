@@ -11,6 +11,7 @@ use app\models\GroupVisibilitySearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\filters\AccessControl;
 
 /**
  * GroupVisibilityController implements the CRUD actions for GroupVisibility model.
@@ -20,6 +21,21 @@ class GroupVisibilityController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-position'],
+                        'allow' => true,
+                        'roles' => ['seo'],
+                    ],
+                    [
+                        'actions' => ['index', 'view', 'create', 'update', 'delete', 'update-position'],
+                        'allow' => true,
+                        'roles' => ['user'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -128,7 +144,7 @@ class GroupVisibilityController extends Controller
         global $group_id;
         $group_id = $request['group_id'];
         $group_key = GroupKey::find()->where(['group_id' => $group_id])->all();
-        // defining all existing dates
+
 
 
         // getting all the needed keys of the group
@@ -152,14 +168,14 @@ class GroupVisibilityController extends Controller
 
         if($exists) {
             $model = $this->findModel($id);
-            $model->visibility = $top;
+            $model->visibility = round($top);
             $model->update($model->id);
         } else {
             $model = new GroupVisibility();
             $model->group_id = $group_id;
             $model->date = $date;
             $model->id = $id;
-            $model->visibility = $top;
+            $model->visibility = round($top);
             $model->save();
         }
 

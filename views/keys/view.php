@@ -18,6 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
+        <?= Html::a(Yii::t('app', 'Назад'), Yii::$app->request->referrer, ['class' => 'btn btn-primary']); ?>
         <?= Html::a(Yii::t('app', 'Обновить'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a(Yii::t('app', 'Создать'), ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
@@ -38,10 +39,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно'),
             ]
         ],
-    ]) ?>
+    ]); ?>
 
-<?php
-    // applying the correct timezone
+    <?php // applying the correct timezone
     date_default_timezone_set('Europe/Kiev');
     $quan = count($model->previous_position) - 1;
     //period is not defined
@@ -89,10 +89,11 @@ $this->params['breadcrumbs'][] = $this->title;
             }
         }
     }
-    //updating indexes
-    $dates = array_values($dates);
-    $positions = array_values($positions);
-?>
+    if(isset($dates)) :
+        //updating indexes
+        $dates = array_values($dates);
+        $positions = array_values($positions);
+    endif; ?>
 
     <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key',
         'key_id' => Yii::$app->request->get('id'),
@@ -154,21 +155,22 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     <?php endif; ?>
 
-    <?= Highcharts::widget([
-        'options' => [
-            'title' => ['text' => Yii::t('app', 'Динамика')],
-            'xAxis' => [
-                'categories' => $dates,
-            ],
-            'yAxis' => [
-                'title' => ['text' => Yii::t('app', 'Позиция')]
-            ],
-            'series' => [
-                ['name' => $this->title, 'data' => $positions],
+    <?php if(isset($dates)) : ?>
+        <?= Highcharts::widget([
+            'options' => [
+                'title' => ['text' => Yii::t('app', 'Динамика')],
+                'xAxis' => [
+                    'categories' => $dates,
+                ],
+                'yAxis' => [
+                    'title' => ['text' => Yii::t('app', 'Позиция')]
+                ],
+                'series' => [
+                    ['name' => $this->title, 'data' => $positions],
 
+                ]
             ]
-        ]
-    ]); ?>
-
+        ]); ?>
+    <?php endif; ?>
 
 </div>

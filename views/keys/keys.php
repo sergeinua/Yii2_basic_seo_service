@@ -27,20 +27,19 @@ use yii\helpers\ArrayHelper;
     <?= ($isNewRecord) ? '' : $form->field($model, 'id', ['template' => '{input}'])->hiddenInput(); ?>
 
     <!--?//= $form->field($model, 'title')->textInput(['maxlength' => true]) ?-->
-    <?= $form->field($model, 'title')->textArea(['rows' => '6']) ?>
+    <?= $form->field($model, 'title')->textArea(['rows' => '6'])->label(Yii::t('app', 'Ключевые слова')); ?>
 
     <?= $form->field($model, 'status')->dropDownList([
         '1' => Yii::t('app', 'Активно'),
         '0' => Yii::t('app', 'Неактивно'),
-    ]) ?>
+    ])->label(Yii::t('app', 'Состояние')); ?>
 
     <?= $form->field($model, 'group_id')->dropDownList(ArrayHelper::map(Groups::find()->all(), 'id', 'title'),
         ['prompt' => Yii::t('app', 'Выберите группу'),
         'options' => [
                 $group_id => ['selected' => true]
             ]
-        ]
-        ) ?>
+        ])->label(Yii::t('app', 'Группа')); ?>
 
     <div class="form-group">
         <?= Html::submitButton($isNewRecord ? Yii::t('app', 'Создать') : Yii::t('app', 'Обновить'), ['class' => $isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
