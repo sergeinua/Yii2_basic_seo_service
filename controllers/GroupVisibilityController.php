@@ -138,14 +138,17 @@ class GroupVisibilityController extends Controller
         }
     }
 
+    /**
+     * Updates statistics for the visibility
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     */
     public function actionUpdatePosition()
     {
         $request = Yii::$app->request->get();
-        global $group_id;
         $group_id = $request['group_id'];
         $group_key = GroupKey::find()->where(['group_id' => $group_id])->all();
-
-
 
         // getting all the needed keys of the group
         $i=0;
@@ -179,27 +182,6 @@ class GroupVisibilityController extends Controller
             $model->save();
         }
 
-
         return $this->redirect(Yii::$app->request->referrer);
-
-    }
-
-    public function savePosition($group_id, $date, $top){
-        $id = md5($group_id . $date);
-        $exists = GroupVisibility::find()->where(['id' => $id])->exists();
-
-        if($exists) {
-            $model = $this->findModel($id);
-            $model->visibility = $top;
-            $model->update($model->id);
-        } else {
-            $model = new GroupVisibility();
-            $model->group_id = $group_id;
-            $model->date = $date;
-            $model->id = $id;
-            $model->visibility = $top;
-            $model->save();
-        }
-
     }
 }

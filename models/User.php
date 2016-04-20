@@ -102,6 +102,10 @@ class User extends ActiveRecord implements IdentityInterface
         return Yii::$app->getSecurity()->validatePassword($password, $this->password);
     }
 
+    /**
+     * Role name for view
+     * @return string
+     */
     public function getRolename()
     {
         switch($this->role){
@@ -115,6 +119,7 @@ class User extends ActiveRecord implements IdentityInterface
                 $role = 'User';
                 break;
         }
+
         return $role;
     }
 }

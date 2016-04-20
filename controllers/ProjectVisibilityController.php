@@ -138,10 +138,11 @@ class ProjectVisibilityController extends Controller
         }
     }
 
-
     /**
      * Updates the percentage of the key position items visibility
-     *
+     * @param $project_id
+     * @throws NotFoundHttpException
+     * @throws \Exception
      */
     public function actionUpdatePosition($project_id)
     {

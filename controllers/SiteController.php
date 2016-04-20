@@ -63,9 +63,10 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
-
-
-        return $this->render('index');
+        if (!\Yii::$app->user->isGuest)
+            return $this->redirect(Yii::$app->urlManager->createUrl('projects/index'));
+        else
+            return $this->actionLogin();
     }
 
     public function actionLogin()
@@ -108,15 +109,4 @@ class SiteController extends Controller
         return $this->render('about');
     }
 
-//    public function beforeAction($action)
-//    {
-//        if (parent::beforeAction($action)) {
-//            if (!\Yii::$app->user->can($action->id)) {
-//                throw new ForbiddenHttpException('Access denied');
-//            }
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
 }

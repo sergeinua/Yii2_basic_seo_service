@@ -15,7 +15,6 @@ use app\models\CityName;
 use app\models\ProdvigatorData;
 use app\models\ProdvigatorOrganic;
 use app\models\ProjectVisibility;
-use GuzzleHttp\Client;
 use Yii;
 use app\models\Projects;
 use app\models\ProjectsSearch;
@@ -27,17 +26,13 @@ use yii\filters\AccessControl;
 use app\components\gapi;
 use yii\db\Query;
 use AdWordsUser;
-
-
 use BiddingStrategyConfiguration;
 use Google\Api\Response\Data\Parser\Exception;
-
 use app\components\ReportDefinition;
 use app\components\ReportUtils;
 use app\components\Selector;
 use app\components\Predicate;
-//use app\components\ReportDefinition;
-//use app\components\ReportUtils;
+
 /**
  * ProjectsController implements the CRUD actions for Projects model.
  */
@@ -101,7 +96,6 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
-
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
@@ -173,59 +167,114 @@ class ProjectsController extends Controller
         }
     }
 
-
-
     /**
      * Sets params for gapi class (Google Analytics Api)
+     * @return gapi
      */
     public function setGapiParams(){
         $project_id = Yii::$app->request->get('project_id');
         $gapi_profile_id = Projects::find()->where(['id' => $project_id])->one()->gapi_profile_id;
         //  add selection profile_id depending on the project_id
         define('ga_profile_id', $gapi_profile_id);
+
         return new gapi(Yii::$app->params['gapi_google_service_account_email'], Yii::$app->basePath . Yii::$app->params['gapi_p_12_file_path']);
     }
 
+    /**
+     * Defines settings for google analytics: browser data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiBrowser($ga){
+
         return $ga->requestReportData(ga_profile_id,['browser','browserVersion'], ['pageviews','visits']);
     }
 
+    /**
+     * Defines settings for google analytics: source data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiSource($ga){
+
         return $ga->requestReportData(ga_profile_id, ['source'], ['visits']);
     }
 
+    /**
+     * Defines settings for google analytics: os data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiOs($ga){
+
         return $ga->requestReportData(ga_profile_id,['operatingSystem'], ['visits']);
     }
 
+    /**
+     * Defines settings for google analytics: device data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiDevice($ga){
+
         return $ga->requestReportData(ga_profile_id,['mobileDeviceBranding'], ['visits']);
     }
 
+    /**
+     * Defines settings for google analytics: user data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiUsers($ga){
+
         return $ga->requestReportData(ga_profile_id,['sessionCount'],['users', 'newUsers']);
     }
 
+    /**
+     * Defines settings for google analytics: session data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiSessions($ga){
+
         return $ga->requestReportData(ga_profile_id,['sessionDurationBucket'], ['sessionDuration', 'pageviews', 'bounces']);
     }
 
+    /**
+     * Defines settings for google analytics: language data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiLanguages($ga){
+
         return $ga->requestReportData(ga_profile_id,['language'], ['visits']);
     }
 
+    /**
+     * Defines settings for google analytics: country data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiCountry($ga){
+
         return $ga->requestReportData(ga_profile_id,['countryIsoCode'], ['visits']);
     }
 
+    /**
+     * Defines settings for google analytics: city data
+     * @param $ga
+     * @return mixed
+     */
     public function getApiCity($ga){
+
         return $ga->requestReportData(ga_profile_id,['cityId', 'countryIsoCode'], ['visits']);
     }
 
-
     /**
      * Adds new projects via Google Analytics Api
-     * not in use -
+     * deprecated - Sergei told models would be configured manually
+     * left in case he changes his mind )
+     * @throws \yii\base\Exception
      */
     public function actionGetApiAnalyticsModels(){
         $ga = $this->setGapiParams();
@@ -245,8 +294,9 @@ class ProjectsController extends Controller
 
     /**
      * Displays analytics for a single Projects model.
-     * @param integer $id
-     * @return mixed
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionShowAnalytics($id){
         /**
@@ -263,7 +313,6 @@ class ProjectsController extends Controller
          */
 
         $project_id = Yii::$app->request->get('id');
-
         //total views & browsers
         $api_browser = $this->getBrowserModel($project_id);
         //defining source & visits
@@ -280,9 +329,9 @@ class ProjectsController extends Controller
         $api_lng = $this->getLngModel($project_id);
         //country
         $api_country = $this->getCountryModel($project_id);
-        //city
+        //city in case the country is defined
         if(Yii::$app->request->get('country'))
-            $api_city = $this->getCitiesModel($ga, $project_id);
+            $api_city = $this->getCitiesModel($project_id);
         // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
@@ -302,11 +351,10 @@ class ProjectsController extends Controller
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
                 ->andFilterWhere(['<=', 'date', $periodTill])->all();
         }
-        //periods from & till are defined
+        // both periods from & till are defined
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
                 ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
         }
-
 
         return $this->render('analytics', [
             'model' => $this->findModel($id),
@@ -323,11 +371,14 @@ class ProjectsController extends Controller
             'api_country' => $api_country,
             'api_city' => isset($api_city) ? $api_city : null,
         ]);
-
     }
 
+    /**
+     * Shows data of the prodvigator's api for the defined project
+     * @param $project_id
+     * @return string
+     */
     public function actionShowProdvigator($project_id){
-
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
         /** date by default is date() - half year */
@@ -388,14 +439,20 @@ class ProjectsController extends Controller
     }
 
 
+    /**
+     * Updates prodvigator's data for the defined project
+     * @param $project_id
+     * @return \yii\web\Response
+     */
     public function actionUpdateProdvigator($project_id){
         $token = Yii::$app->params['prodvigator_token'];
         $domain = Projects::find()->where(['id' => $project_id])->one()->title;
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
-
+        // prodvigator request itself - in case modifications are needed
         $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
         $result = json_decode(file_get_contents($url));
+        // replacing non actual models
         ProdvigatorData::deleteAll(['domain' => $domain]);
         foreach($result->result as $item) :
             $model = new ProdvigatorData();
@@ -416,7 +473,7 @@ class ProjectsController extends Controller
             $model->modified_at = date('U');
             $model->save();
         endforeach;
-        // ProdvigatorOrganic
+        // prodvigator organic request itself - in case modifications are needed
         $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000';
         $result = json_decode(file_get_contents($url));
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
@@ -445,7 +502,6 @@ class ProjectsController extends Controller
                 $model->date = $item->date;
                 $model->keyword_id = $item->keyword_id;
                 $model->subdomain = $item->subdomain;
-//                $model->region_queries_count_wide = $item->region_queries_count_wide ? $item->region_queries_count_wide : null;
                 $model->modified_at = date('U');
                 $model->save(false);
             endforeach;
@@ -454,6 +510,11 @@ class ProjectsController extends Controller
         return $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * Updates browser model via Google Analytics api for the defined project
+     * @param $api_browser
+     * @param $project_id
+     */
     public function updateApiBrowser($api_browser, $project_id){
         ApiBrowser::deleteAll(['project_id' => $project_id]);
         foreach($api_browser as $item) :
@@ -468,6 +529,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets browser model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getBrowserModel($project_id){
         return ApiBrowser::find()
             ->where(['project_id' => $project_id])
@@ -475,6 +541,11 @@ class ProjectsController extends Controller
             ->all();
     }
 
+    /**
+     * Updates source model via Google Analytics api for the defined project
+     * @param $api_source
+     * @param $project_id
+     */
     public function updateApiSource($api_source, $project_id){
         ApiSource::deleteAll(['project_id' => $project_id]);
         foreach($api_source as $item) :
@@ -487,6 +558,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets source model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getSourceModel($project_id){
         return ApiSource::find()
             ->where(['project_id' => $project_id])
@@ -494,6 +570,11 @@ class ProjectsController extends Controller
             ->all();
     }
 
+    /**
+     * Updates os model via Google Analytics api for the defined project
+     * @param $api_os
+     * @param $project_id
+     */
     public function updateApiOs($api_os, $project_id){
         ApiOs::deleteAll(['project_id' => $project_id]);
         foreach($api_os as $item) :
@@ -506,6 +587,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets os model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getOsModel($project_id){
         return ApiOs::find()
             ->where(['project_id' => $project_id])
@@ -513,6 +599,11 @@ class ProjectsController extends Controller
             ->all();
     }
 
+    /**
+     * Updates device model via Google Analytics api for the defined project
+     * @param $api_device
+     * @param $project_id
+     */
     public function updateApiDevice($api_device, $project_id){
         ApiDevice::deleteAll(['project_id' => $project_id]);
         foreach($api_device as $item) :
@@ -525,6 +616,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets device model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getDeviceModel($project_id){
         return ApiDevice::find()
             ->where(['project_id' => $project_id])
@@ -532,6 +628,11 @@ class ProjectsController extends Controller
             ->all();
     }
 
+    /**
+     * Updates user model via Google Analytics api for the defined project
+     * @param $api_users
+     * @param $project_id
+     */
     public function updateApiUsers($api_users, $project_id){
         ApiUsers::deleteAll(['project_id' => $project_id]);
         foreach($api_users as $item) :
@@ -545,10 +646,20 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets user model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getUserModel($project_id){
         return ApiUsers::find()->where(['project_id' => $project_id])->all();
     }
 
+    /**
+     * Updates session model via Google Analytics api for the defined project
+     * @param $api_sessions
+     * @param $project_id
+     */
     public function updateApiSessions($api_sessions, $project_id){
         ApiSessions::deleteAll(['project_id' => $project_id]);
         foreach($api_sessions as $item) :
@@ -563,10 +674,20 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets session model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getSessionsModel($project_id){
         return ApiSessions::find()->where(['project_id' => $project_id])->all();
     }
 
+    /**
+     * Updates language model via Google Analytics api for the defined project
+     * @param $api_lng
+     * @param $project_id
+     */
     public function updateApiLanguages($api_lng, $project_id){
         ApiLng::deleteAll(['project_id' => $project_id]);
         foreach($api_lng as $item) :
@@ -579,6 +700,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets language model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getLngModel($project_id){
         return ApiLng::find()
             ->where(['project_id' => $project_id])
@@ -586,6 +712,11 @@ class ProjectsController extends Controller
             ->all();
     }
 
+    /**
+     * Updates country model via Google Analytics api for the defined project
+     * @param $api_country
+     * @param $project_id
+     */
     public function updateApiCountry($api_country, $project_id){
         ApiCountry::deleteAll(['project_id' => $project_id]);
         foreach($api_country as $item) :
@@ -598,6 +729,11 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+    /**
+     * Gets country model for the defined project
+     * @param $project_id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getCountryModel($project_id){
         return ApiCountry::find()
             ->where(['project_id' => $project_id])
@@ -610,10 +746,10 @@ class ProjectsController extends Controller
      * Finds the quantity of the users, that came from the defined country
      * If period (20 min) exceeds - updates visits
      * If the date range isset - updates ApiCity model
-     * @param object $ga
-     * @return ApiCity
+     * @param $project_id
+     * @return array
      */
-    public function getCitiesModel($ga, $project_id){
+    public function getCitiesModel($project_id){
         $country = Yii::$app->request->get('country');
         $query = new Query();
         $query->select('city_id, visits')
@@ -633,8 +769,9 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Updates the quantity of the users, that came from the defined country
-     *@param object $ga
+     * Updates the quantity of the users, that came from the defined city
+     * @param $api_city
+     * @param $project_id
      */
     public function updateApiCities($api_city, $project_id){
         ApiCity::deleteAll(['project_id' => $project_id]);
@@ -649,14 +786,18 @@ class ProjectsController extends Controller
         endforeach;
     }
 
+
     /**
      * Updates city & country names
      * source: Google Analytics Api .csv file
+     * duration: endless
      */
     public function actionImportCityNames(){
         CityName::deleteAll();
+        // that's for avoiding errors
         ini_set('max_execution_time', 0);
         ini_set('memory_limit', '-1');
+
         $lines = file(Yii::$app->basePath . Yii::$app->params['gapi_city_names_import_file_path'], FILE_IGNORE_NEW_LINES);
         $csv = [];
         foreach ($lines as $key => $value)
@@ -674,9 +815,12 @@ class ProjectsController extends Controller
         }
     }
 
+
     /**
      * Updates all analytics data
      * using gapi
+     * @param $project_id
+     * @return \yii\web\Response
      */
     public function actionUpdateAnalyticsData($project_id){
         $ga = $this->setGapiParams();
@@ -690,155 +834,16 @@ class ProjectsController extends Controller
         $this->updateApiCountry($this->getApiCountry($ga), $project_id);
         $this->updateApiCities($this->getApiCity($ga), $project_id);
         Yii::$app->runAction('project-visibility/update-position', ['project_id' => $project_id]);
+
         return $this->redirect(Yii::$app->request->referrer);
     }
 
 
-
-
-
-
-    function getService()
-    {
-        // Creates and returns the Analytics service object.
-
-        // Load the Google API PHP Client Library.
-//        require_once 'google-api-php-client/src/Google/autoload.php';
-
-        // Use the developers console and replace the values with your
-        // service account email, and relative location of your key file.
-        $service_account_email = Yii::$app->params['gapi_google_service_account_email'];
-        $key_file_location = Yii::$app->basePath . Yii::$app->params['gapi_p_12_file_path'];
-
-        // Create and configure a new client object.
-        $client = new \Google_Client();
-
-        $client->setApplicationName("HelloAnalytics");
-        $analytics = new \Google_Service_Analytics($client);
-
-
-//        $accounts = $analytics->management_accounts->listManagementAccounts();
-//        dump($accounts);die;
-
-        // Read the generated client_secrets.p12 key.
-//        $key = file_get_contents($key_file_location);
-//        dump(file_get_contents(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json'));die;
-//        $client->setAuthConfig(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-        $client->useApplicationDefaultCredentials();
-
-//        $client->setAssertionCredentials($cred);
-        if($client->isAccessTokenExpired()) {
-            $client->refreshTokenWithAssertion();
-        }
-
-        return $analytics;
-    }
-
-    function getFirstprofileId(&$analytics) {
-        // Get the user's first view (profile) ID.
-
-        // Get the list of accounts for the authorized user.
-        $accounts = $analytics->management_accounts->listManagementAccounts();
-
-        if (count($accounts->getItems()) > 0) {
-            $items = $accounts->getItems();
-            $firstAccountId = $items[0]->getId();
-
-            // Get the list of properties for the authorized user.
-            $properties = $analytics->management_webproperties
-                ->listManagementWebproperties($firstAccountId);
-
-            if (count($properties->getItems()) > 0) {
-                $items = $properties->getItems();
-                $firstPropertyId = $items[0]->getId();
-
-                // Get the list of views (profiles) for the authorized user.
-                $profiles = $analytics->management_profiles
-                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
-
-                if (count($profiles->getItems()) > 0) {
-                    $items = $profiles->getItems();
-
-                    // Return the first view (profile) ID.
-                    return $items[0]->getId();
-
-                } else {
-                    throw new Exception('No views (profiles) found for this user.');
-                }
-            } else {
-                throw new Exception('No properties found for this user.');
-            }
-        } else {
-            throw new Exception('No accounts found for this user.');
-        }
-    }
-
-    function getResults(&$analytics, $profileId) {
-        // Calls the Core Reporting API and queries for the number of sessions
-        // for the last seven days.
-        return $analytics->data_ga->get(
-            'ga:' . $profileId,
-            '7daysAgo',
-            'today',
-            'ga:sessions');
-    }
-
-    function printResults(&$results) {
-        // Parses the response from the Core Reporting API and prints
-        // the profile name and total sessions.
-        if (count($results->getRows()) > 0) {
-
-            // Get the profile name.
-            $profileName = $results->getProfileInfo()->getProfileName();
-
-            // Get the entry for the first entry in the first row.
-            $rows = $results->getRows();
-            $sessions = $rows[0][0];
-
-            // Print the results.
-            print "First view (profile) found: $profileName\n";
-            print "Total sessions: $sessions\n";
-        } else {
-            print "No results found.\n";
-        }
-    }
-
-    //TODO: not finished yet
-    public function actionClientList()
-    {
-        $ga = $this->setGapiParams();
-        dump($ga->requestAccountData());die;
-        dump($ga->getAccounts());die;
-
-
-
-
-        $analytics = $this->getService();
-//        $profile = $this->getFirstProfileId($analytics);
-//        $results = $this->getResults($analytics, $profile);
-//        printResults($results);
-
-        $profiles = $analytics->management_profiles
-            ->listManagementProfiles('86449576', '~all');
-        dump($profiles);die;
-//        GET https://www.googleapis.com/analytics/v3/management/accounts?key={YOUR_API_KEY}
-//        $curl = curl_init();
-//        curl_setopt_array($curl, array(
-//            CURLOPT_RETURNTRANSFER => 1,
-//            CURLOPT_URL => 'https://www.googleapis.com/analytics/v3/management/accounts?key=AIzaSyBfA8r3D1hy11k7bdGQrXrMiptZ5MaMnSE'
-//        ));
-//        $result = curl_exec($curl);
-//        dump($result);die;
-//
-    }
-
-
-
-
-
-
-
+    /**
+     * Google AdWords Api
+     * @param AdWordsUser $user
+     * @param $filePath
+     */
     function DownloadCriteriaReportExample(AdWordsUser $user, $filePath) {
 
         // Load the service, so that the required classes are available.
@@ -881,9 +886,9 @@ class ProjectsController extends Controller
     }
 
 
-
-
-
+    /**
+     * Google AdWords Api
+     */
     public function actionGetAdwordsData(){
         $filePath = Yii::$app->basePath . 'web/download/report.csv';
 
@@ -917,14 +922,20 @@ class ProjectsController extends Controller
 
     }
 
-
-
-
+    /**
+     * Getting AdWords model
+     * @return string
+     */
     public function actionShowAdwords(){
 
         return $this->render('adwords');
     }
 
+    /**
+     * Google AdWords Api authentication
+     * @param $user
+     * @return mixed
+     */
     function GetOAuth2Credential($user) {
         $redirectUri = null;
         $offline = true;

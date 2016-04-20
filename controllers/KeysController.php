@@ -9,7 +9,6 @@ use app\models\Projects;
 use Yii;
 use app\models\Keys;
 use app\models\KeysSearch;
-use yii\base\Model;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -21,7 +20,6 @@ use DateTime;
 use yii\filters\AccessControl;
 use app\components\Additional;
 use Google_Auth_AssertionCredentials;
-use yii\db\Query;
 
 
 /**
@@ -84,20 +82,23 @@ class KeysController extends Controller
         ]);
     }
 
+
     /**
      * Displays a single Keys model.
-     * @param integer $id
-     * @return mixed
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
      */
     public function actionView($id)
     {
-        //if period is set
+        // the period is set
         if($periodForKeysFrom = Yii::$app->getRequest()->post('periodForKeysFrom')) {
             $periodForKeysFrom = DateTime::createFromFormat('Y-m-d', $periodForKeysFrom)->format('dmY');
         }
         if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
             $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
         }
+        // button pressed with empty field value
         if($periodForKeysFrom == '')
             $periodForKeysFrom = null;
         if($periodForKeysTill == '')
@@ -123,18 +124,15 @@ class KeysController extends Controller
         $isNewRecord = true;
 
         if ($model->load(Yii::$app->request->post())) {
-
             $items = trim($model->title);
             $items = explode("\n", $items);
             $items = array_filter($items, 'trim');
 
             foreach($items as $item){
                 $model->title = $item;
-                $keyModel = $model->save();
-
+                $model->save();
             }
 
-//            return $this->redirect(['view', 'id' => $keyModel->id]);
             return $this->redirect(['/groups/view', 'id' => $group_id]);
         } else {
             return $this->render('keys', [
@@ -165,6 +163,7 @@ class KeysController extends Controller
                 $model->load($modelKey->toArray(), '');
             }
             $model->group_id = $modelKey->group->id;
+
             return $this->render('keys', [
                 'model' => $model,
                 'isNewRecord' => $isNewRecord,
@@ -201,21 +200,13 @@ class KeysController extends Controller
         }
     }
 
-
     /**
      * Updates all key items positions of the defined group.
-     * @param integer $group_id
-     *
+     * @return \yii\web\Response
      */
     public function actionUpdateAllKeys(){
         $request = Yii::$app->request->get();
         $group_id = $request['group_id'];
-//        $project_id
-//        $project_link
-    //        $group_id
-        //        $key_id
-        //        $key_title
-
         $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()['project_id'];
         $project_link = Projects::find()->where(['id' => $project_id])->one()['title'];
         /// all keys of the group
@@ -225,12 +216,13 @@ class KeysController extends Controller
             $key_title = Keys::find()->where(['id' => $key->key_id])->one()['title'];
             $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key->key_id);
         }
+
         return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
      * Updates single key item position of the defined group.
-     *
+     * @return \yii\web\Response
      */
     public function actionUpdateSingleKey(){
         $request = Yii::$app->request->get();
@@ -240,31 +232,28 @@ class KeysController extends Controller
         $group_id = $request['group_id'];
         $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
         $this->actionPlace($project_id, $project_link, $group_id, $key_title, $key_id);
+
         return $this->redirect(Yii::$app->request->referrer);
-
-
     }
-
 
     /**
      * Finds the Keys model key position value.
-     *
+     * @param $project_id
+     * @param $project_link
+     * @param $group_id
+     * @param $key_title
+     * @param $key_id
      */
     public function actionPlace($project_id, $project_link, $group_id, $key_title, $key_id){
-
-
-        global $project_position;
         $project_position=0;
         $result=0;
-
         $googlehost = Projects::find()->where(['id' => $project_id])->one()->googlehost;
         $language = Projects::find()->where(['id' => $project_id])->one()->language;
-
+        // getting settings defined in groups
         if(!$googlehost)
             $googlehost = Groups::find()->where(['id' => $group_id])->one()->googlehost;
         if(!$language)
             $language = Groups::find()->where(['id' => $group_id])->one()->language;
-
         // $start_pos - defining the start position for the google api search
         if($p = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('id DESC')->one()){
             /** @var KeyPosition $p */
@@ -276,9 +265,7 @@ class KeysController extends Controller
         if ($start == null) {
             for ($i=0; $i<10; $i++){
                 $start_pos = $i * 10;
-
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language);
-
                 if ($result > 0){
                     $project_position = $result;
                     break;
@@ -291,21 +278,16 @@ class KeysController extends Controller
             } else {
                 $start_pos = floor($start / 10) * 10;
             }
-
             $result = $this->getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language);
-
             if ($result == 0) {
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos - 10, $googlehost, $language);
             }
-
             if ($result == 0) {
                 $result = $this->getDistinctPosition($key_title, $project_link, $start_pos + 10, $googlehost, $language);
             }
-
             if ($result > 0)
                 $project_position = $result;
         }
-
         if ($project_position > 0){
             (new KeyPosition([
                 'key_id' => $key_id,
@@ -315,18 +297,24 @@ class KeysController extends Controller
 
     }
 
+    /**
+     * Defines key position for single key
+     * @param $key_title
+     * @param $project_link
+     * @param $start_pos
+     * @param $googlehost
+     * @param $language
+     * @return int
+     */
     public function getDistinctPosition($key_title, $project_link, $start_pos, $googlehost, $language)
     {
-        global $project_pos;
         $project_pos=0;
         $apiClient = new CustomSearch();
         $apiClient->setApiKey(Yii::$app->params['google_api_search_api_key']);
         $apiClient->setCustomSearchEngineId(Yii::$app->params['google_api_search_custom_search_engine_id']);
         $apiClient->setQuery($key_title);
-
         $response = $apiClient->executeRequest($start_pos, $googlehost, $language);
         $response = Json::decode($response);
-
         for ($i=0; $i<10; $i++) {
             if(!isset($response['items'])){
                 //if the limit of the updating attempts is exceeded
@@ -346,7 +334,9 @@ class KeysController extends Controller
 
     /**
      * Generates xls for export for all the key items positions of the defined group.
-     *
+     * @return $this
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Reader_Exception
      */
     public function actionExcelGroup()
     {
@@ -367,24 +357,19 @@ class KeysController extends Controller
         foreach($keys as $key){
             array_push($items, $key->id);
         }
-
         $model = KeyPosition::find()->where(['key_id' => $items])->all();
-
         if(isset($periodForKeysFrom)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
         }
-
         if(isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
         }
-
         if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $items])
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
         }
-
         $objPHPExcel = new \PHPExcel();
         $sheet=0;
         $objPHPExcel->setActiveSheetIndex($sheet);
@@ -402,7 +387,6 @@ class KeysController extends Controller
         else
             $end = new \DateTime(date('Y-m-d', strtotime('-1 day')));
         $end = $end->modify( '+1 day' );
-
         $interval = new \DateInterval('P1D');
         $daterange = new \DatePeriod($begin, $interval ,$end);
         $dates = [];
@@ -412,14 +396,11 @@ class KeysController extends Controller
             $i++;
         endforeach;
         $dates = array_reverse($dates);
-
         for($i=0; $i<count($dates); $i++) {
             $objPHPExcel->getActiveSheet()
                 ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1) . '1', $dates[$i]);
         }
-
         $highest_col = count($dates);
-
         $row = 2;
         $keys = [];
         $i = 0;
@@ -429,49 +410,41 @@ class KeysController extends Controller
         endforeach;
         $keys = array_unique($keys);
         $keys = array_values($keys);
-
         for($n=0; $n<count($keys); $n++) {
             $selected_model = KeyPosition::find()->where(['key_id' => $keys[$n]])->all();
             $title = Keys::find()->where(['id' => $selected_model[0]->key_id])->one()->title;
-
             $objPHPExcel->getActiveSheet()->setCellValue('A' . $row, $title);
             foreach ($selected_model as $item) :
                 $current_date = date('Y-m-d', $item->date);
                 for ($i = 1; $i <= $highest_col; $i++) {
                     $col = \PHPExcel_Cell::stringFromColumnIndex($i);
                     $needed_date = $objPHPExcel->getActiveSheet()->getCell($col . '1')->getValue();
-
-
                     if ($current_date == $needed_date) :
                         $objPHPExcel->getActiveSheet()
                             ->setCellValue($col . $row, $item->position);
-
                     endif;
-
                 }
             endforeach;
             $row++;
         }
-
         $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $fileName = Yii::getAlias('@app/web/download/'.$filename);
         $objWriter->save($fileName);
+
         return Yii::$app->getResponse()->sendFile($fileName);
     }
 
     /**
      * Generates xls for export for singe key item positions of the defined group.
-     *
+     * @return $this
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Reader_Exception
      */
-
-    public function actionExcelKey()
-    {
+    public function actionExcelKey(){
         $request = Yii::$app->request->get();
         $key_id = $request['key_id'];
-
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
-
         if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
@@ -486,18 +459,14 @@ class KeysController extends Controller
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
         }
-
         if(isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
         }
-
         if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
         }
-
-
         $objPHPExcel = new \PHPExcel();
         $sheet=0;
         $objPHPExcel->setActiveSheetIndex($sheet);
@@ -505,35 +474,30 @@ class KeysController extends Controller
         $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
         $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
             ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
-
         $i=1;
         foreach($model as $item) :
             $objPHPExcel->getActiveSheet()
                 ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i).'1', date('Y-m-d', $item->date));
             $i++;
         endforeach;
-
         $row=2;
         $objPHPExcel->getActiveSheet()->setCellValue('A'.$row,$item->title);
-
         $i=0;
         foreach($model as $item) :
             $objPHPExcel->getActiveSheet()
                 ->setCellValue(\PHPExcel_Cell::stringFromColumnIndex($i+1).'2', $item->position);
             $i++;
         endforeach;
-
         $filename = "MyExcelReport_".date("d-m-Y-His").".xls";
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $fileName = Yii::getAlias('@app/web/download/'.$filename);
         $objWriter->save($fileName);
-        return Yii::$app->getResponse()->sendFile($fileName);
 
+        return Yii::$app->getResponse()->sendFile($fileName);
     }
 
     /**
-     * Updates all key items positions of the defined project in the selected period.
-     *
+     *Updates all key items positions of the defined project in the selected period.
      */
     public function actionScheduled()
     {
@@ -555,10 +519,12 @@ class KeysController extends Controller
 
     /**
      * Checks the key items of the selected group if update of the key position needed
-     *
+     * @param $project_id
+     * @param $project_link
+     * @param $group_id
+     * @param $period
      */
     public function actionCheckGroup($project_id, $project_link, $group_id, $period){
-
         $g_k = GroupKey::find()->where(['group_id' => $group_id])->all();
         foreach($g_k as $item){
             // getting all the keys
@@ -573,354 +539,44 @@ class KeysController extends Controller
         }
     }
 
+    /**
+     * Generates pdf for single key item
+     */
     public function actionPdfKey(){
         $this->layout = '@app/views/layouts/main-pdf.php';
-
         $request = Yii::$app->getRequest()->get();
         $key_id = $request['key_id'];
-
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
-
         if(isset($request['periodForKeysFrom'])) {
             $periodForKeysFrom = $request['periodForKeysFrom'];
             $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
             $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
         }
-
-
         if(isset($request['periodForKeysTill'])) {
             $periodForKeysTill = $request['periodForKeysTill'];
             $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
             $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
         }
-
         if(isset($periodForKeysFrom)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['>=', 'date', $periodForKeysFrom])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
-
         if(isset($periodForKeysTill)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['<=', 'date', $periodForKeysTill])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
-
         if(isset($periodForKeysFrom) and isset($periodForKeysTill)) {
             $model = KeyPosition::find()->where(['key_id' => $key_id])
                 ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
-
         $content = $this->render('pdf', [
-
             'model' => $model,
         ]);
         $fileName = 'keys';
         $header = 'Keys list';
         Additional::getPdf($content, $fileName, $header);
     }
-
-//    public function actionGoogle_(){
-//        $client = new Google_Client();
-//        $client->setApplicationName("Client_Library_Examples");
-//        $client->setDeveloperKey("AIzaSyAS57f0f1-8ZLL1q8fiutpNs3bTU38zE8I");
-//
-//        $service = new Google_Service_Analytics($client);
-//        //$optParams = array('filter' => 'free-ebooks');
-////        $results = $service->volumes->listVolumes('Henry David Thoreau', $optParams);
-//        dump($service);
-//
-////        foreach ($results as $item) {
-////            dump($item['volumeInfo']['title']);//, "<br /> \n";
-////        }
-//        die;
-//    }
-
-/*
-    function getService()
-    {
-        // Creates and returns the Analytics service object.
-
-        // Load the Google API PHP Client Library.
-//        require_once 'google-api-php-client/src/Google/autoload.php';
-//        require_once Yii::$app->basePath . '/vendor/google/apiclient/src/Google/autoload.php';
-
-
-
-        // Use the developers console and replace the values with your
-        // service account email, and relative location of your key file.
-        $service_account_email = '356532283258-compute@developer.gserviceaccount.com';
-        $key_file_location = Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12';
-
-        // Create and configure a new client object.
-        $client = new Google_Client();
-        $client->setApplicationName("SiteAnalytics");
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-        $client->useApplicationDefaultCredentials();
-        $client->setScopes(['https://www.googleapis.com/auth/books']);
-        dump($client);
-
-        $analytics = new Google_Service_Analytics($client);
-        dump($analytics);
-
-        $accessToken = $client->getAccessToken();
-        dump($accessToken);
-
-        file_put_contents( Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json', json_encode($accessToken));
-
-        // Read the generated client_secrets.p12 key.
-        $key = file_get_contents($key_file_location);
-//        dump($key);
-//
-////        $cred = new Google_Auth_AssertionCredentials(
-//        $cred = $client->setAuthConfig(
-//            $service_account_email,
-//            array(Google_Service_Analytics::ANALYTICS_READONLY),
-//            $key
-//        );
-        die();
-//        $client->setAuthConfig(Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '//components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-        $client->useApplicationDefaultCredentials();
-        $client->setScopes(['https://www.googleapis.com/auth/books']);
-        $service = new Google_Service_Books($client);
-        $results = $service->volumes->listVolumes('Henry David Thoreau');
-        dump($results);
-
-
-//        $client->setAssertionCredentials($cred);
-        if($client->isAccessTokenExpired()) {
-            $client->refreshTokenWithAssertion();
-        }
-
-        return $analytics;
-    }
-
-    function getFirstprofileId(&$analytics) {
-        // Get the user's first view (profile) ID.
-
-        // Get the list of accounts for the authorized user.
-        $accounts = $analytics->management_accounts->listManagementAccounts();
-
-        if (count($accounts->getItems()) > 0) {
-            $items = $accounts->getItems();
-            $firstAccountId = $items[0]->getId();
-
-            // Get the list of properties for the authorized user.
-            $properties = $analytics->management_webproperties
-                ->listManagementWebproperties($firstAccountId);
-
-            if (count($properties->getItems()) > 0) {
-                $items = $properties->getItems();
-                $firstPropertyId = $items[0]->getId();
-
-                // Get the list of views (profiles) for the authorized user.
-                $profiles = $analytics->management_profiles
-                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
-
-                if (count($profiles->getItems()) > 0) {
-                    $items = $profiles->getItems();
-
-                    // Return the first view (profile) ID.
-                    return $items[0]->getId();
-
-                } else {
-                    throw new Exception('No views (profiles) found for this user.');
-                }
-            } else {
-                throw new Exception('No properties found for this user.');
-            }
-        } else {
-            throw new Exception('No accounts found for this user.');
-        }
-    }
-
-    function getResults(&$analytics, $profileId) {
-        // Calls the Core Reporting API and queries for the number of sessions
-        // for the last seven days.
-        return $analytics->data_ga->get(
-            'ga:' . $profileId,
-            '7daysAgo',
-            'today',
-            'ga:sessions');
-    }
-
-    function printResults(&$results) {
-        // Parses the response from the Core Reporting API and prints
-        // the profile name and total sessions.
-        if (count($results->getRows()) > 0) {
-
-            // Get the profile name.
-            $profileName = $results->getProfileInfo()->getProfileName();
-
-            // Get the entry for the first entry in the first row.
-            $rows = $results->getRows();
-            $sessions = $rows[0][0];
-
-            // Print the results.
-            print "First view (profile) found: $profileName\n";
-            print "Total sessions: $sessions\n";
-        } else {
-            print "No results found.\n";
-        }
-    }
-    public function actionGoogle()
-    {
-        $analytics = $this->getService();
-        $profile = $this->getFirstProfileId($analytics);
-        $results = $this->getResults($analytics, $profile);
-        $this->printResults($results);
-        die;
-    }
-*/
-
-
-///*
-//    /**
-//     * Get Analytics API object
-//     */
-//    function getService( $service_account_email, $key ) {
-//        // Creates and returns the Analytics service object.
-//
-//        // Load the Google API PHP Client Library.
-//
-//
-//        // Create and configure a new client object.
-//        $client = new Google_Client();
-//        $client->setApplicationName( 'Google Analytics Dashboard' );
-//        $analytics = new Google_Service_Analytics( $client );
-//
-//        // Read the generated client_secrets.p12 key.
-//        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-//        $client->useApplicationDefaultCredentials();
-//
-//        if( $client->isAccessTokenExpired() ) {
-//            $client->refreshTokenWithAssertion();
-//        }
-//
-//        return $analytics;
-//    }
-//
-//    public function actionGoogle()
-//    {
-//
-//
-//        /**
-//         * Set Google service account details
-//         */
-//        $google_account = array(
-//            'email'   => '356532283258-compute@developer.gserviceaccount.com',
-//            'key'     => file_get_contents( Yii::$app->basePath . '/components/Reclamare-fb1d45c039ea.p12' ),
-//            'profile' => '86449576'
-//        );
-//
-//        /**
-//         * Get Analytics API instance
-//         */
-//        $analytics = $this->getService(
-//            $google_account['email'],
-//            $google_account['key']
-//        );
-//
-//        /**
-//         * Query the Analytics data
-//         */
-//        $results = $analytics->data_ga->get(
-//            'ga:' . $google_account['profile'],
-//            '30daysAgo',
-//            'today',
-//            'ga:sessions',
-//            array(
-//                'dimensions' => 'ga:country',
-//                'sort' => '-ga:sessions',
-//                'max-results' => 20
-//            ));
-//        $rows = $results->getRows();
-//        var_dump($rows);
-//
-//    }
-
-//    function getService()
-//    {
-//        // Creates and returns the Analytics service object.
-//        // Load the Google API PHP Client Library.
-//
-//
-//
-//        // Create and configure a new client object.
-//        $client = new \Google_Client();
-//        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . Yii::$app->basePath . '/components/client_secret_356532283258-004ri2qnpg2ibcc485gricc4o8jaaicg.apps.googleusercontent.com.json');
-//        $client->useApplicationDefaultCredentials();
-//        $client->addScope('https://www.googleapis.com/auth/analytics.readonly');
-////        dump(new \Google_Service_Analytics($client));die;
-////        dump($client);die;
-//        return new \Google_Service_Analytics($client);
-//    }
-//    function getFirstprofileId(&$analytics) {
-////        require Yii::$app->basePath . '/vendor/google/apiclient/src/Google/Service/Analytics.php';
-//            // Get the user's first view (profile) ID.
-//        // Get the list of accounts for the authorized user.
-//
-//        $accounts = $analytics->management_accounts->listManagementAccounts();
-//        if (count($accounts->getItems()) > 0) {
-//            $items = $accounts->getItems();
-//            $firstAccountId = $items[0]->getId();
-//            // Get the list of properties for the authorized user.
-//            $properties = $analytics->management_webproperties
-//                ->listManagementWebproperties($firstAccountId);
-//            if (count($properties->getItems()) > 0) {
-//                $items = $properties->getItems();
-//                $firstPropertyId = $items[0]->getId();
-//                // Get the list of views (profiles) for the authorized user.
-//                $profiles = $analytics->management_profiles
-//                    ->listManagementProfiles($firstAccountId, $firstPropertyId);
-//                if (count($profiles->getItems()) > 0) {
-//                    $items = $profiles->getItems();
-//                    // Return the first view (profile) ID.
-//                    return $items[0]->getId();
-//                } else {
-//                    throw new Exception('No views (profiles) found for this user.');
-//                }
-//            } else {
-//                throw new Exception('No properties found for this user.');
-//            }
-//        } else {
-//            throw new Exception('No accounts found for this user.');
-//        }
-//    }
-//    function getResults(&$analytics, $profileId) {
-//        // Calls the Core Reporting API and queries for the number of sessions
-//        // for the last seven days.
-//        return $analytics->data_ga->get(
-//            'ga:' . $profileId,
-//            '7daysAgo',
-//            'today',
-//            'ga:sessions');
-//    }
-//    function printResults(&$results) {
-//        // Parses the response from the Core Reporting API and prints
-//        // the profile name and total sessions.
-//        if (count($results->getRows()) > 0) {
-//            // Get the profile name.
-//            $profileName = $results->getProfileInfo()->getProfileName();
-//            // Get the entry for the first entry in the first row.
-//            $rows = $results->getRows();
-//            $sessions = $rows[0][0];
-//            // Print the results.
-//            print "First view (profile) found: $profileName\n";
-//            print "Total sessions: $sessions\n";
-//        } else {
-//            print "No results found.\n";
-//        }
-//    }
-//
-//    public function actionGoogle(){
-//        $analytics = $this->getService();
-//        $profile = $this->getFirstProfileId($analytics);
-//        $results = $this->getResults($analytics, $profile);
-//        printResults($results);
-//    }
-
-
 }
