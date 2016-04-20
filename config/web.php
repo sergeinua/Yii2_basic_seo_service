@@ -13,6 +13,7 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'G40j9Pt5cefudxc5g9vzey4kymK7opGG',
+            'baseUrl' => '',
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -47,14 +48,14 @@ $config = [
             'assignmentFile' => '@app/rbac/assignments.php',
             'ruleFile' => '@app/rbac/rules.php',
         ],
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];
