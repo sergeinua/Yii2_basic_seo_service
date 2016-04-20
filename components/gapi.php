@@ -167,9 +167,9 @@ class gapi {
             // Use the day that Google Analytics was released (1 Jan 2005).
             $start_date = date('Y-m-d', strtotime('-1 month'));
             //start_date is sent from the project's view
-            if($date_from = Yii::$app->getRequest()->post('periodForProjectFrom'))
+            if($date_from = Yii::$app->getRequest()->post('period_for_project_from'))
                 $start_date = $date_from;
-            if($date_from = Yii::$app->getRequest()->get('periodForProjectFrom'))
+            if($date_from = Yii::$app->getRequest()->get('period_for_project_from'))
                 $start_date = $date_from;
         } elseif (is_int($start_date)) {
             // Perhaps we are receiving a Unix timestamp.
@@ -177,9 +177,9 @@ class gapi {
         }
         $parameters['start-date'] = $start_date;
         //end_date is sent from the project's view
-        if($date_till = Yii::$app->getRequest()->post('periodForProjectTill'))
+        if($date_till = Yii::$app->getRequest()->post('period_for_project_till'))
             $end_date = $date_till;
-        if($date_till = Yii::$app->getRequest()->get('periodForProjectTill'))
+        if($date_till = Yii::$app->getRequest()->get('period_for_project_till'))
             $end_date = $date_till;
         if ($end_date==null) {
             $end_date = date('Y-m-d');

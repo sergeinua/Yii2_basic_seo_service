@@ -75,35 +75,35 @@ class GroupsController extends Controller
 
         $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')->all();
 
-        if($periodForKeysFrom = Yii::$app->getRequest()->post('periodForKeysFrom')) {
-            $periodForKeysFrom = DateTime::createFromFormat('Y-m-d', $periodForKeysFrom)->format('dmY');
+        if($period_for_keys_from = Yii::$app->getRequest()->post('period_for_keys_from')) {
+            $period_for_keys_from = DateTime::createFromFormat('Y-m-d', $period_for_keys_from)->format('dmY');
         }
-        if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
-            $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
+        if($period_for_keys_till = Yii::$app->getRequest()->post('period_for_keys_till')) {
+            $period_for_keys_till = DateTime::createFromFormat('Y-m-d', $period_for_keys_till)->format('dmY');
         }
-        if($periodForKeysFrom == '')
-            $periodForKeysFrom = null;
-        if($periodForKeysTill == '')
-            $periodForKeysTill = null;
+        if($period_for_keys_from == '')
+            $period_for_keys_from = null;
+        if($period_for_keys_till == '')
+            $period_for_keys_till = null;
 
-        if($periodForKeysFrom){
+        if($period_for_keys_from){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+                ->andFilterWhere(['>=', 'date', $period_for_keys_from])->all();
         }
-        if($periodForKeysTill){
+        if($period_for_keys_till){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+                ->andFilterWhere(['<=', 'date', $period_for_keys_till])->all();
         }
-        if($periodForKeysFrom and $periodForKeysTill){
+        if($period_for_keys_from and $period_for_keys_till){
             $gr_vis_model = GroupVisibility::find()->where(['group_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+                ->andFilterWhere(['between', 'date', $period_for_keys_from, $period_for_keys_till])->all();
         }
 
         return $this->render('view', [
             'model' => $this->findModel($id),
             'gr_vis_model' => $gr_vis_model,
-            'periodForKeysFrom' => $periodForKeysFrom,
-            'periodForKeysTill' => $periodForKeysTill,
+            'period_for_keys_from' => $period_for_keys_from,
+            'period_for_keys_till' => $period_for_keys_till,
         ]);
     }
 

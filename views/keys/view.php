@@ -43,49 +43,49 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php // applying the correct timezone
     date_default_timezone_set('Europe/Kiev');
-    $quan = count($model->previous_position) - 1;
+    $quan = count($model->previousPosition) - 1;
     //period is not defined
     for($i=0; $i<=$quan; $i++){
-        $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->fullDate);
-        $positions[$i] = $model->previous_position[$i]->position;
+        $dates[$i] = date("F j, Y, g:i a", $model->previousPosition[$i]->fullDate);
+        $positions[$i] = $model->previousPosition[$i]->position;
     }
-    //$periodForKeysFrom isset
-    if($periodForKeysFrom){
+    //$period_for_keys_from isset
+    if($period_for_keys_from){
         unset($dates);
         unset($positions);
         for($i=0; $i<=$quan; $i++){
-            $stamp_from = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
-            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previous_position[$i]->fullDate))->getTimestamp();
+            $stamp_from = DateTime::createFromFormat("dmY", $period_for_keys_from)->getTimestamp();
+            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previousPosition[$i]->fullDate))->getTimestamp();
             if($stamp_date >= $stamp_from){
-                $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->fullDate);
-                $positions[$i] = $model->previous_position[$i]->position;
+                $dates[$i] = date("F j, Y, g:i a", $model->previousPosition[$i]->fullDate);
+                $positions[$i] = $model->previousPosition[$i]->position;
             }
         }
     }
-    //$periodForKeysTill isset
-    if($periodForKeysTill){
+    //$period_for_keys_till isset
+    if($period_for_keys_till){
         unset($dates);
         unset($positions);
         for($i=0; $i<=$quan; $i++){
-            $stamp_till = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previous_position[$i]->fullDate))->getTimestamp();
+            $stamp_till = DateTime::createFromFormat("dmY", $period_for_keys_till)->getTimestamp();
+            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previousPosition[$i]->fullDate))->getTimestamp();
             if($stamp_date <= $stamp_till){
-                $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->fullDate);
-                $positions[$i] = $model->previous_position[$i]->position;
+                $dates[$i] = date("F j, Y, g:i a", $model->previousPosition[$i]->fullDate);
+                $positions[$i] = $model->previousPosition[$i]->position;
             }
         }
     }
     // both periods are defined
-    if($periodForKeysFrom and $periodForKeysTill){
+    if($period_for_keys_from and $period_for_keys_till){
         unset($dates);
         unset($positions);
         for($i=0; $i<=$quan; $i++){
-            $stamp_from = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
-            $stamp_till = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previous_position[$i]->fullDate))->getTimestamp();
+            $stamp_from = DateTime::createFromFormat("dmY", $period_for_keys_from)->getTimestamp();
+            $stamp_till = DateTime::createFromFormat("dmY", $period_for_keys_till)->getTimestamp();
+            $stamp_date = DateTime::createFromFormat("dmY", date("dmY", $model->previousPosition[$i]->fullDate))->getTimestamp();
             if($stamp_date <= $stamp_till and $stamp_date >= $stamp_from){
-                $dates[$i] = date("F j, Y, g:i a", $model->previous_position[$i]->fullDate);
-                $positions[$i] = $model->previous_position[$i]->position;
+                $dates[$i] = date("F j, Y, g:i a", $model->previousPosition[$i]->fullDate);
+                $positions[$i] = $model->previousPosition[$i]->position;
             }
         }
     }
@@ -97,14 +97,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key',
         'key_id' => Yii::$app->request->get('id'),
-        'periodForKeysFrom' => $periodForKeysFrom,
-        'periodForKeysTill' => $periodForKeysTill,
+        'period_for_keys_from' => $period_for_keys_from,
+        'period_for_keys_till' => $period_for_keys_till,
     ], ['class'=>'btn btn-primary']) ?>
 
     <?= Html::a(Yii::t('app', 'Экспорт в PDF'), ['/keys/pdf-key',
         'key_id' => Yii::$app->request->get('id'),
-        'periodForKeysFrom' => $periodForKeysFrom,
-        'periodForKeysTill' => $periodForKeysTill,
+        'period_for_keys_from' => $period_for_keys_from,
+        'period_for_keys_till' => $period_for_keys_till,
     ], ['class'=>'btn btn-primary']) ?>
 
 
@@ -112,7 +112,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <label><?= Yii::t('app', 'Начальная дата'); ?></label>
         <?= DateRangePicker::widget([
-            'name'=>'periodForKeysFrom',
+            'name'=>'period_for_keys_from',
             'convertFormat'=>true,
             'pluginOptions'=>[
                 'timePicker'=>false,
@@ -125,7 +125,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <label><?= Yii::t('app', 'Конечная дата'); ?></label>
         <?= DateRangePicker::widget([
-            'name'=>'periodForKeysTill',
+            'name'=>'period_for_keys_till',
             'convertFormat'=>true,
             'pluginOptions'=>[
                 'timePicker'=>false,
@@ -142,15 +142,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php $form = ActiveForm::end(); ?>
 
-    <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
+    <?php if($period_for_keys_from || $period_for_keys_till) : ?>
         <div><?= Yii::t('app', 'Выбран период') ?>
-            <?php if($periodForKeysFrom) : ?>
+            <?php if($period_for_keys_from) : ?>
                 <?= Yii::t('app', 'с') ?>
-                <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
+                <?= DateTime::createFromFormat('dmY', $period_for_keys_from)->format('d-m-Y') ?>
             <?php endif; ?>
-            <?php if($periodForKeysTill) : ?>
+            <?php if($period_for_keys_till) : ?>
                 <?= Yii::t('app', 'по') ?>
-                <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
+                <?= DateTime::createFromFormat('dmY', $period_for_keys_till)->format('d-m-Y') ?>
             <?php endif; ?>
         </div>
     <?php endif; ?>

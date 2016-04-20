@@ -92,22 +92,22 @@ class KeysController extends Controller
     public function actionView($id)
     {
         // the period is set
-        if($periodForKeysFrom = Yii::$app->getRequest()->post('periodForKeysFrom')) {
-            $periodForKeysFrom = DateTime::createFromFormat('Y-m-d', $periodForKeysFrom)->format('dmY');
+        if($period_for_keys_from = Yii::$app->getRequest()->post('period_for_keys_from')) {
+            $period_for_keys_from = DateTime::createFromFormat('Y-m-d', $period_for_keys_from)->format('dmY');
         }
-        if($periodForKeysTill = Yii::$app->getRequest()->post('periodForKeysTill')) {
-            $periodForKeysTill = DateTime::createFromFormat('Y-m-d', $periodForKeysTill)->format('dmY');
+        if($period_for_keys_till = Yii::$app->getRequest()->post('period_for_keys_till')) {
+            $period_for_keys_till = DateTime::createFromFormat('Y-m-d', $period_for_keys_till)->format('dmY');
         }
         // button pressed with empty field value
-        if($periodForKeysFrom == '')
-            $periodForKeysFrom = null;
-        if($periodForKeysTill == '')
-            $periodForKeysTill = null;
+        if($period_for_keys_from == '')
+            $period_for_keys_from = null;
+        if($period_for_keys_till == '')
+            $period_for_keys_till = null;
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-            'periodForKeysFrom' => $periodForKeysFrom,
-            'periodForKeysTill' => $periodForKeysTill,
+            'period_for_keys_from' => $period_for_keys_from,
+            'period_for_keys_till' => $period_for_keys_till,
         ]);
     }
 
@@ -342,15 +342,15 @@ class KeysController extends Controller
     {
         $request = Yii::$app->request->get();
         $group_id = $request['group_id'];
-        if(isset($request['periodForKeysFrom'])) {
-            $periodForKeysFrom = $request['periodForKeysFrom'];
-            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
-            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
+        if(isset($request['period_for_keys_from'])) {
+            $period_for_keys_from = $request['period_for_keys_from'];
+            $period_for_keys_from = DateTime::createFromFormat("dmY", $period_for_keys_from)->getTimestamp();
+            $period_for_keys_from = mktime(0,0,0,date('m', $period_for_keys_from), date('d', $period_for_keys_from), date('Y', $period_for_keys_from));
         }
-        if(isset($request['periodForKeysTill'])) {
-            $periodForKeysTill = $request['periodForKeysTill'];
-            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+        if(isset($request['period_for_keys_till'])) {
+            $period_for_keys_till = $request['period_for_keys_till'];
+            $period_for_keys_till = DateTime::createFromFormat("dmY", $period_for_keys_till)->getTimestamp();
+            $period_for_keys_till = mktime(23,59,59,date('m', $period_for_keys_till), date('d', $period_for_keys_till), date('Y', $period_for_keys_till));
         }
         $keys = GroupKey::find()->where(['group_id' => $group_id])->all();
         $items=[];
@@ -358,17 +358,17 @@ class KeysController extends Controller
             array_push($items, $key->id);
         }
         $model = KeyPosition::find()->where(['key_id' => $items])->all();
-        if(isset($periodForKeysFrom)){
+        if(isset($period_for_keys_from)){
             $model = KeyPosition::find()->where(['key_id' => $items])
-                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+                ->andFilterWhere(['>=', 'date', $period_for_keys_from])->all();
         }
-        if(isset($periodForKeysTill)){
+        if(isset($period_for_keys_till)){
             $model = KeyPosition::find()->where(['key_id' => $items])
-                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+                ->andFilterWhere(['<=', 'date', $period_for_keys_till])->all();
         }
-        if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
+        if(isset($period_for_keys_from) and isset($period_for_keys_till)){
             $model = KeyPosition::find()->where(['key_id' => $items])
-                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+                ->andFilterWhere(['between', 'date', $period_for_keys_from, $period_for_keys_till])->all();
         }
         $objPHPExcel = new \PHPExcel();
         $sheet=0;
@@ -378,12 +378,12 @@ class KeysController extends Controller
         $objPHPExcel->getActiveSheet()->setTitle(Yii::t('app', 'Динамика изменения позиции'))
             ->setCellValue('A1', Yii::t('app', 'Ключевое слово'));
         //defining dates
-        if(isset($periodForKeysFrom))
-            $begin = new \DateTime(date('Y-m-d', $periodForKeysFrom));
+        if(isset($period_for_keys_from))
+            $begin = new \DateTime(date('Y-m-d', $period_for_keys_from));
         else
             $begin = new \DateTime(date('Y-m-d', strtotime('-6 month')));
-        if(isset($periodForKeysTill))
-            $end = new \DateTime(date('Y-m-d', $periodForKeysTill));
+        if(isset($period_for_keys_till))
+            $end = new \DateTime(date('Y-m-d', $period_for_keys_till));
         else
             $end = new \DateTime(date('Y-m-d', strtotime('-1 day')));
         $end = $end->modify( '+1 day' );
@@ -445,27 +445,27 @@ class KeysController extends Controller
         $request = Yii::$app->request->get();
         $key_id = $request['key_id'];
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
-        if(isset($request['periodForKeysFrom'])) {
-            $periodForKeysFrom = $request['periodForKeysFrom'];
-            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
-            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
+        if(isset($request['period_for_keys_from'])) {
+            $period_for_keys_from = $request['period_for_keys_from'];
+            $period_for_keys_from = DateTime::createFromFormat("dmY", $period_for_keys_from)->getTimestamp();
+            $period_for_keys_from = mktime(0,0,0,date('m', $period_for_keys_from), date('d', $period_for_keys_from), date('Y', $period_for_keys_from));
         }
-        if(isset($request['periodForKeysTill'])) {
-            $periodForKeysTill = $request['periodForKeysTill'];
-            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+        if(isset($request['period_for_keys_till'])) {
+            $period_for_keys_till = $request['period_for_keys_till'];
+            $period_for_keys_till = DateTime::createFromFormat("dmY", $period_for_keys_till)->getTimestamp();
+            $period_for_keys_till = mktime(23,59,59,date('m', $period_for_keys_till), date('d', $period_for_keys_till), date('Y', $period_for_keys_till));
         }
-        if(isset($periodForKeysFrom)){
+        if(isset($period_for_keys_from)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])->all();
+                ->andFilterWhere(['>=', 'date', $period_for_keys_from])->all();
         }
-        if(isset($periodForKeysTill)){
+        if(isset($period_for_keys_till)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['<=', 'date', $periodForKeysTill])->all();
+                ->andFilterWhere(['<=', 'date', $period_for_keys_till])->all();
         }
-        if(isset($periodForKeysFrom) and isset($periodForKeysTill)){
+        if(isset($period_for_keys_from) and isset($period_for_keys_till)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])->all();
+                ->andFilterWhere(['between', 'date', $period_for_keys_from, $period_for_keys_till])->all();
         }
         $objPHPExcel = new \PHPExcel();
         $sheet=0;
@@ -547,29 +547,29 @@ class KeysController extends Controller
         $request = Yii::$app->getRequest()->get();
         $key_id = $request['key_id'];
         $model = KeyPosition::find()->where(['key_id' => $key_id])->orderBy('date DESC')->all();
-        if(isset($request['periodForKeysFrom'])) {
-            $periodForKeysFrom = $request['periodForKeysFrom'];
-            $periodForKeysFrom = DateTime::createFromFormat("dmY", $periodForKeysFrom)->getTimestamp();
-            $periodForKeysFrom = mktime(0,0,0,date('m', $periodForKeysFrom), date('d', $periodForKeysFrom), date('Y', $periodForKeysFrom));
+        if(isset($request['period_for_keys_from'])) {
+            $period_for_keys_from = $request['period_for_keys_from'];
+            $period_for_keys_from = DateTime::createFromFormat("dmY", $period_for_keys_from)->getTimestamp();
+            $period_for_keys_from = mktime(0,0,0,date('m', $period_for_keys_from), date('d', $period_for_keys_from), date('Y', $period_for_keys_from));
         }
-        if(isset($request['periodForKeysTill'])) {
-            $periodForKeysTill = $request['periodForKeysTill'];
-            $periodForKeysTill = DateTime::createFromFormat("dmY", $periodForKeysTill)->getTimestamp();
-            $periodForKeysTill = mktime(23,59,59,date('m', $periodForKeysTill), date('d', $periodForKeysTill), date('Y', $periodForKeysTill));
+        if(isset($request['period_for_keys_till'])) {
+            $period_for_keys_till = $request['period_for_keys_till'];
+            $period_for_keys_till = DateTime::createFromFormat("dmY", $period_for_keys_till)->getTimestamp();
+            $period_for_keys_till = mktime(23,59,59,date('m', $period_for_keys_till), date('d', $period_for_keys_till), date('Y', $period_for_keys_till));
         }
-        if(isset($periodForKeysFrom)){
+        if(isset($period_for_keys_from)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['>=', 'date', $periodForKeysFrom])
+                ->andFilterWhere(['>=', 'date', $period_for_keys_from])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
-        if(isset($periodForKeysTill)){
+        if(isset($period_for_keys_till)){
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['<=', 'date', $periodForKeysTill])
+                ->andFilterWhere(['<=', 'date', $period_for_keys_till])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
-        if(isset($periodForKeysFrom) and isset($periodForKeysTill)) {
+        if(isset($period_for_keys_from) and isset($period_for_keys_till)) {
             $model = KeyPosition::find()->where(['key_id' => $key_id])
-                ->andFilterWhere(['between', 'date', $periodForKeysFrom, $periodForKeysTill])
+                ->andFilterWhere(['between', 'date', $period_for_keys_from, $period_for_keys_till])
                 ->orderBy('date DESC, time_from_today DESC')->all();
         }
         $content = $this->render('pdf', [

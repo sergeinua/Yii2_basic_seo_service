@@ -35,7 +35,7 @@ if(isset($sort)){
                 foreach ($model->keys as $key) {
                     $sorted_model[$i]['title'] = $key->title;
                     $sorted_model[$i]['position'] = $key->position->position;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
@@ -46,7 +46,7 @@ if(isset($sort)){
                 foreach ($model->keys as $key) {
                     $sorted_model[$i]['title'] = $key->title;
                     $sorted_model[$i]['position'] = $key->position->position;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
@@ -58,7 +58,7 @@ if(isset($sort)){
                 foreach ($model->keys as $key) {
                     $sorted_model[$i]['position'] = $key->position->position;
                     $sorted_model[$i]['title'] = $key->title;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
@@ -69,7 +69,7 @@ if(isset($sort)){
                 foreach ($model->keys as $key) {
                     $sorted_model[$i]['position'] = $key->position->position;
                     $sorted_model[$i]['title'] = $key->title;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
@@ -82,7 +82,7 @@ if(isset($sort)){
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['position'] = $key->position->position;
                     $sorted_model[$i]['title'] = $key->title;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
                 }
@@ -94,7 +94,7 @@ if(isset($sort)){
                     $sorted_model[$i]['full_date'] = $key->position->fullDate;
                     $sorted_model[$i]['position'] = $key->position->position;
                     $sorted_model[$i]['title'] = $key->title;
-                    $sorted_model[$i]['prev_position'] = $key->previous_position['1']['position'];
+                    $sorted_model[$i]['prev_position'] = $key->previousPosition['1']['position'];
                     $sorted_model[$i]['key_id'] = $key->id;
                     $i++;
                 }
@@ -109,7 +109,7 @@ if(isset($sort)){
         $sorted_model[$i]['key_id'] = $key->id;
         $sorted_model[$i]['title'] = $key->title;
         $sorted_model[$i]['position'] = isset($key->position->position) ? $key->position->position : null;
-        $sorted_model[$i]['prev_position'] = isset($key->previous_position['1']['position']) ? $key->previous_position['1']['position'] : null;
+        $sorted_model[$i]['prev_position'] = isset($key->previousPosition['1']['position']) ? $key->previousPosition['1']['position'] : null;
         $sorted_model[$i]['full_date'] = isset($key->position->fullDate) ? $key->position->fullDate : null;
         $i++;
     }
@@ -321,15 +321,15 @@ if(isset($sort)){
 
         <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-group',
             'group_id' => Yii::$app->request->get('id'),
-            'periodForKeysFrom' => $periodForKeysFrom,
-            'periodForKeysTill' => $periodForKeysTill,
+            'period_for_keys_from' => $period_for_keys_from,
+            'period_for_keys_till' => $period_for_keys_till,
         ], ['class'=>'btn btn-primary']) ?>
 
         <?php $form = ActiveForm::begin(); ?>
 
             <label><?= Yii::t('app', 'Начальная дата'); ?></label>
             <?= DateRangePicker::widget([
-                'name'=>'periodForKeysFrom',
+                'name'=>'period_for_keys_from',
                 'convertFormat'=>true,
                 'pluginOptions'=>[
                     'timePicker'=>false,
@@ -342,7 +342,7 @@ if(isset($sort)){
 
             <label><?= Yii::t('app', 'Конечная дата'); ?></label>
             <?= DateRangePicker::widget([
-                'name'=>'periodForKeysTill',
+                'name'=>'period_for_keys_till',
                 'convertFormat'=>true,
                 'pluginOptions'=>[
                     'timePicker'=>false,
@@ -372,15 +372,15 @@ if(isset($sort)){
             $dates[$i] = DateTime::createFromFormat('Ymd', $dates[$i])->format('d-m-Y');
         }; ?>
 
-        <?php if($periodForKeysFrom || $periodForKeysTill) : ?>
+        <?php if($period_for_keys_from || $period_for_keys_till) : ?>
             <div><?= Yii::t('app', 'Выбран период') ?>
-                <?php if($periodForKeysFrom) : ?>
+                <?php if($period_for_keys_from) : ?>
                     <?= Yii::t('app', 'с') ?>
-                    <?= DateTime::createFromFormat('dmY', $periodForKeysFrom)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('dmY', $period_for_keys_from)->format('d-m-Y') ?>
                 <?php endif; ?>
-                <?php if($periodForKeysTill) : ?>
+                <?php if($period_for_keys_till) : ?>
                     <?= Yii::t('app', 'по') ?>
-                    <?= DateTime::createFromFormat('dmY', $periodForKeysTill)->format('d-m-Y') ?>
+                    <?= DateTime::createFromFormat('dmY', $period_for_keys_till)->format('d-m-Y') ?>
                 <?php endif; ?>
             </div>
         <?php endif; ?>

@@ -21,12 +21,12 @@ foreach($model as $item) :
     $i++;
 endforeach;
 
-$periodFrom = null;
-$periodTill = null;
-if(Yii::$app->request->post('dateFrom'))
-    $periodFrom = Yii::$app->request->post('dateFrom');
-if(Yii::$app->request->post('dateTill'))
-    $periodTill = Yii::$app->request->post('dateTill');
+$period_from = null;
+$period_till = null;
+if(Yii::$app->request->post('date_from'))
+    $period_from = Yii::$app->request->post('date_from');
+if(Yii::$app->request->post('date_till'))
+    $period_till = Yii::$app->request->post('date_till');
 // min quantity of the visibility
 if($vis_quan)
     $max_quan = max($vis_quan);
@@ -46,15 +46,15 @@ endforeach; ?>
 
     <h1><?= Projects::find()->where(['id' => Yii::$app->request->get('project_id')])->one()->title; ?></h1>
 
-    <?php if($periodFrom || $periodTill) : ?>
+    <?php if($period_from || $period_till) : ?>
         <div><?= Yii::t('app', 'Выбран период'); ?>
-            <?php if($periodFrom) : ?>
+            <?php if($period_from) : ?>
                 <?= Yii::t('app', 'с'); ?>
-                <?= $periodFrom; ?>
+                <?= $period_from; ?>
             <?php endif; ?>
-            <?php if($periodTill) : ?>
+            <?php if($period_till) : ?>
                 <?= Yii::t('app', 'по'); ?>
-                <?= $periodTill; ?>
+                <?= $period_till; ?>
             <?php endif; ?>
         </div>
     <?php else : ?>
@@ -66,7 +66,7 @@ endforeach; ?>
 
         <label><?= Yii::t('app', 'Начальная дата'); ?></label>
         <?= DateRangePicker::widget([
-            'name'=>'dateFrom',
+            'name'=>'date_from',
             'convertFormat'=>true,
             'pluginOptions'=>[
                 'timePicker'=>false,
@@ -79,7 +79,7 @@ endforeach; ?>
 
         <label><?= Yii::t('app', 'Конечная дата'); ?></label>
         <?= DateRangePicker::widget([
-            'name'=>'dateTill',
+            'name'=>'date_till',
             'convertFormat'=>true,
             'pluginOptions'=>[
                 'timePicker'=>false,

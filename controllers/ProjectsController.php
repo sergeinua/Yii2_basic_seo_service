@@ -335,32 +335,32 @@ class ProjectsController extends Controller
         // none of the periods is defined
         $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')->all();
 
-        if($periodFrom = Yii::$app->getRequest()->post('periodForProjectFrom'))
-            $periodFrom = DateTime::createFromFormat('Y-m-d', $periodFrom)->format('dmY');
-        if($periodTill = Yii::$app->getRequest()->post('periodForProjectTill'))
-            $periodTill = DateTime::createFromFormat('Y-m-d', $periodTill)->format('dmY');
+        if($period_from = Yii::$app->getRequest()->post('period_for_project_from'))
+            $period_from = DateTime::createFromFormat('Y-m-d', $period_from)->format('dmY');
+        if($period_till = Yii::$app->getRequest()->post('period_for_project_till'))
+            $period_till = DateTime::createFromFormat('Y-m-d', $period_till)->format('dmY');
 
         //period from is defined
-        if($periodFrom){
+        if($period_from){
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['>=', 'date', $periodFrom])->all();
+                ->andFilterWhere(['>=', 'date', $period_from])->all();
         }
         //period till is defined
-        if($periodFrom and $periodTill){
-        if($periodTill){
+        if($period_from and $period_till){
+        if($period_till){
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['<=', 'date', $periodTill])->all();
+                ->andFilterWhere(['<=', 'date', $period_till])->all();
         }
         // both periods from & till are defined
             $project_vis_model = ProjectVisibility::find()->where(['project_id' => $id])->orderBy('date desc')
-                ->andFilterWhere(['between', 'date', $periodFrom, $periodTill])->all();
+                ->andFilterWhere(['between', 'date', $period_from, $period_till])->all();
         }
 
         return $this->render('analytics', [
             'model' => $this->findModel($id),
             'project_vis_model' => $project_vis_model,
-            'periodFrom' => $periodFrom,
-            'periodTill' => $periodTill,
+            'period_from' => $period_from,
+            'period_till' => $period_till,
             'api_browser' => $api_browser,
             'api_source' => $api_source,
             'api_os' => $api_os,
@@ -394,40 +394,40 @@ class ProjectsController extends Controller
             ->orderBy('date desc')
             ->orderBy('position asc')
             ->all();
-        /** dateFrom isset */
-        if($dateFrom = Yii::$app->request->post('dateFrom')) {
+        /** date_from isset */
+        if($date_from = Yii::$app->request->post('date_from')) {
             $model = ProdvigatorData::find()
                 ->where(['domain' => $project_title])
-                ->andFilterWhere(['>=', 'date', $dateFrom])
+                ->andFilterWhere(['>=', 'date', $date_from])
                 ->orderBy('date desc')
                 ->all();
             $model_organic = ProdvigatorOrganic::find()->where(['domain' => $project_title])
-                ->andFilterWhere(['>=', 'date', $dateFrom])
+                ->andFilterWhere(['>=', 'date', $date_from])
                 ->orderBy('date desc')
                 ->all();
         }
-        /** dateTill isset */
-        if($dateTill = Yii::$app->request->post('dateTill')) {
+        /** date_till isset */
+        if($date_till = Yii::$app->request->post('date_till')) {
             $model = ProdvigatorData::find()
                 ->where(['domain' => $project_title])
-                ->andFilterWhere(['>=', 'date', $dateTill])
+                ->andFilterWhere(['>=', 'date', $date_till])
                 ->orderBy('date desc')
                 ->all();
             $model_organic = ProdvigatorOrganic::find()->where(['domain' => $project_title])
-                ->andFilterWhere(['>=', 'date', $dateTill])
+                ->andFilterWhere(['>=', 'date', $date_till])
                 ->orderBy('date desc')
                 ->all();
         }
-        /** dateFrom & dateTill isset */
-        if(($dateFrom = Yii::$app->request->post('dateFrom')) and ($dateTill = Yii::$app->request->post('dateTill'))) {
+        /** date_from & date_till isset */
+        if(($date_from = Yii::$app->request->post('date_from')) and ($date_till = Yii::$app->request->post('date_till'))) {
             $model = ProdvigatorData::find()
                 ->where(['domain' => $project_title])
-                ->andFilterWhere(['between', 'date', $dateFrom, $dateTill])
+                ->andFilterWhere(['between', 'date', $date_from, $date_till])
                 ->orderBy('date desc')
                 ->all();
             $model_organic = ProdvigatorOrganic::find()
                 ->where(['domain' => $project_title])
-                ->andFilterWhere(['between', 'date', $dateFrom, $dateTill])
+                ->andFilterWhere(['between', 'date', $date_from, $date_till])
                 ->orderBy('date desc')
                 ->all();
         }

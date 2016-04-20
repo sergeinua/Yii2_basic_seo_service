@@ -37,7 +37,7 @@ $last_modified = ApiSource::find()
 
     <label><?= Yii::t('app', 'Начальная дата'); ?></label>
     <?= DateRangePicker::widget([
-        'name'=>'periodForProjectFrom',
+        'name'=>'period_for_project_from',
         'convertFormat'=>true,
         'pluginOptions'=>[
             'timePicker'=>false,
@@ -50,7 +50,7 @@ $last_modified = ApiSource::find()
 
     <label><?= Yii::t('app', 'Конечная дата'); ?></label>
     <?= DateRangePicker::widget([
-        'name'=>'periodForProjectTill',
+        'name'=>'period_for_project_till',
         'convertFormat'=>true,
         'pluginOptions'=>[
             'timePicker'=>false,
@@ -67,15 +67,15 @@ $last_modified = ApiSource::find()
 
     <?php $form = ActiveForm::end(); ?>
 
-    <?php if($periodFrom || $periodTill) : ?>
+    <?php if($period_from || $period_till) : ?>
         <div><?= Yii::t('app', 'Выбран период') ?>
-            <?php if($periodFrom) : ?>
+            <?php if($period_from) : ?>
                 <?= Yii::t('app', 'с') ?>
-                <?= DateTime::createFromFormat('dmY', $periodFrom)->format('d-m-Y') ?>
+                <?= DateTime::createFromFormat('dmY', $period_from)->format('d-m-Y') ?>
             <?php endif; ?>
-            <?php if($periodTill) : ?>
+            <?php if($period_till) : ?>
                 <?= Yii::t('app', 'по') ?>
-                <?= DateTime::createFromFormat('dmY', $periodTill)->format('d-m-Y') ?>
+                <?= DateTime::createFromFormat('dmY', $period_till)->format('d-m-Y') ?>
             <?php endif; ?>
         </div>
     <?php endif; ?>
