@@ -7,7 +7,7 @@ class m160330_084619_create_key_position_table extends Migration
     public function up()
     {
         $this->createTable('key_position', [
-            'id' => $this->primaryKey(),
+            'id' => $this->integer(11)->primaryKey(),
             'key_id' => $this->integer(11)->notNull(),
             'date' => $this->integer(11)->notNull(),
             'time_from_today' => $this->integer(11)->notNull(),
