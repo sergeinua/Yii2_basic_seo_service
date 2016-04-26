@@ -93,19 +93,22 @@ $this->title = $model->title;
         //updating indexes
         $dates = array_values($dates);
         $positions = array_values($positions);
-    endif; ?>
+    endif;
+    // setting dates the needed way
+    $dates = array_reverse($dates);
+    $positions = array_reverse($positions); ?>
 
     <?= Html::a(Yii::t('app', 'Экспорт в XLS'), ['/keys/excel-key',
         'key_id' => Yii::$app->request->get('id'),
         'period_for_keys_from' => $period_for_keys_from,
         'period_for_keys_till' => $period_for_keys_till,
-    ], ['class'=>'btn btn-primary']) ?>
+    ], ['class'=>'btn btn-primary']); ?>
 
     <?= Html::a(Yii::t('app', 'Экспорт в PDF'), ['/keys/pdf-key',
         'key_id' => Yii::$app->request->get('id'),
         'period_for_keys_from' => $period_for_keys_from,
         'period_for_keys_till' => $period_for_keys_till,
-    ], ['class'=>'btn btn-primary']) ?>
+    ], ['class'=>'btn btn-primary']); ?>
 
 
     <?php $form = ActiveForm::begin(); ?>

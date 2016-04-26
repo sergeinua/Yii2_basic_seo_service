@@ -370,7 +370,10 @@ if(isset($sort)){
         // formatting dates
         for($i=0; $i<count($dates); $i++) {
             $dates[$i] = DateTime::createFromFormat('Ymd', $dates[$i])->format('d-m-Y');
-        }; ?>
+        };
+        // setting dates the needed way
+        $dates = array_reverse($dates);
+        $visibility = array_reverse($visibility); ?>
 
         <?php if($period_for_keys_from || $period_for_keys_till) : ?>
             <div><?= Yii::t('app', 'Выбран период') ?>

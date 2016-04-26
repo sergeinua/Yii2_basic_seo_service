@@ -134,6 +134,9 @@ $last_modified = ProdvigatorData::find()
     <?php endif; ?>
 
     <?php if($vis_dates && $vis_quan) : ?>
+        <?php // setting dates the needed way
+        $vis_dates = array_reverse($vis_dates);
+        $vis_quan = array_reverse($vis_quan); ?>
         <?= Highcharts::widget([
             'scripts' => [
                 'highcharts-more',
@@ -165,6 +168,8 @@ $last_modified = ProdvigatorData::find()
 
     <?php if($vis_dates && $vis_words) : ?>
         <div>
+            <?php // setting dates the needed way
+            $vis_words = array_reverse($vis_words); ?>
             <?= Highcharts::widget([
                 'scripts' => [
                     'highcharts-more',
