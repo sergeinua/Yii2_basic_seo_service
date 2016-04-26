@@ -8,7 +8,7 @@ use yii\grid\GridView;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Projects';
-$this->params['breadcrumbs'][] = $this->title;
+//$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="projects-index">
 
@@ -26,7 +26,13 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'title',
+            [
+                'attribute' => 'title',
+                'format' => 'raw',
+                'value' => function($model) {
+                    return Html::a('<span>' . $model->title . '</span>', ['/projects/view', 'id' => $model->id]);
+                }
+            ],
             'description',
             [
                 'attribute' => 'status',

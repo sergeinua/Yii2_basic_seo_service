@@ -10,8 +10,8 @@ use yii\bootstrap\ActiveForm;
 /* @var $model app\models\Keys */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Keys', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+//$this->params['breadcrumbs'][] = ['label' => 'Keys', 'url' => ['index']];
+//$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="keys-view">
 

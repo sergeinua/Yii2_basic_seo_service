@@ -16,8 +16,8 @@ use yii\widgets\ActiveForm;
 /* @var $model app\models\Groups */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Groups', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+//$this->params['breadcrumbs'][] = ['label' => 'Groups', 'url' => ['index']];
+//$this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <?php // applying the correct timezone
@@ -195,7 +195,7 @@ if(isset($sort)){
 
                 <tr>
                     <td><?= $sorted_model[$i]['key_id'] ?></td>
-                    <td><?= $sorted_model[$i]['title'] ?></td>
+                    <td><?= Html::a('<span>' . $sorted_model[$i]['title'] . '</span>', ['/keys/view', 'id' => $sorted_model[$i]['key_id']]) ?></td>
                     <td>
                         <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/keys/view', 'id' => $sorted_model[$i]['key_id']]) ?>
                         <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/keys/update', 'id' => $sorted_model[$i]['key_id']]) ?>

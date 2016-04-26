@@ -12,8 +12,8 @@ use yii\base\View;
 /* @var $model app\models\Projects */
 
 $this->title = $model->title;
-$this->params['breadcrumbs'][] = ['label' => 'Projects', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+//$this->params['breadcrumbs'][] = ['label' => 'Projects', 'url' => ['index']];
+//$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="projects-view">
 
@@ -64,11 +64,10 @@ $this->params['breadcrumbs'][] = $this->title;
         </thead>
         <tbody>
 
-        <?php foreach ($model->groups as $group) { ?>
-
+        <?php foreach ($model->groups as $group) : ?>
             <tr>
                 <td><?= $group->id ?></td>
-                <td><?= $group->title ?></td>
+                <td><?= Html::a('<span>' . $group->title . '</span>', ['/groups/view', 'id' => $group->id]) ?></td>
                 <td>
                     <?= Html::a('<span class="glyphicon glyphicon-eye-open"></span>', ['/groups/view', 'id' => $group->id]) ?>
                     <?= Html::a('<span class="glyphicon glyphicon-pencil"></span>', ['/groups/update', 'id' => $group->id]) ?>
@@ -80,7 +79,8 @@ $this->params['breadcrumbs'][] = $this->title;
                     ]) ?>
                 </td>
             </tr>
-        <?php } ?>
+        <?php endforeach; ?>
+
         </tbody>
     </table>
 
