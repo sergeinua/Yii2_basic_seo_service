@@ -193,12 +193,6 @@ $last_modified = ProdvigatorData::find()
         </div>
     <?php endif; ?>
 
-    <?= Html::a(Yii::$app->request->get('show_organic') ? Yii::t('app', 'Назад') : Yii::t('app', 'Поисковые запросы в органическом поиске'),
-        ['/projects/show-prodvigator',
-            'project_id' => Yii::$app->request->get('project_id'),
-            'show_organic' => Yii::$app->request->get('show_organic') ? null : 1,
-        ], ['class'=>'btn btn-primary']); ?>
-
     <?php if($model) : ?>
         <table class="table table-striped table-hover">
             <thead>
@@ -224,33 +218,31 @@ $last_modified = ProdvigatorData::find()
         </table>
     <?php endif; ?>
 
-    <?php if(Yii::$app->request->get('show_organic')) : ?>
-        <?php if($model_organic) : ?>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
-                        <th><?= Yii::t('app', 'Позиция'); ?></th>
-                        <th><?= Yii::t('app', 'Количество запросов'); ?></th>
-                        <th><?= Yii::t('app', 'Стоимость $'); ?></th>
-                        <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
-                        <th><?= Yii::t('app', 'Результатов'); ?></th>
-                        <th><?= Yii::t('app', 'URL'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach($model_organic as $item) : ?>
-                    <tr>
-                        <td><?= $item->keyword; ?></td>
-                        <td><?= $item->position; ?></td>
-                        <td><?= $item->region_queries_count; ?></td>
-                        <td><?= $item->cost; ?></td>
-                        <td><?= $item->concurrency; ?></td>
-                        <td><?= $item->found_results; ?></td>
-                        <td><?= $item->url; ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+    <?php if($model_organic) : ?>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
+                    <th><?= Yii::t('app', 'Позиция'); ?></th>
+                    <th><?= Yii::t('app', 'Количество запросов'); ?></th>
+                    <th><?= Yii::t('app', 'Стоимость $'); ?></th>
+                    <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
+                    <th><?= Yii::t('app', 'Результатов'); ?></th>
+                    <th><?= Yii::t('app', 'URL'); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach($model_organic as $item) : ?>
+                <tr>
+                    <td><?= $item->keyword; ?></td>
+                    <td><?= $item->position; ?></td>
+                    <td><?= $item->region_queries_count; ?></td>
+                    <td><?= $item->cost; ?></td>
+                    <td><?= $item->concurrency; ?></td>
+                    <td><?= $item->found_results; ?></td>
+                    <td><?= $item->url; ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
     <?php endif; ?>

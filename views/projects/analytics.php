@@ -93,7 +93,8 @@ $last_modified = ApiSource::find()
         };
         $project_model = Projects::find()->where(['id' => Yii::$app->request->get('id')])->one(); ?>
 
-        <?= Highcharts::widget([
+        <!-- // it's not needed right now, but left here - just in case someone gonna need it
+        <--?=Highcharts::widget([
             'options' => [
                 'title' => ['text' => Yii::t('app', 'Видимость ключевых слов проекта')],
                 'xAxis' => [
@@ -109,7 +110,7 @@ $last_modified = ApiSource::find()
                     ],
                 ]
             ]
-        ]); ?>
+        ]); ?-->
     <?php endif; ?>
 </div>
 
