@@ -132,9 +132,10 @@ if(Yii::$app->user->identity)
                             <div class="panel-heading">
                                 <h3 class="panel-title"><?= Yii::t('app', 'Проект'); ?></h3>
                             </div>
-                            <?php //hide analytics menu item for absent property in the current project
+                            <?php //hide analytics & prodvigator menu item for absent property in the current project
                             $project_id = Yii::$app->request->get('project_id') ? Yii::$app->request->get('project_id') : Yii::$app->request->get('id');
                             $gapi_profile = Projects::find()->where(['id' => $project_id])->one()->gapi_profile_id;
+                            $prodvigator_token = Yii::$app->params['prodvigator_token'];
                             echo Menu::widget([
                                 'options'=> ['class'=>'sidebar-list sidebar-e'],
                                 'items' => [
@@ -149,13 +150,14 @@ if(Yii::$app->user->identity)
                                         'label' => 'Продвигатор',
                                         'url' => ['/projects/show-prodvigator',
                                             'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
-                                        'options' =>['class' => 'sidebar-list-item']
+                                        'options' =>['class' => 'sidebar-list-item'],
+                                        'visible' => isset($prodvigator_token) ? true : false,
                                     ],
                                     [
                                         'label' => 'AdWords',
                                         'url' => ['/projects/get-adwords-data',
                                             'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
-                                        'options' =>['class' => 'sidebar-list-item']
+                                        'options' =>['class' => 'sidebar-list-item'],
                                     ],
                                 ]]);
                             ?>
