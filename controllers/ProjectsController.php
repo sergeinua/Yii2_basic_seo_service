@@ -14,6 +14,7 @@ use app\models\ApiUsers;
 use app\models\CityName;
 use app\models\ProdvigatorData;
 use app\models\ProdvigatorOrganic;
+use app\models\ProdvigatorOrganicSearch;
 use app\models\ProjectUser;
 use app\models\ProjectVisibility;
 use Yii;
@@ -33,6 +34,7 @@ use app\components\ReportDefinition;
 use app\components\ReportUtils;
 use app\components\Selector;
 use app\components\Predicate;
+use yii\data\ActiveDataProvider;
 
 /**
  * ProjectsController implements the CRUD actions for Projects model.
@@ -397,6 +399,11 @@ class ProjectsController extends Controller
             ->orderBy('date desc')
             ->orderBy('position asc')
             ->all();
+        //pagination added
+        $searchModel = New ProdvigatorOrganicSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->pagination->pageSize=50;
+
         /** date_from isset */
         if($date_from = Yii::$app->request->post('date_from')) {
             $model = ProdvigatorData::find()
@@ -438,6 +445,8 @@ class ProjectsController extends Controller
         return $this->render('prodvigator', [
             'model' => $model,
             'model_organic' => $model_organic,
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
         ]);
     }
 

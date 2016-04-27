@@ -6,6 +6,7 @@ use kartik\daterange\DateRangePicker;
 use yii\bootstrap\ActiveForm;
 use app\models\ProdvigatorData;
 use app\models\Projects;
+use yii\grid\GridView;
 
 ?>
 
@@ -223,31 +224,39 @@ $last_modified = ProdvigatorData::find()
         </table>
     <?php endif; ?>
 
-    <?php if($model_organic) : ?>
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th><?= Yii::t('app', 'Ключевое слово'); ?></th>
-                    <th><?= Yii::t('app', 'Позиция'); ?></th>
-                    <th><?= Yii::t('app', 'Количество запросов'); ?></th>
-                    <th><?= Yii::t('app', 'Стоимость $'); ?></th>
-                    <th><?= Yii::t('app', 'Конкуренция в PPС'); ?></th>
-                    <th><?= Yii::t('app', 'Результатов'); ?></th>
-                    <th><?= Yii::t('app', 'URL'); ?></th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach($model_organic as $item) : ?>
-                <tr>
-                    <td><?= $item->keyword; ?></td>
-                    <td><?= $item->position; ?></td>
-                    <td><?= $item->region_queries_count; ?></td>
-                    <td><?= $item->cost; ?></td>
-                    <td><?= $item->concurrency; ?></td>
-                    <td><?= $item->found_results; ?></td>
-                    <td><?= $item->url; ?></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+            [
+                'attribute' => 'keyword',
+                'label' => Yii::t('app', 'Ключевое слово'),
+            ],
+            [
+                'attribute' => 'position',
+                'label' => Yii::t('app', 'Позиция'),
+            ],
+            [
+                'attribute' => 'region_queries_count',
+                'label' => Yii::t('app', 'Количество запросов'),
+            ],
+            [
+                'attribute' => 'cost',
+                'label' => Yii::t('app', 'Стоимость $'),
+            ],
+            [
+                'attribute' => 'concurrency',
+                'label' => Yii::t('app', 'Конкуренция в PPС'),
+            ],
+            [
+                'attribute' => 'found_results',
+                'label' => Yii::t('app', 'Результатов'),
+            ],
+            [
+                'attribute' => 'url',
+                'label' => Yii::t('app', 'URL'),
+            ],
+        ],
+    ]); ?>
