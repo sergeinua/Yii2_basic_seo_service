@@ -50,7 +50,7 @@ $this->title = $model->title;
             [
                 'attribute' => 'upd_period',
                 'label' => Yii::t('app', 'ТИЦ'),
-                'value' => 'http://www.yandex.ru/cycounter?reclamare.ua',
+                'value' => 'http://www.yandex.ru/cycounter?' . $model->title,
                 'format' => ['image',['width'=>'88','height'=>'31']],
             ],
         ],

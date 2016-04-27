@@ -10,6 +10,8 @@ use yii\widgets\Breadcrumbs;
 use app\assets\AppAsset;
 use yii\widgets\Menu;
 use app\models\Projects;
+use app\models\ProjectGroup;
+use app\models\GroupKey;
 
 AppAsset::register($this);
 ?>
@@ -124,16 +126,43 @@ if(Yii::$app->user->identity)
                         </div>
                     <?php endif; ?>
                     <!--MENU_ITEM_1_BEGIN seen in the project controller only -->
-                    <?php if(Yii::$app->controller->id == 'projects' &&
-                        Yii::$app->controller->action->id == 'view' ||
-                        Yii::$app->controller->action->id == 'show-prodvigator' ||
-                        Yii::$app->controller->action->id == 'show-analytics') : ?>
+                    <?php // menu is visible for the defined controllers & actions
+                    if(
+                        // menu is visible for the projects controller
+                        (Yii::$app->controller->id == 'projects' &&
+                            // list of the defined actions
+                            Yii::$app->controller->action->id == 'view' ||
+                            Yii::$app->controller->action->id == 'show-prodvigator' ||
+                            Yii::$app->controller->action->id == 'show-analytics'
+                        ) || (
+                        // menu is visible for the defined actions of the groups controller
+                        Yii::$app->controller->id == 'groups' &&
+                            // list of the defined actions
+                            Yii::$app->controller->action->id == 'view'
+                        ) || (
+                        // menu is visible for the defined actions of the keys controller
+                        Yii::$app->controller->id == 'keys' &&
+                            // list of the defined actions
+                            Yii::$app->controller->action->id == 'view'
+                        )
+                    ) : ?>
                         <div class="panel panel-primary">
                             <div class="panel-heading">
                                 <h3 class="panel-title"><?= Yii::t('app', 'Проект'); ?></h3>
                             </div>
                             <?php //hide analytics & prodvigator menu item for absent property in the current project
                             $project_id = Yii::$app->request->get('project_id') ? Yii::$app->request->get('project_id') : Yii::$app->request->get('id');
+                            // getting $project_id in the groups controller
+                            if(Yii::$app->controller->id == 'groups' && Yii::$app->controller->action->id == 'view') :
+                                $group_id = Yii::$app->request->get('id');
+                                $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+                            endif;
+                            // getting $project_id in the keys controller
+                            if(Yii::$app->controller->id == 'keys' && Yii::$app->controller->action->id == 'view') :
+                                $key_id = Yii::$app->request->get('id');
+                                $group_id = GroupKey::find()->where(['key_id' => $key_id])->one()->group_id;
+                                $project_id = ProjectGroup::find()->where(['group_id' => $group_id])->one()->project_id;
+                            endif;
                             $gapi_profile = Projects::find()->where(['id' => $project_id])->one()->gapi_profile_id;
                             $prodvigator_token = Yii::$app->params['prodvigator_token'];
                             echo Menu::widget([
@@ -142,14 +171,14 @@ if(Yii::$app->user->identity)
                                     [
                                         'label' => 'Аналитика',
                                         'url' => ['/projects/show-analytics',
-                                            'id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
+                                            'id' => $project_id],
                                         'options' =>['class' => 'sidebar-list-item'],
                                         'visible' => isset($gapi_profile) ? true : false,
                                     ],
                                     [
                                         'label' => 'Продвигатор',
                                         'url' => ['/projects/show-prodvigator',
-                                            'project_id' => (Yii::$app->getRequest()->get('id') == null) ? Yii::$app->getRequest()->get('project_id') : Yii::$app->getRequest()->get('id')],
+                                            'project_id' => $project_id],
                                         'options' =>['class' => 'sidebar-list-item'],
                                         'visible' => isset($prodvigator_token) ? true : false,
                                     ],
