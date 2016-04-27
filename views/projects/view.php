@@ -47,6 +47,12 @@ $this->title = $model->title;
                 'attribute' => 'upd_period',
                 'value' => $model->upd_period / 86400
             ],
+            [
+                'attribute' => 'upd_period',
+                'label' => Yii::t('app', 'ТИЦ'),
+                'value' => 'http://www.yandex.ru/cycounter?reclamare.ua',
+                'format' => ['image',['width'=>'88','height'=>'31']],
+            ],
         ],
     ]) ?>
 
