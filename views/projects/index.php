@@ -10,39 +10,43 @@ use yii\grid\GridView;
 $this->title = 'Projects';
 //$this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="projects-index">
+<?php if($dataProvider && $searchModel) :  ?>
+    <div class="projects-index">
 
-    <h1><?= Yii::t('app', 'Проекты') ?></h1>
-    <?php  //echo $this->render('_search', ['model' => $searchModel]); ?>
+        <h1><?= Yii::t('app', 'Проекты') ?></h1>
+        <?php  //echo $this->render('_search', ['model' => $searchModel]); ?>
 
-    <p>
-        <?= Html::a(Yii::t('app', 'Создать'), ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
+        <p>
+            <?= Html::a(Yii::t('app', 'Создать'), ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
 
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
 
-            'id',
-            [
-                'attribute' => 'title',
-                'format' => 'raw',
-                'value' => function($model) {
-                    return Html::a('<span>' . $model->title . '</span>', ['/projects/view', 'id' => $model->id]);
-                }
+                'id',
+                [
+                    'attribute' => 'title',
+                    'format' => 'raw',
+                    'value' => function($model) {
+                        return Html::a('<span>' . $model->title . '</span>', ['/projects/view', 'id' => $model->id]);
+                    }
+                ],
+                'description',
+                [
+                    'attribute' => 'status',
+                    'value' => function ($model){
+                        return $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно');
+                    }
+                ],
+
+                ['class' => 'yii\grid\ActionColumn'],
             ],
-            'description',
-            [
-                'attribute' => 'status',
-                'value' => function ($model){
-                    return $model->status == 0 ? Yii::t('app', 'Неактивно') : Yii::t('app', 'Активно');
-                }
-            ],
+        ]); ?>
 
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
-
-</div>
+    </div>
+<?php else : ?>
+    <span><?= Yii::t('app', 'у Вас нет проектов'); ?></span>
+<?php endif; ?>

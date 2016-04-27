@@ -14,6 +14,7 @@ use app\models\ApiUsers;
 use app\models\CityName;
 use app\models\ProdvigatorData;
 use app\models\ProdvigatorOrganic;
+use app\models\ProjectUser;
 use app\models\ProjectVisibility;
 use Yii;
 use app\models\Projects;
@@ -82,10 +83,12 @@ class ProjectsController extends Controller
     {
         $searchModel = new ProjectsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $user_id = Yii::$app->user->identity->id;
+        $project_list = ProjectUser::find()->where(['user_id' => $user_id])->all();
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+            'searchModel' => count($project_list) > 0 ? $searchModel : null,
+            'dataProvider' => count($project_list) > 0 ? $dataProvider : null,
         ]);
     }
 
