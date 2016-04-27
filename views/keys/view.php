@@ -49,6 +49,11 @@ $this->title = $model->title;
         $dates[$i] = date("F j, Y, g:i a", $model->previousPosition[$i]->fullDate);
         $positions[$i] = $model->previousPosition[$i]->position;
     }
+    //$period_for_keys_from by default is showing last 30 days
+    if(!$period_for_keys_from) :
+        $period_for_keys_from = strtotime('-1 month', date('U'));
+        $period_for_keys_from = date('dmY', $period_for_keys_from);
+    endif;
     //$period_for_keys_from isset
     if($period_for_keys_from){
         unset($dates);
