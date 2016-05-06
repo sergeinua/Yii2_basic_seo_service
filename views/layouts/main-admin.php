@@ -90,7 +90,7 @@ if(Yii::$app->user->identity)
                                     ['label' => 'Новый проект', 'url' => ['/projects/create'], 'options' =>['class' => 'sidebar-list-item']],
                                     ['label' => 'Список пользователей', 'url' => ['/user/index'], 'options' =>['class' => 'sidebar-list-item']],
 
-                                    ['label' => Yii::t('app', 'Загрузить список проектов'), 'url' => ['projects/get-api-analytics-models'], 'options' =>['class' => 'sidebar-list-item']],
+//                                    ['label' => Yii::t('app', 'Загрузить список проектов'), 'url' => ['projects/get-api-analytics-models'], 'options' =>['class' => 'sidebar-list-item']],
                                 ]]);
                             ?>
                         </div>
