@@ -101,6 +101,14 @@ class ProjectsController extends Controller
      */
     public function actionView($id)
     {
+        //admin is able to see all projects
+        if(Yii::$app->user->identity->role != 'admin') :
+            //checking if user is defined for the selected project
+            $user_id = Yii::$app->user->id;
+            $allowed = ProjectUser::find()->where(['user_id' => $user_id])->exists();
+            if(!$allowed)
+                return $this->redirect(Yii::$app->urlManager->createUrl('projects/index'));
+        endif;
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
