@@ -410,6 +410,7 @@ class ProjectsController extends Controller
         //pagination added
         $searchModel = New ProdvigatorOrganicSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->query->where(['domain' => $project_title]);
         $dataProvider->pagination->pageSize=50;
 
         /** date_from isset */
@@ -470,8 +471,9 @@ class ProjectsController extends Controller
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
         // prodvigator request itself - in case modifications are needed
-        $url = 'http://api.prodvigator.ru/v3/domain_history?query=' . $domain . '&token=' . $token;
+        $url = 'http://api.serpstat.com/v3/domain_history?query=' . $domain . '&token=' . $token;
         $result = json_decode(file_get_contents($url));
+
         // replacing non actual models
         ProdvigatorData::deleteAll(['domain' => $domain]);
         foreach($result->result as $item) :
@@ -485,8 +487,8 @@ class ProjectsController extends Controller
             $model->rised_keywords = $item->rised_keywords;
             $model->down_keywords = $item->down_keywords;
             $model->visible = $item->visible;
-            $model->cost_min = $item->cost_min;
-            $model->cost_max = $item->cost_max;
+            $model->cost_min = isset($item->cost_min) ? $item->cost_min : 0;
+            $model->cost_max = isset($item->cost_max) ? $item->cost_max : 0;
             $model->ad_keywords = $item->ad_keywords;
             $model->ads = $item->ads;
             $model->date = $item->date;
@@ -494,16 +496,16 @@ class ProjectsController extends Controller
             $model->save();
         endforeach;
         // prodvigator organic request itself - in case modifications are needed
-        $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000';
+        $url = 'http://api.serpstat.com/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&se=g_ua&page_size=1000';
         $result = json_decode(file_get_contents($url));
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
         $cnt = ceil($result->result->total / 1000);
 
         for ($i=0; $i<$cnt; $i++){
             if($i == 0)
-                $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000';
+                $url = 'http://api.serpstat.com/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&se=g_ua&page_size=1000';
             else
-                $url = 'http://api.prodvigator.ru/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&page_size=1000&page=' . ($i+1);
+                $url = 'http://api.serpstat.com/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&se=g_ua&page_size=1000&page=' . ($i+1);
 
             $result = json_decode(file_get_contents($url));
             foreach($result->result->hits as $item) :
