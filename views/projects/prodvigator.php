@@ -198,7 +198,6 @@ $last_modified = ProdvigatorData::find()
             ]);?>
         </div>
     <?php endif; ?>
-
     <?php if($model) : ?>
         <table class="table table-striped table-hover">
             <thead>

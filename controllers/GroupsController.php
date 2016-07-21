@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\models\GroupVisibility;
+use app\models\ProjectGroup;
+use app\models\ProjectUser;
 use Yii;
 use app\models\Groups;
 use app\models\GroupsSearch;
@@ -58,6 +60,20 @@ class GroupsController extends Controller
     {
         $searchModel = new GroupsSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        //except admin
+        if(Yii::$app->user->identity->role !== 'admin') :
+            //user -> project
+            $user_id = Yii::$app->user->id;
+            $project_id = ProjectUser::find()->where(['user_id' => $user_id])->one()->project_id;
+            //project->groups
+            $gr_ids = ProjectGroup::find()->where(['project_id' => $project_id])->all();
+            $groups = [];
+            foreach($gr_ids as $item) :
+                array_push($groups, $item->group_id);
+            endforeach;
+            //only groups for defined project
+            $dataProvider->query->andFilterWhere(['id' => $groups]);
+        endif;
 
         return $this->render('index', [
             'searchModel' => $searchModel,

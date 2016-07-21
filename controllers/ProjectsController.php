@@ -410,7 +410,7 @@ class ProjectsController extends Controller
         //pagination added
         $searchModel = New ProdvigatorOrganicSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $dataProvider->query->where(['domain' => $project_title]);
+        $dataProvider->query->where(['domain' => substr($project_title, 7)]);
         $dataProvider->pagination->pageSize=50;
 
         /** date_from isset */
@@ -471,34 +471,38 @@ class ProjectsController extends Controller
         $project_title = Projects::find()->where(['id' => $project_id])->one();
         $project_title = $project_title->title;
         // prodvigator request itself - in case modifications are needed
-        $url = 'http://api.serpstat.com/v3/domain_history?query=' . $domain . '&token=' . $token;
+        $domain = substr($domain, 7);
+        $url = 'http://api.serpstat.com/v3/domain_history?query=' . $domain . '&token=' . $token . '&se=g_ua';
+
         $result = json_decode(file_get_contents($url));
 
         // replacing non actual models
-        ProdvigatorData::deleteAll(['domain' => $domain]);
+        ProdvigatorData::deleteAll(['domain' => $project_title]);
+
         foreach($result->result as $item) :
             $model = new ProdvigatorData();
             $model->id = md5($project_id . $item->date);
             $model->domain = $project_title;
-            $model->keywords = $item->keywords;
-            $model->traff = $item->traff;
-            $model->new_keywords = $item->new_keywords;
-            $model->out_keywords = $item->out_keywords;
-            $model->rised_keywords = $item->rised_keywords;
-            $model->down_keywords = $item->down_keywords;
-            $model->visible = $item->visible;
+            $model->keywords = isset($item->keywords) ? $item->keywords : 0;
+            $model->traff = isset($item->traff) ? $item->traff : 0;
+            $model->new_keywords = isset($item->new_keywords) ? $item->new_keywords : 0;
+            $model->out_keywords = isset($item->out_keywords) ? $item->out_keywords : 0;
+            $model->rised_keywords = isset($item->rised_keywords) ? $item->rised_keywords : 0;
+            $model->down_keywords = isset($item->down_keywords) ? $item->down_keywords : 0;
+            $model->visible = isset($item->visible) ? $item->visible : 0;
             $model->cost_min = isset($item->cost_min) ? $item->cost_min : 0;
             $model->cost_max = isset($item->cost_max) ? $item->cost_max : 0;
-            $model->ad_keywords = $item->ad_keywords;
-            $model->ads = $item->ads;
-            $model->date = $item->date;
+            $model->ad_keywords = isset($item->ad_keywords) ? $item->ad_keywords : 0;
+            $model->ads = isset($item->ads) ? $item->ads : 0;
+            $model->date = isset($item->date) ? $item->date : 0;
             $model->modified_at = date('U');
-            $model->save();
+            $model->save(false);
         endforeach;
         // prodvigator organic request itself - in case modifications are needed
         $url = 'http://api.serpstat.com/v3/domain_keywords?query=' . $domain . '&token=' . $token . '&se=g_ua&page_size=1000';
         $result = json_decode(file_get_contents($url));
         ProdvigatorOrganic::deleteAll(['domain' => $project_title]);
+
         $cnt = ceil($result->result->total / 1000);
 
         for ($i=0; $i<$cnt; $i++){

@@ -5,6 +5,8 @@ use yii\widgets\DetailView;
 use miloschuman\highcharts\Highcharts;
 use kartik\daterange\DateRangePicker;
 use yii\bootstrap\ActiveForm;
+use app\models\GroupKey;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Keys */
@@ -18,7 +20,9 @@ $this->title = $model->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Назад'), Yii::$app->request->referrer, ['class' => 'btn btn-primary']); ?>
+        <?php //link for the button
+        $group_id = GroupKey::find()->where(['key_id' => Yii::$app->request->get('id')])->one()->group_id; ?>
+        <?= Html::a(Yii::t('app', 'Назад'), Url::toRoute(['groups/view', 'id' => $group_id]), ['class' => 'btn btn-primary']); ?>
         <?= Html::a(Yii::t('app', 'Обновить'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a(Yii::t('app', 'Создать'), ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',

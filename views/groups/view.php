@@ -11,6 +11,7 @@ use miloschuman\highcharts\Highcharts;
 use yii\helpers\ArrayHelper;
 use kartik\daterange\DateRangePicker;
 use yii\widgets\ActiveForm;
+use app\models\ProjectGroup;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Groups */
@@ -123,7 +124,9 @@ if(isset($sort)){
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Назад'), Yii::$app->request->referrer, ['class' => 'btn btn-primary']); ?>
+        <?php //link for the back button
+        $project_id = ProjectGroup::find()->where(['group_id' => Yii::$app->request->get('id')])->one()->project_id; ?>
+        <?= Html::a(Yii::t('app', 'Назад'), Url::toRoute(['projects/view', 'id' => $project_id]), ['class' => 'btn btn-primary']); ?>
         <?= Html::a(Yii::t('app', 'Обновить'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']); ?>
         <?= Html::a(Yii::t('app', 'Удалить'), ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',

@@ -20,6 +20,7 @@ use DateTime;
 use yii\filters\AccessControl;
 use app\components\Additional;
 use Google_Auth_AssertionCredentials;
+use app\models\ProjectUser;
 
 
 /**
@@ -42,7 +43,7 @@ class KeysController extends Controller
                         'roles' => ['seo'],
                     ],
                     [
-                        'actions' => ['index', 'view', 'excel-group', 'excel-key', 'pdf-key'],
+                        'actions' => ['index', 'view', 'excel-group', 'excel-key', 'pdf-key', 'update-single-key', 'update-all-keys'],
                         'allow' => true,
                         'roles' => ['user'],
                     ],
@@ -75,6 +76,26 @@ class KeysController extends Controller
     {
         $searchModel = new KeysSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        //except admin
+        if(Yii::$app->user->identity->role !== 'admin') :
+            //user -> project
+            $user_id = Yii::$app->user->id;
+            $project_id = ProjectUser::find()->where(['user_id' => $user_id])->one()->project_id;
+            //project->groups
+            $gr_ids = ProjectGroup::find()->where(['project_id' => $project_id])->all();
+            $groups = [];
+            foreach($gr_ids as $item) :
+                array_push($groups, $item->group_id);
+            endforeach;
+            //groups->keys
+            $key_ids = GroupKey::find()->where(['group_id' => $groups])->all();
+            $keys = [];
+            foreach($key_ids as $item) :
+                array_push($keys, $item->key_id);
+            endforeach;
+            //only keys for defined project
+            $dataProvider->query->andFilterWhere(['id' => $keys]);
+        endif;
 
         return $this->render('index', [
             'searchModel' => $searchModel,

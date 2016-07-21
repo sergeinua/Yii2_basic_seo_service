@@ -111,12 +111,12 @@ if(Yii::$app->user->identity)
                         </div>
                     <?php endif; ?>
 
-                    <?php  if($user_role == 'user') : ?>
+                    <!--?php  if($user_role == 'user') : ?>
                         <div class="panel panel-primary">
                             <div class="panel-heading">
-                                <h3 class="panel-title"><?= Yii::t('app', 'Меню'); ?></h3>
+                                <h3 class="panel-title"><!?= Yii::t('app', 'Меню'); ?></h3>
                             </div>
-                            <?php
+                            <!?php
                             echo Menu::widget([
                                 'options'=> ['class'=>'sidebar-list sidebar-e'],
                                 'items' => [
@@ -124,7 +124,7 @@ if(Yii::$app->user->identity)
                                 ]]);
                             ?>
                         </div>
-                    <?php endif; ?>
+                    <!?php endif; ?-->
                     <!--MENU_ITEM_1_BEGIN seen in the project controller only -->
                     <?php // menu is visible for the defined controllers & actions
                     if(
